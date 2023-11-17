@@ -19,7 +19,7 @@ export const createUserSchema = z.object({
         .min(6, "Confirm password must be at least 6 character long"),
     })
     .refine((data) => data.confirm_password === data.password, {
-      message: "confirm did not match!",
+      message: "confirm password did not match!",
       path: ["confirm_password"],
     }),
 });

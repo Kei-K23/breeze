@@ -1,21 +1,21 @@
 import { Request, Response } from "express";
-import { CreateUserType } from "../schema/user.schema";
-import { createUser } from "../service/user.service";
+import { LoginUserType } from "../schema/user.schema";
+import { getUserByNameAndPassword } from "../service/user.service";
 import { omitDoc } from "../lib/helper";
 
-export async function createUserHandler(
-  req: Request<{}, {}, CreateUserType>,
+export async function loginHandler(
+  req: Request<{}, {}, LoginUserType>,
   res: Response
 ) {
   try {
-    const user = await createUser(req.body);
+    const user = await getUserByNameAndPassword(req.body);
 
     return res
-      .status(201)
+      .status(200)
       .json({
         success: true,
         data: omitDoc(user, ["password", "__v"]),
-        message: "Successfully register!",
+        message: "Successfully login!",
       })
       .end();
   } catch (e: any) {

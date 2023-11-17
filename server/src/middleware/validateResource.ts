@@ -16,7 +16,7 @@ export default (schema: AnyZodObject) =>
         .json({
           success: false,
           error: JSON.parse(e.message),
-          errorMessage: JSON.parse(e.message)[0].code,
+          errorMessage: JSON.parse(e.message)[0].message,
         })
         .end();
     }
