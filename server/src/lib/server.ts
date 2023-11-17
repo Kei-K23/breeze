@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import route from "../route";
+import revalidateRefreshToken from "../middleware/revalidateRefreshToken";
 
 dotenv.config();
 
