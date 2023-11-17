@@ -33,7 +33,7 @@ export async function loginHandler(
       path: "/",
       httpOnly: true,
       domain: "localhost",
-      maxAge: 5.256e9,
+      maxAge: 5.184e9,
     });
 
     return res

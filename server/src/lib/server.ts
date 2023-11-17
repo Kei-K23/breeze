@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import route from "../route";
-import revalidateRefreshToken from "../middleware/revalidateRefreshToken";
+import deserializedUser from "../middleware/deserializedUser";
 
 dotenv.config();
 
@@ -20,6 +20,7 @@ export function createExpressApp() {
   );
   app.use(express.json());
   app.use(cookieParser());
+  app.use(deserializedUser);
   app.use(route());
   return app;
 }

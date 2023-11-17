@@ -1,3 +1,4 @@
+import { FilterQuery } from "mongoose";
 import { signJWT } from "../lib/jwt.utils";
 import { ISession, Session } from "../model/session.model";
 
@@ -15,7 +16,7 @@ export function createAccessToken(payload: Partial<ISession>) {
       payload,
       secret: "ACCESS_TOKEN_SECRET",
       options: {
-        expiresIn: 60000,
+        expiresIn: "1m",
       },
     });
 
@@ -24,6 +25,7 @@ export function createAccessToken(payload: Partial<ISession>) {
     throw new Error(e.message);
   }
 }
+
 export async function createRefreshToken(payload: Partial<ISession>) {
   try {
     const session = await createSession(payload);
@@ -38,11 +40,29 @@ export async function createRefreshToken(payload: Partial<ISession>) {
       },
       secret: "REFRESH_TOKEN_SECRET",
       options: {
-        expiresIn: 5.256e9,
+        expiresIn: "60 days",
       },
     });
 
     return refreshToken;
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+
+export async function getSession({
+  filter,
+}: {
+  filter: FilterQuery<ISession>;
+}) {
+  try {
+    const session = await Session.findOne(filter);
+
+    if (!session) {
+      return null;
+    }
+
+    return session;
   } catch (e: any) {
     throw new Error(e.message);
   }

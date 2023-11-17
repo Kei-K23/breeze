@@ -27,7 +27,7 @@ export function verifyJWT<T>({
   secret,
 }: {
   token: string;
-  secret: string;
+  secret: "ACCESS_TOKEN_SECRET" | "REFRESH_TOKEN_SECRET";
 }) {
   const key =
     secret === "ACCESS_TOKEN_SECRET"
@@ -36,9 +36,7 @@ export function verifyJWT<T>({
 
   try {
     const decoded = verify(token, key as string);
-    if (!decoded) {
-      return null;
-    }
+
     return decoded as T;
   } catch (e: any) {
     return null;
