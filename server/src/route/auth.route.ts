@@ -1,7 +1,10 @@
 import { Router } from "express";
 import validateResource from "../middleware/validateResource";
 import { loginUserSchema } from "../schema/user.schema";
-import { loginHandler } from "../controller/auth.controller";
+import {
+  googleOAuthLoginHandler,
+  loginHandler,
+} from "../controller/auth.controller";
 
 export default function (route: Router) {
   route.post(
@@ -9,4 +12,7 @@ export default function (route: Router) {
     validateResource(loginUserSchema),
     loginHandler
   );
+
+  // google oauth route
+  route.get("/api/session/oauth/google", googleOAuthLoginHandler);
 }

@@ -9,6 +9,7 @@ export interface IUser {
   picture: string;
   created_at: Date;
   updated_at: Date;
+  providerName: "Credentials" | "Google" | "Github";
 }
 
 interface UserDoc extends mongoose.Document {
@@ -19,6 +20,7 @@ interface UserDoc extends mongoose.Document {
   picture: string;
   created_at: Date;
   updated_at: Date;
+  providerName: "Credentials" | "Google" | "Github";
 }
 
 interface UserModel extends mongoose.Model<UserDoc> {
@@ -68,6 +70,10 @@ const userSchema = new mongoose.Schema<UserDoc, UserModel>(
     },
     picture: {
       type: String,
+    },
+    providerName: {
+      type: String,
+      default: "Credentials",
     },
   },
   {
