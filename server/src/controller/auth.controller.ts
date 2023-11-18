@@ -30,9 +30,11 @@ export async function loginHandler(
     });
 
     res.cookie("breeze_csrf", refreshToken, {
-      path: "/",
       httpOnly: true,
       domain: "localhost",
+      path: "/",
+      sameSite: "lax",
+      secure: false,
       maxAge: 5.184e9,
     });
 

@@ -11,12 +11,10 @@ import {
 } from "@/components/ui/dialog";
 
 import { LogInIcon } from "lucide-react";
-import Image from "next/image";
 
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -28,6 +26,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import Separator from "./Separator";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 const loginForm = z.object({
   name: z.string().min(3, {
@@ -39,6 +40,8 @@ const loginForm = z.object({
 });
 
 export default function LoginDialog() {
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof loginForm>>({
     resolver: zodResolver(loginForm),
     defaultValues: {
@@ -47,7 +50,34 @@ export default function LoginDialog() {
     },
   });
 
-  async function onSubmit(value: z.infer<typeof loginForm>) {}
+  async function onSubmit(value: z.infer<typeof loginForm>) {
+    try {
+      const { data, status } = await axios.post(
+        `http://localhost:8090/api/auth/login`,
+        JSON.stringify({
+          name: value.name,
+          password: value.password,
+        }),
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (status == 200 && data.success) {
+        toast.success(data.message);
+        router.push("/dashboard");
+        return;
+      } else {
+        return toast.error(data.error);
+      }
+    } catch (e: any) {
+      return toast.error(e.message);
+    }
+  }
 
   return (
     <Dialog>

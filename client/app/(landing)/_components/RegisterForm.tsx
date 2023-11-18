@@ -66,7 +66,6 @@ const RegisterFrom = () => {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        console.log(data);
         toast.success("Successfully register");
         return router.push("/");
       } else {

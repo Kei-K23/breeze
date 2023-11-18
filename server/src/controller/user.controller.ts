@@ -53,7 +53,7 @@ export async function getAuthUserHandler(req: Request, res: Response) {
     }
 
     return res
-      .status(201)
+      .status(200)
       .json({
         success: true,
         data: omitDoc(user, ["password", "__v"]),

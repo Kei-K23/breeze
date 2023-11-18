@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/navbar";
-import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: `Dashboard`,
@@ -8,18 +7,6 @@ export const metadata: Metadata = {
 };
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
-  const res = await fetch(`${process.env.BACKEND_URL}/api/users`, {
-    method: "GET",
-    credentials: "include",
-  });
-
-  const data = await res.json();
-  console.log(data);
-
-  if (!data.success) {
-    return redirect("/");
-  }
-
   return (
     <main>
       <Navbar
