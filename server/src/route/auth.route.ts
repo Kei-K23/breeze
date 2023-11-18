@@ -3,8 +3,11 @@ import validateResource from "../middleware/validateResource";
 import { loginUserSchema } from "../schema/user.schema";
 import {
   googleOAuthLoginHandler,
+  logOutHandler,
   loginHandler,
 } from "../controller/auth.controller";
+import revalidateAccessToken from "../middleware/revalidateAccessToken";
+import requiredAccessToken from "../middleware/requiredAccessToken";
 
 export default function (route: Router) {
   route.post(
@@ -15,4 +18,12 @@ export default function (route: Router) {
 
   // google oauth route
   route.get("/api/session/oauth/google", googleOAuthLoginHandler);
+
+  // logout
+  route.get(
+    "/api/auth/logout",
+    revalidateAccessToken,
+    requiredAccessToken,
+    logOutHandler
+  );
 }

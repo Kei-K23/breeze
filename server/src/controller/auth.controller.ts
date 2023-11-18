@@ -12,7 +12,10 @@ import { omitDoc } from "../lib/helper";
 import {
   createAccessToken,
   createRefreshToken,
+  editSession,
 } from "../service/session.service";
+import { verifyJWT } from "../lib/jwt.utils";
+import { ISession } from "../model/session.model";
 
 export async function loginHandler(
   req: Request<{}, {}, LoginUserType>,
@@ -128,15 +131,36 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
       maxAge: 5.184e9,
     });
 
+    return res.redirect("http://localhost:3000/dashboard");
+  } catch (e: any) {
     return res
-      .status(200)
+      .status(500)
       .json({
-        success: true,
-        data: omitDoc(user, ["password", "__v"]),
-        message: "Successfully login!",
-        accessToken,
+        success: false,
+        error: e.message,
       })
       .end();
+  }
+}
+
+export async function logOutHandler(req: Request, res: Response) {
+  const refreshToken = req.cookies.breeze_csrf;
+  const decodedRefreshToken = verifyJWT<ISession>({
+    token: refreshToken,
+    secret: "REFRESH_TOKEN_SECRET",
+  });
+
+  try {
+    await editSession({
+      filter: { is_valid: true, token_id: decodedRefreshToken?.token_id },
+      update: {
+        is_valid: false,
+      },
+    });
+
+    req.headers.authorization = "";
+    res.clearCookie("breeze_csrf");
+    return res.redirect("http://localhost:3000/");
   } catch (e: any) {
     return res
       .status(500)

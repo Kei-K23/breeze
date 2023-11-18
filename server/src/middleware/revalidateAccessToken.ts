@@ -3,7 +3,11 @@ import { verifyJWT } from "../lib/jwt.utils";
 import { ISession } from "../model/session.model";
 import { createAccessToken, getSession } from "../service/session.service";
 
-export default function (req: Request, res: Response, next: NextFunction) {
+export default async function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const refreshToken = req.cookies.breeze_csrf;
 
   if (!refreshToken) {
@@ -34,12 +38,12 @@ export default function (req: Request, res: Response, next: NextFunction) {
       .status(401)
       .json({
         success: false,
-        error: "Invalid Refresh Token! Login again / de",
+        error: "Invalid Refresh Token! Login again",
       })
       .end();
   }
 
-  const validSession = getSession({
+  const validSession = await getSession({
     filter: {
       token_id: decodedRefreshToken.token_id,
     },
@@ -48,7 +52,14 @@ export default function (req: Request, res: Response, next: NextFunction) {
   if (!validSession) {
     return res
       .status(401)
-      .json({ success: false, error: "Invalid Refresh Token! Login again/ db" })
+      .json({ success: false, error: "Missing Refresh Token! Login again" })
+      .end();
+  }
+
+  if (!validSession.is_valid) {
+    return res
+      .status(401)
+      .json({ success: false, error: "Invalid Refresh Token! Login again" })
       .end();
   }
 

@@ -1,4 +1,4 @@
-import { FilterQuery } from "mongoose";
+import { FilterQuery, UpdateQuery } from "mongoose";
 import { signJWT } from "../lib/jwt.utils";
 import { ISession, Session } from "../model/session.model";
 
@@ -63,6 +63,20 @@ export async function getSession({
     }
 
     return session;
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+
+export async function editSession({
+  filter,
+  update,
+}: {
+  filter: FilterQuery<ISession>;
+  update: UpdateQuery<ISession>;
+}) {
+  try {
+    return await Session.findOneAndUpdate(filter, update);
   } catch (e: any) {
     throw new Error(e.message);
   }
