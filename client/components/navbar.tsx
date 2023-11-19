@@ -14,6 +14,7 @@ import useScrollTop from "@/hook/use-scroll-top";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "./mode-toggle";
 import { UserAvatar } from "./user-avatar";
+import SocketIndicator from "./socket-indicator";
 
 interface NavbarProp {
   name?: string | null;
@@ -47,6 +48,8 @@ const Navbar = ({ name, email, image, iconLink }: NavbarProp) => {
           />
         </Link>
         <div className="flex items-center gap-10">
+          <SocketIndicator />
+
           {email && name ? (
             <>
               <UserAvatar email={email} name={name} image={image as string} />
