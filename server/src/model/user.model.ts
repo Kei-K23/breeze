@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import argon2 from "argon2";
+import { GroupMember } from "./group.model";
 
 export interface IUser {
   _id?: string;
@@ -84,6 +85,12 @@ const userSchema = new mongoose.Schema<UserDoc, UserModel>(
 userSchema.pre("save", async function () {
   const hashPassword = await argon2.hash(this.password as string);
   this.password = hashPassword;
+  await GroupMember.create({
+    groupId: "655a268472a58dfa3fc5c7e0",
+    memberId: this._id,
+    addedBy: "655a261a8d20f123d6b4bcba",
+    joinedAt: new Date(),
+  });
 });
 
 userSchema.static(
