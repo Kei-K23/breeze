@@ -6,9 +6,12 @@ const LogOut = () => {
   return (
     <Link
       href={"http://localhost:8090/api/auth/logout"}
-      className={buttonVariants({ variant: "destructive" })}
+      className={buttonVariants({
+        variant: "destructive",
+        className: "w-full",
+      })}
     >
-      <LogOutIcon className="mr-5" /> Logout
+      <LogOutIcon className="mr-5 " /> Logout
     </Link>
   );
 };

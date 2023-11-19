@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import LogOut from "@/lib/logOut";
 import { Globe2Icon, LayoutDashboardIcon, LogOutIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -46,29 +47,8 @@ export function UserAvatar({ email, image, name }: UserAvatarProp) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="p-0 my-2">
-          {path === "/dashboard" ? (
-            <Link
-              href={"/community"}
-              className={`${buttonVariants({ variant: "secondary" })} w-full`}
-            >
-              <Globe2Icon className="text-sky-500 mr-2 " />
-              Explore the Community
-            </Link>
-          ) : (
-            <Link
-              href={"/dashboard"}
-              className={`${buttonVariants({ variant: "secondary" })} w-full`}
-            >
-              <LayoutDashboardIcon className="text-orange-500 mr-2 " />
-              Go to Dashboard
-            </Link>
-          )}
-        </DropdownMenuItem>
         <DropdownMenuItem className="p-0">
-          <Button variant={"destructive"} className="w-full h-full">
-            Logout <LogOutIcon className="ml-4 h-5" />
-          </Button>
+          <LogOut />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

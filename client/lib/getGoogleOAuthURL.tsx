@@ -1,4 +1,6 @@
 import { buttonVariants } from "@/components/ui/button";
+import Image from "next/image";
+
 import Link from "next/link";
 
 const GetGoogleOAuthURL = () => {
@@ -22,7 +24,8 @@ const GetGoogleOAuthURL = () => {
       href={`${rootURL}?${queryString.toString()}`}
       className={buttonVariants({ variant: "default" })}
     >
-      Login with Google
+      <Image src={"/google.png"} alt="github icon" width={30} height={30} />{" "}
+      <span className="ml-3 font-bold">Login with Google</span>
     </Link>
   );
 };

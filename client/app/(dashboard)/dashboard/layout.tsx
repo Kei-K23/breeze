@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Navbar from "@/components/navbar";
 
 export const metadata: Metadata = {
   title: `Dashboard`,
@@ -7,17 +6,7 @@ export const metadata: Metadata = {
 };
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
-  return (
-    <main>
-      <Navbar
-        name={"my name"}
-        email={"my email"}
-        image={"my image"}
-        iconLink="/dashboard"
-      />
-      {children}
-    </main>
-  );
+  return <main>{children}</main>;
 };
 
 export default DashboardLayout;

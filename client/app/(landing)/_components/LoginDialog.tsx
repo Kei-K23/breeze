@@ -28,7 +28,6 @@ import Link from "next/link";
 import Separator from "./Separator";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import GetGoogleOAuthURL from "@/lib/getGoogleOAuthURL";
 import GetGithubOAuthURL from "@/lib/getGithubOAuthURL";
 
@@ -54,22 +53,24 @@ export default function LoginDialog() {
 
   async function onSubmit(value: z.infer<typeof loginForm>) {
     try {
-      const { data, status } = await axios.post(
-        `http://localhost:8090/api/auth/login`,
-        JSON.stringify({
+      const res = await fetch("http://localhost:8090/api/auth/login", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           name: value.name,
           password: value.password,
         }),
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
+        credentials: "include",
+        next: {
+          revalidate: 0,
+        },
+      });
+      const data = await res.json();
 
-      if (status == 200 && data.success) {
+      if (res.ok && res.status == 200 && data.success) {
         toast.success(data.message);
         router.push("/dashboard");
         return;

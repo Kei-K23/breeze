@@ -7,12 +7,7 @@ const LandingPageLayout = async ({
 }) => {
   return (
     <div className="h-full">
-      <Navbar
-        iconLink="/"
-        name={"my name"}
-        email={"my email"}
-        image={"my image"}
-      />
+      <Navbar iconLink="/" />
       <main>{children}</main>
     </div>
   );

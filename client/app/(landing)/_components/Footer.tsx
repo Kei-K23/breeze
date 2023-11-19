@@ -5,10 +5,16 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="md:fixed md:bottom-0 flex py-4 px-10 md:px-20  justify-between items-center w-full">
+    <footer className="flex py-4 px-10 justify-between items-center w-full">
       <div className="hidden md:block">
         <Link href={"/"} className="flex  items-center gap-3">
-          <span className="underline font-bold text-lg">NoteHub</span>
+          <span className="underline font-bold text-lg">Breeze</span>
+          <Image
+            src={"/breezeIcon.png"}
+            alt="breeze icon"
+            width={30}
+            height={30}
+          />
         </Link>
         <div>© {getCurrentYear()} NoteHub. All rights reserved.</div>
         <div>

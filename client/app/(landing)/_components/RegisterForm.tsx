@@ -61,6 +61,9 @@ const RegisterFrom = () => {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
+        next: {
+          revalidate: 0,
+        },
       });
 
       const data = await res.json();

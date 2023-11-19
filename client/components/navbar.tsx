@@ -27,8 +27,8 @@ const Navbar = ({ name, email, image, iconLink }: NavbarProp) => {
   return (
     <header
       className={cn(
-        " bg-neutral-100 dark:bg-slate-900 h-[10%] sm:h-[8%]  sticky top-0 w-full z-30",
-        isScrolled && "border-b border-b-neutral-300 dark:border-b-neutral-700"
+        " bg-neutral-100 dark:bg-slate-900 h-[10%] sm:h-[8%]  sticky top-0 w-full z-30 opacity-95",
+        isScrolled && "border-b border-b-neutral-300 dark:border-b-slate-700"
       )}
     >
       <nav className="py-4 px-8  md:px-20 flex justify-between items-center">
@@ -36,28 +36,34 @@ const Navbar = ({ name, email, image, iconLink }: NavbarProp) => {
           href={iconLink}
           className="flex justify-between items-center gap-3"
         >
-          <span className="underline font-bold text-lg">Breeze</span>
+          <span className="[text-shadow:_0_1px_1px_rgb(138_207_235)] hover:underline font-bold text-lg">
+            Breeze
+          </span>
+          <Image
+            src={"/breezeIcon.png"}
+            alt="breeze icon"
+            width={30}
+            height={30}
+          />
         </Link>
         <div className="flex items-center gap-10">
           {email && name ? (
             <>
+              <UserAvatar email={email} name={name} image={image as string} />
+            </>
+          ) : (
+            <>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <UserAvatar
-                      email={email}
-                      name={name}
-                      image={image as string}
-                    />
+                    <Link href={"/"}>
+                      <LogInIcon />
+                    </Link>
                   </TooltipTrigger>
-                  <TooltipContent>Your Profile</TooltipContent>
+                  <TooltipContent>Login</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </>
-          ) : (
-            <Link href={"/"}>
-              <LogInIcon />
-            </Link>
           )}
 
           <TooltipProvider>
