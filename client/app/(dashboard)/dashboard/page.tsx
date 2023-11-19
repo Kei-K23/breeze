@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import Navbar from "@/components/navbar";
-import Chat from "../_components/Chat";
+import { MessageChat } from "../_components/Chat";
+import LeftSideBar from "../_components/LeftSideBar";
+import RightSideBar from "../_components/RightSideBar";
 
 const Dashboard = async ({
   searchParams,
@@ -29,8 +31,10 @@ const Dashboard = async ({
         image={data.data.picture}
         iconLink="/dashboard"
       />
-      <div className="my-12  pb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-7 px-4 md:px-10 lg:px-16  ">
-        <Chat />
+      <div className="h-full flex items-center">
+        <LeftSideBar />
+        <MessageChat />
+        <RightSideBar />
       </div>
     </>
   );

@@ -66,6 +66,7 @@
   }
 }
 
+
 @layer base {
   * {
     @apply border-border;
@@ -75,4 +76,11 @@
     @apply bg-background text-foreground;
   }
 
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+    scroll-behavior: smooth;
+  }
 }
