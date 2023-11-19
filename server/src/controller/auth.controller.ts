@@ -1,11 +1,15 @@
 import { Request, Response } from "express";
 import { LoginUserType } from "../schema/user.schema";
 import {
+  GitHubTokenResultFromCode,
+  GitHubUserResult,
   GoogleTokenResultFromCode,
   GoogleUserResult,
   findAndUpdateUser,
+  getUserAccessFromCodeForGithubOAuth,
   getUserAccessFromCodeForGoogleOAuth,
   getUserByNameAndPassword,
+  getUserFromGithubByAccessToken,
   getUserFromGoogleByAccessAndRefreshToken,
 } from "../service/user.service";
 import { omitDoc } from "../lib/helper";
@@ -93,6 +97,79 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
         email: userResult.email,
         picture: userResult.picture,
         providerName: "Google",
+      },
+      options: {
+        upsert: true,
+        new: true,
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(500)
+        .json({ success: false, error: "Could not login with this account" })
+        .end();
+    }
+
+    const accessToken = createAccessToken({
+      userId: user._id.toString(),
+      is_valid: true,
+      email: user.email,
+      picture: user.picture,
+    });
+
+    const refreshToken = await createRefreshToken({
+      userId: user._id.toString(),
+      is_valid: true,
+      token_id: crypto.randomUUID().toString(),
+      email: user.email,
+      picture: user.picture,
+    });
+
+    res.cookie("breeze_csrf", refreshToken, {
+      httpOnly: true,
+      domain: "localhost",
+      path: "/",
+      sameSite: "lax",
+      secure: false,
+      maxAge: 5.184e9,
+    });
+
+    return res.redirect("http://localhost:3000/dashboard");
+  } catch (e: any) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: e.message,
+      })
+      .end();
+  }
+}
+
+export async function githubOAuthLoginHandler(req: Request, res: Response) {
+  try {
+    const code = req.query.code as string;
+
+    const data =
+      await getUserAccessFromCodeForGithubOAuth<GitHubTokenResultFromCode>({
+        code,
+      });
+
+    const userResult = await getUserFromGithubByAccessToken<GitHubUserResult>({
+      access_token: data.access_token,
+    });
+
+    const user = await findAndUpdateUser({
+      filter: {
+        name: userResult.name,
+        providerName: "Github",
+      },
+      update: {
+        name: userResult.name,
+        email: userResult.email,
+        picture: userResult.avatar_url,
+        providerName: "Github",
       },
       options: {
         upsert: true,

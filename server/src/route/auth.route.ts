@@ -2,6 +2,7 @@ import { Router } from "express";
 import validateResource from "../middleware/validateResource";
 import { loginUserSchema } from "../schema/user.schema";
 import {
+  githubOAuthLoginHandler,
   googleOAuthLoginHandler,
   logOutHandler,
   loginHandler,
@@ -18,6 +19,9 @@ export default function (route: Router) {
 
   // google oauth route
   route.get("/api/session/oauth/google", googleOAuthLoginHandler);
+
+  // github oauth route
+  route.get("/api/session/oauth/github", githubOAuthLoginHandler);
 
   // logout
   route.get(

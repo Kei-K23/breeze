@@ -22,7 +22,7 @@ const GetGoogleOAuthURL = () => {
       href={`${rootURL}?${queryString.toString()}`}
       className={buttonVariants({ variant: "default" })}
     >
-      GetGoogleOAuthURL
+      Login with Google
     </Link>
   );
 };

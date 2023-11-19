@@ -1,6 +1,7 @@
 "use client";
 
 import GetGoogleOAuthURL from "@/lib/getGoogleOAuthURL";
+import LogOut from "@/lib/logOut";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -46,7 +47,7 @@ const MainDashboard = () => {
     <div>
       {session?.name}
 
-      <GetGoogleOAuthURL />
+      <LogOut />
     </div>
   );
 };

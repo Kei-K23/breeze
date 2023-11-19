@@ -29,6 +29,8 @@ import Separator from "./Separator";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import GetGoogleOAuthURL from "@/lib/getGoogleOAuthURL";
+import GetGithubOAuthURL from "@/lib/getGithubOAuthURL";
 
 const loginForm = z.object({
   name: z.string().min(3, {
@@ -91,7 +93,7 @@ export default function LoginDialog() {
         <DialogHeader>
           <DialogTitle className="text-xl">Login To Breeze</DialogTitle>
           <DialogDescription className="text-md">
-            Login in to our with your desire methods
+            Login in to Breeze with your desire methods
           </DialogDescription>
           <DialogDescription>
             <Link className="text-blue-400 underline" href={"/register"}>
@@ -100,11 +102,11 @@ export default function LoginDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <Button>Login with Google</Button>
+        <GetGoogleOAuthURL />
 
         <Separator />
 
-        <Button>Login with Github</Button>
+        <GetGithubOAuthURL />
 
         <Separator />
 

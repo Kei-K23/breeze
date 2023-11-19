@@ -23,6 +23,47 @@ export interface GoogleUserResult {
   locale: string;
 }
 
+export interface GitHubTokenResultFromCode {
+  access_token: string;
+  scope: string;
+  token_type: string;
+}
+
+export interface GitHubUserResult {
+  login: string;
+  id: number;
+  node_id: string;
+  avatar_url: string;
+  gravatar_id: string;
+  url: string;
+  html_url: string;
+  followers_url: string;
+  following_url: string;
+  gists_url: string;
+  starred_url: string;
+  subscriptions_url: string;
+  organizations_url: string;
+  repos_url: string;
+  events_url: string;
+  received_events_url: string;
+  type: string;
+  site_admin: boolean;
+  name: string;
+  company: null;
+  blog: string;
+  location: string;
+  email: string;
+  hireable: boolean;
+  bio: string;
+  twitter_username: null;
+  public_repos: number;
+  public_gists: number;
+  followers: number;
+  following: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export async function createUser(payload: Partial<IUser>) {
   try {
     return await User.create(payload);
@@ -100,6 +141,32 @@ export async function getUserAccessFromCodeForGoogleOAuth<T>({
   }
 }
 
+export async function getUserAccessFromCodeForGithubOAuth<T>({
+  code,
+}: {
+  code: string;
+}) {
+  const rootURL = "https://github.com/login/oauth/access_token";
+  const values = {
+    code,
+    client_id: process.env.GITHUB_CLIENT_ID as string,
+    client_secret: process.env.GITHUB_CLIENT_SECRET as string,
+    redirect_uri: process.env.GITHUB_REDIRECT_URL as string,
+  };
+
+  try {
+    const { data } = await axios.post(rootURL, qs.stringify(values), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+
+    return qs.parse(data) as T;
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+
 export async function getUserFromGoogleByAccessAndRefreshToken<T>({
   access_token,
   id_token,
@@ -116,6 +183,23 @@ export async function getUserFromGoogleByAccessAndRefreshToken<T>({
         },
       }
     );
+    return data as T;
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+
+export async function getUserFromGithubByAccessToken<T>({
+  access_token,
+}: {
+  access_token: string;
+}) {
+  try {
+    const { data } = await axios.get(`https://api.github.com/user`, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
     return data as T;
   } catch (e: any) {
     throw new Error(e.message);
