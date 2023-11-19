@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "react-hot-toast";
+import { SocketProvider } from "@/provider/socket-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,8 +28,10 @@ export default function RootLayout({
           disableTransitionOnChange
           storageKey="breeze-theme"
         >
-          {children}
-          <Toaster />
+          <SocketProvider>
+            {children}
+            <Toaster />
+          </SocketProvider>
         </ThemeProvider>
       </body>
     </html>

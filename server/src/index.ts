@@ -6,7 +6,11 @@ import { dbConnect } from "./lib/db";
 const app = createExpressApp();
 const server = createServer(app);
 const PORT = parseInt(process.env.PORT || "8090", 10);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
 
 io.on("connection", (socket: Socket): void => {
   console.log("Socket connected!", socket.id);
