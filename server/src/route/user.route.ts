@@ -6,7 +6,6 @@ import {
 import validateResource from "../middleware/validateResource";
 import { createUserSchema } from "../schema/user.schema";
 import requiredAccessToken from "../middleware/requiredAccessToken";
-import deserializedUser from "../middleware/deserializedUser";
 import revalidateAccessToken from "../middleware/revalidateAccessToken";
 
 export default function (route: Router) {
