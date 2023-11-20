@@ -20,6 +20,8 @@ import {
 } from "../service/session.service";
 import { verifyJWT } from "../lib/jwt.utils";
 import { ISession } from "../model/session.model";
+import { createAddGroupMember } from "../service/group.service";
+import mongoose from "mongoose";
 
 export async function loginHandler(
   req: Request<{}, {}, LoginUserType>,
@@ -111,13 +113,6 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
         .end();
     }
 
-    const accessToken = createAccessToken({
-      userId: user._id.toString(),
-      is_valid: true,
-      email: user.email,
-      picture: user.picture,
-    });
-
     const refreshToken = await createRefreshToken({
       userId: user._id.toString(),
       is_valid: true,
@@ -133,6 +128,23 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
       sameSite: "lax",
       secure: false,
       maxAge: 5.184e9,
+    });
+
+    await createAddGroupMember({
+      filter: {
+        memberId: user._id,
+        addedBy: new mongoose.Types.ObjectId("655a261a8d20f123d6b4bcba"),
+        groupId: new mongoose.Types.ObjectId("655a268472a58dfa3fc5c7e0"),
+      },
+      update: {
+        memberId: user._id,
+        addedBy: new mongoose.Types.ObjectId("655a261a8d20f123d6b4bcba"),
+        groupId: new mongoose.Types.ObjectId("655a268472a58dfa3fc5c7e0"),
+      },
+      options: {
+        upsert: true,
+        new: true,
+      },
     });
 
     return res.redirect("http://localhost:3000/dashboard");
@@ -184,13 +196,6 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
         .end();
     }
 
-    const accessToken = createAccessToken({
-      userId: user._id.toString(),
-      is_valid: true,
-      email: user.email,
-      picture: user.picture,
-    });
-
     const refreshToken = await createRefreshToken({
       userId: user._id.toString(),
       is_valid: true,
@@ -206,6 +211,23 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
       sameSite: "lax",
       secure: false,
       maxAge: 5.184e9,
+    });
+
+    await createAddGroupMember({
+      filter: {
+        memberId: user._id,
+        addedBy: new mongoose.Types.ObjectId("655a261a8d20f123d6b4bcba"),
+        groupId: new mongoose.Types.ObjectId("655a268472a58dfa3fc5c7e0"),
+      },
+      update: {
+        memberId: user._id,
+        addedBy: new mongoose.Types.ObjectId("655a261a8d20f123d6b4bcba"),
+        groupId: new mongoose.Types.ObjectId("655a268472a58dfa3fc5c7e0"),
+      },
+      options: {
+        upsert: true,
+        new: true,
+      },
     });
 
     return res.redirect("http://localhost:3000/dashboard");

@@ -1,5 +1,16 @@
-import mongoose, { FilterQuery, FlattenMaps, Schema } from "mongoose";
-import { Group, GroupMember, IGroup } from "../model/group.model";
+import mongoose, {
+  FilterQuery,
+  FlattenMaps,
+  QueryOptions,
+  Schema,
+  UpdateQuery,
+} from "mongoose";
+import {
+  Group,
+  GroupMember,
+  IGroup,
+  IGroupMembers,
+} from "../model/group.model";
 
 export async function getGroupsByUserId({ userId }: { userId: string }) {
   try {
@@ -34,6 +45,24 @@ export async function getGroupsByIds({
     if (!groups) return null;
 
     return groups;
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+
+export async function createAddGroupMember({
+  filter,
+  update,
+  options,
+}: {
+  filter: FilterQuery<IGroupMembers>;
+  update: UpdateQuery<IGroupMembers>;
+  options: QueryOptions;
+}) {
+  try {
+    console.log("run create member group");
+
+    return await GroupMember.findOneAndUpdate(filter, update, options);
   } catch (e: any) {
     throw new Error(e.message);
   }
