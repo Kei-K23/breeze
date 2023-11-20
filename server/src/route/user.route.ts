@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createUserHandler,
   getAuthUserHandler,
+  getUserAllUserWithoutCurrentUserHandler,
 } from "../controller/user.controller";
 import validateResource from "../middleware/validateResource";
 import { createUserSchema } from "../schema/user.schema";
@@ -19,5 +20,11 @@ export default function (route: Router) {
     revalidateAccessToken,
     requiredAccessToken,
     getAuthUserHandler
+  );
+  route.get(
+    "/api/users/:userId",
+    revalidateAccessToken,
+    requiredAccessToken,
+    getUserAllUserWithoutCurrentUserHandler
   );
 }

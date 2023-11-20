@@ -35,8 +35,21 @@ const Dashboard = async ({
       next: { revalidate: 0 },
     }
   );
-
   const groupData = await resGroupDate.json();
+
+  // fetch group data
+  const resUsersDate = await fetch(
+    `http://localhost:8090/api/users/${userData.data._id}`,
+    {
+      method: "GET",
+      headers: {
+        Cookie: `breeze_csrf=${searchParams.cookie}`,
+      },
+      next: { revalidate: 0 },
+    }
+  );
+
+  const usersData = await resUsersDate.json();
 
   return (
     <>
@@ -49,7 +62,7 @@ const Dashboard = async ({
       <div className="h-full flex items-center ">
         <LeftSideBar groupData={groupData} />
         <MessageChat />
-        <RightSideBar />
+        <RightSideBar usersData={usersData} />
       </div>
     </>
   );

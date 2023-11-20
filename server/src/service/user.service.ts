@@ -2,6 +2,7 @@ import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
 import { IUser, User } from "../model/user.model";
 import axios from "axios";
 import qs from "qs";
+import mongoose from "mongoose";
 
 export interface GoogleTokenResultFromCode {
   access_token: string;
@@ -109,6 +110,29 @@ export async function getUser({ filter }: { filter: FilterQuery<IUser> }) {
       return null;
     }
     return user;
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+
+export async function getUserAllUserWithoutCurrentUser({
+  userId,
+}: {
+  userId: string;
+}) {
+  try {
+    const users = await User.find({
+      _id: {
+        $nin: [userId, new mongoose.Types.ObjectId("655a261a8d20f123d6b4bcba")],
+      },
+    })
+      .select("-password")
+      .lean();
+
+    if (!users.length) {
+      return null;
+    }
+    return users;
   } catch (e: any) {
     throw new Error(e.message);
   }

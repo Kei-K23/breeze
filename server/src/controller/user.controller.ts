@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
-import { CreateUserType } from "../schema/user.schema";
-import { createUser, getUser } from "../service/user.service";
+import { CreateUserType, GetDataByUserId } from "../schema/user.schema";
+import {
+  createUser,
+  getUser,
+  getUserAllUserWithoutCurrentUser,
+} from "../service/user.service";
 import { omitDoc } from "../lib/helper";
 
 export async function createUserHandler(
@@ -16,6 +20,41 @@ export async function createUserHandler(
         success: true,
         data: omitDoc(user, ["password", "__v"]),
         message: "Successfully register!",
+      })
+      .end();
+  } catch (e: any) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: e.message,
+      })
+      .end();
+  }
+}
+
+export async function getUserAllUserWithoutCurrentUserHandler(
+  req: Request<GetDataByUserId>,
+  res: Response
+) {
+  try {
+    const userId = req.params.userId;
+    const users = await getUserAllUserWithoutCurrentUser({ userId });
+
+    if (!users?.length)
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "Could not find users!",
+        })
+        .end();
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        data: users,
       })
       .end();
   } catch (e: any) {

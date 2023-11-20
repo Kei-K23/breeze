@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { GetGroupsByUserId } from "../schema/group.schema";
 import { getGroupsByIds, getGroupsByUserId } from "../service/group.service";
 import { FlattenMaps, Schema } from "mongoose";
+import { GetDataByUserId } from "../schema/user.schema";
 
 export async function getGroupsByUserIdHandler(
-  req: Request<GetGroupsByUserId>,
+  req: Request<GetDataByUserId>,
   res: Response
 ) {
   try {
@@ -17,7 +17,7 @@ export async function getGroupsByUserIdHandler(
         .status(400)
         .json({
           success: false,
-          error: "Could not found group's members",
+          error: "Could not find group's members",
         })
         .end();
 
