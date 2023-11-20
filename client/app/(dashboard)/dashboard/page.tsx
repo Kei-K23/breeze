@@ -9,7 +9,8 @@ const Dashboard = async ({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) => {
-  const res = await fetch("http://localhost:8090/api/users", {
+  // fetch user data
+  const resUserData = await fetch("http://localhost:8090/api/users", {
     method: "GET",
     headers: {
       Cookie: `breeze_csrf=${searchParams.cookie}`,
@@ -17,22 +18,36 @@ const Dashboard = async ({
     next: { revalidate: 0 },
   });
 
-  const data = await res.json();
+  const userData = await resUserData.json();
 
-  if (!res.ok) {
+  if (!resUserData.ok) {
     return redirect("/");
   }
+
+  // fetch group data
+  const resGroupDate = await fetch(
+    `http://localhost:8090/api/groups/${userData.data._id}`,
+    {
+      method: "GET",
+      headers: {
+        Cookie: `breeze_csrf=${searchParams.cookie}`,
+      },
+      next: { revalidate: 0 },
+    }
+  );
+
+  const groupData = await resGroupDate.json();
 
   return (
     <>
       <Navbar
-        name={data.data.name}
-        email={data.data.email}
-        image={data.data.picture}
+        name={userData.data.name}
+        email={userData.data.email}
+        image={userData.data.picture}
         iconLink="/dashboard"
       />
-      <div className="h-full flex items-center">
-        <LeftSideBar />
+      <div className="h-full flex items-center ">
+        <LeftSideBar groupData={groupData} />
         <MessageChat />
         <RightSideBar />
       </div>

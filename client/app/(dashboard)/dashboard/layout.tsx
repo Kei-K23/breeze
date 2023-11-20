@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 };
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
-  return <main>{children}</main>;
+  return <main className="h-full">{children}</main>;
 };
 
 export default DashboardLayout;
