@@ -1,9 +1,9 @@
+"use client";
 import React from "react";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
@@ -11,7 +11,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -33,6 +32,9 @@ import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
+import { revalidatePath } from "next/cache";
+import { createGroup } from "@/app/actions";
 
 interface CreateGroupDialogProps {
   open: boolean;
@@ -41,6 +43,7 @@ interface CreateGroupDialogProps {
   setSelectedUsers: (users: UserType[]) => void;
   selectedUsers: UserType[];
   currentUser: UserType;
+  cookie: string;
 }
 
 const formSchema = z.object({
@@ -59,6 +62,7 @@ const CreateGroupDialog = ({
   setSelectedUsers,
   users,
   currentUser,
+  cookie,
 }: CreateGroupDialogProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -68,10 +72,22 @@ const CreateGroupDialog = ({
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values, selectedUsers);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await createGroup({
+        values,
+        currentUserId: currentUser._id,
+        cookie,
+      });
 
-    setOpen(false);
+      toast.success("Successfully created new Group");
+      setOpen(false);
+      return;
+    } catch (e: any) {
+      toast.error("Could not create new group");
+      setOpen(false);
+      return;
+    }
   }
 
   return (

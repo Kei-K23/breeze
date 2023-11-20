@@ -14,7 +14,9 @@ import {
 
 export async function getGroupsByUserId({ userId }: { userId: string }) {
   try {
-    const groupMembers = await GroupMember.find({ memberId: userId }).lean();
+    const groupMembers = await GroupMember.find({
+      memberId: userId,
+    }).lean();
 
     if (!groupMembers.length) return null;
 

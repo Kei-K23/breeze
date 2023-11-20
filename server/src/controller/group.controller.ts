@@ -70,6 +70,7 @@ export async function createGroupHandler(
       .json({
         success: true,
         data: newCreatedGroup,
+        message: "Successfully created new Group",
       })
       .end();
   } catch (e: any) {

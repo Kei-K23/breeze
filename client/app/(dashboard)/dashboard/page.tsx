@@ -3,6 +3,7 @@ import Navbar from "@/components/navbar";
 import { MessageChat } from "../_components/Chat";
 import LeftSideBar from "../_components/LeftSideBar";
 import RightSideBar from "../_components/RightSideBar";
+import { revalidatePath } from "next/cache";
 
 const Dashboard = async ({
   searchParams,
@@ -51,6 +52,8 @@ const Dashboard = async ({
 
   const usersData = await resUsersDate.json();
 
+  revalidatePath("/");
+
   return (
     <>
       <Navbar
@@ -61,6 +64,7 @@ const Dashboard = async ({
       />
       <div className="h-full flex items-center ">
         <LeftSideBar
+          cookie={searchParams.cookie as string}
           currentUser={userData.data}
           groupData={groupData}
           usersData={usersData}

@@ -29,12 +29,14 @@ interface LeftSideBarProps {
   groupData: Partial<FetchGroupsDataType>;
   usersData: Partial<FetchUsersDataType>;
   currentUser: UserType;
+  cookie: string;
 }
 
 const LeftSideBar = ({
   groupData,
   usersData,
   currentUser,
+  cookie,
 }: LeftSideBarProps) => {
   const [open, setOpen] = React.useState(false);
   const [selectedUsers, setSelectedUsers] = React.useState<UserType[]>([]);
@@ -89,6 +91,7 @@ const LeftSideBar = ({
         setSelectedUsers={setSelectedUsers}
         users={usersData.data as UserType[]}
         currentUser={currentUser}
+        cookie={cookie}
       />
     </div>
   );
