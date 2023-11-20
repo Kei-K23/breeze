@@ -1,8 +1,11 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Group } from "lucide-react";
+import { randomColor } from "@/lib/helper";
+import { cn } from "@/lib/utils";
+import { Group, User2Icon, UserCircle2 } from "lucide-react";
+import Image from "next/image";
 import React from "react";
 
-type FetchDataType = {
+export type FetchUsersDataType = {
   success: true;
   data: Partial<
     Array<{
@@ -18,25 +21,50 @@ type FetchDataType = {
   >;
   error: string;
 };
+
+export type UserType = {
+  _id: string;
+  name: string;
+  providerName: string;
+  __v: number;
+  createdAt: Date;
+  email: string;
+  picture: string;
+  updatedAt: Date;
+};
 interface RightSideBarProps {
-  usersData: Partial<FetchDataType>;
+  usersData: Partial<FetchUsersDataType>;
 }
 const RightSideBar = ({ usersData }: RightSideBarProps) => {
   return (
     <div className="h-[800px] w-[15%] ">
       <div className="py-2">
         <h2 className="relative px-7 text-lg font-semibold tracking-tight flex items-center gap-2">
-          <Group /> <span>Users</span>
+          <User2Icon /> <span>Users</span>
         </h2>
-        <ScrollArea className="h-[600px]   px-1">
+        <ScrollArea className="h-[600px] px-1">
           <div className="space-y-1 p-2">
             {usersData.data &&
               usersData.data.map((user) => (
                 <div
-                  className="cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
+                  className="my-2 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
                   key={user?._id}
                 >
-                  <h3>{user?.name}</h3>
+                  <div className="flex items-center gap-3 mb-2">
+                    {user?.picture ? (
+                      <Image
+                        src={user?.picture as string}
+                        alt={user?.name as string}
+                        width={48}
+                        height={48}
+                        className="rounded-full"
+                      />
+                    ) : (
+                      <UserCircle2 className={cn("w-10 h-10 ")} />
+                    )}
+
+                    <h3>{user?.name}</h3>
+                  </div>
                   <p className="text-neutral-600 dark:text-neutral-400 line-clamp-1">
                     {user?.email}
                   </p>

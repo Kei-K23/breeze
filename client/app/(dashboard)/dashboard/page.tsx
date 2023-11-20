@@ -60,7 +60,11 @@ const Dashboard = async ({
         iconLink="/dashboard"
       />
       <div className="h-full flex items-center ">
-        <LeftSideBar groupData={groupData} />
+        <LeftSideBar
+          currentUser={userData.data}
+          groupData={groupData}
+          usersData={usersData}
+        />
         <MessageChat />
         <RightSideBar usersData={usersData} />
       </div>

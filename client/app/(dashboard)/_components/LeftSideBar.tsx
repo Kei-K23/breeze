@@ -1,11 +1,20 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Group } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Group, Plus } from "lucide-react";
 import React from "react";
 import toast from "react-hot-toast";
 
-type FetchDataType = {
+import { FetchUsersDataType, UserType } from "./RightSideBar";
+import CreateGroupDialog from "./CreateGroupDialog";
+
+type FetchGroupsDataType = {
   success: true;
   data: Array<{
     _id: string;
@@ -17,10 +26,19 @@ type FetchDataType = {
 };
 
 interface LeftSideBarProps {
-  groupData: Partial<FetchDataType>;
+  groupData: Partial<FetchGroupsDataType>;
+  usersData: Partial<FetchUsersDataType>;
+  currentUser: UserType;
 }
 
-const LeftSideBar = ({ groupData }: LeftSideBarProps) => {
+const LeftSideBar = ({
+  groupData,
+  usersData,
+  currentUser,
+}: LeftSideBarProps) => {
+  const [open, setOpen] = React.useState(false);
+  const [selectedUsers, setSelectedUsers] = React.useState<UserType[]>([]);
+
   if (!groupData.success) {
     toast.error(groupData.error as string);
   }
@@ -30,6 +48,22 @@ const LeftSideBar = ({ groupData }: LeftSideBarProps) => {
       <div className="py-2">
         <h2 className="relative px-7 text-lg font-semibold tracking-tight flex items-center gap-2">
           <Group /> <span>Groups</span>
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="ml-auto rounded-full"
+                  onClick={() => setOpen(true)}
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="sr-only">Create new Group</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={10}>Create new Group</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </h2>
         <ScrollArea className="h-[600px]   px-1">
           <div className="space-y-1 p-2">
@@ -48,6 +82,14 @@ const LeftSideBar = ({ groupData }: LeftSideBarProps) => {
           </div>
         </ScrollArea>
       </div>
+      <CreateGroupDialog
+        setOpen={setOpen}
+        open={open}
+        selectedUsers={selectedUsers}
+        setSelectedUsers={setSelectedUsers}
+        users={usersData.data as UserType[]}
+        currentUser={currentUser}
+      />
     </div>
   );
 };
