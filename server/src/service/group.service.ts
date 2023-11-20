@@ -1,4 +1,4 @@
-import mongoose, {
+import {
   FilterQuery,
   FlattenMaps,
   QueryOptions,
@@ -50,6 +50,21 @@ export async function getGroupsByIds({
   }
 }
 
+export async function createGroup(payload: IGroup) {
+  try {
+    return Group.create(payload);
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+export async function createGroupMembers(payload: IGroupMembers) {
+  try {
+    return GroupMember.create(payload);
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+
 export async function createAddGroupMember({
   filter,
   update,
@@ -60,8 +75,6 @@ export async function createAddGroupMember({
   options: QueryOptions;
 }) {
   try {
-    console.log("run create member group");
-
     return await GroupMember.findOneAndUpdate(filter, update, options);
   } catch (e: any) {
     throw new Error(e.message);

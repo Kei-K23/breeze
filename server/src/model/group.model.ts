@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 export interface IGroup {
   groupName: string;
-  ownerId: mongoose.ObjectId;
-  groupDescription: string;
+  ownerId: string;
+  groupDescription?: string;
 }
 
 export interface GroupDoc extends mongoose.Document {
@@ -12,17 +12,17 @@ export interface GroupDoc extends mongoose.Document {
   groupDescription: string;
 }
 export interface IGroupMembers {
-  groupId: mongoose.ObjectId;
-  memberId: mongoose.ObjectId;
-  addedBy: mongoose.ObjectId;
-  joinedAt: Date;
+  groupId: string;
+  memberId: string;
+  addedBy: string;
+  joinedAt?: Date;
 }
 
 export interface GroupMembersDoc extends mongoose.Document {
   groupId: mongoose.ObjectId;
   memberId: mongoose.ObjectId;
   addedBy: mongoose.ObjectId;
-  joinedAt: Date;
+  joinedAt?: Date;
 }
 
 const groupSchema = new mongoose.Schema<GroupDoc>(
@@ -33,7 +33,6 @@ const groupSchema = new mongoose.Schema<GroupDoc>(
     },
     groupDescription: {
       type: String,
-      required: true,
     },
     ownerId: {
       type: mongoose.Types.ObjectId,

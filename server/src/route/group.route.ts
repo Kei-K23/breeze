@@ -1,7 +1,11 @@
 import { Router } from "express";
 import requiredAccessToken from "../middleware/requiredAccessToken";
 import revalidateAccessToken from "../middleware/revalidateAccessToken";
-import { getGroupsByUserIdHandler } from "../controller/group.controller";
+import {
+  createGroupHandler,
+  createGroupMembersHandler,
+  getGroupsByUserIdHandler,
+} from "../controller/group.controller";
 
 export default function (route: Router) {
   route.get(
@@ -9,5 +13,17 @@ export default function (route: Router) {
     revalidateAccessToken,
     requiredAccessToken,
     getGroupsByUserIdHandler
+  );
+  route.post(
+    "/api/groups/",
+    revalidateAccessToken,
+    requiredAccessToken,
+    createGroupHandler
+  );
+  route.post(
+    "/api/group_members/",
+    revalidateAccessToken,
+    requiredAccessToken,
+    createGroupMembersHandler
   );
 }

@@ -14,4 +14,19 @@ export const createGroup = z.object({
   }),
 });
 
+export const createGroupMembers = z.object({
+  body: z.object({
+    groupId: z.string({
+      required_error: "Group's id id is required",
+    }),
+    memberId: z.string({
+      required_error: "Group's member id is required",
+    }),
+    addedBy: z.string({
+      required_error: "Added by user id is required",
+    }),
+  }),
+});
+
 export type CreateGroup = z.infer<typeof createGroup>["body"];
+export type CreateGroupMembers = z.infer<typeof createGroupMembers>["body"];
