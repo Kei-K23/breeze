@@ -5,6 +5,7 @@ import {
   getGroups,
   getGroupsByIds,
   getGroupsByUserId,
+  getMembersByGroupIds,
 } from "../service/group.service";
 import { FlattenMaps, Schema } from "mongoose";
 import {
@@ -69,29 +70,46 @@ export async function getGroupByIdHandler(
 ) {
   try {
     const groupId = req.query.groupId;
+    const groupIdForMembers = req.query.groupIdForMembers;
 
-    const group = await getGroups({
-      filter: {
-        _id: groupId,
-      },
-    });
+    if (groupId) {
+      const group = await getGroups({
+        filter: {
+          _id: groupId,
+        },
+      });
 
-    if (!group)
+      if (!group)
+        return res
+          .status(400)
+          .json({
+            success: false,
+            error: "Could not find the group",
+          })
+          .end();
+
       return res
-        .status(400)
+        .status(200)
         .json({
-          success: false,
-          error: "Could not find the group",
+          success: true,
+          data: group,
         })
         .end();
+    }
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        data: group,
-      })
-      .end();
+    if (groupIdForMembers) {
+      const members = await getMembersByGroupIds({
+        groupId: groupIdForMembers,
+      });
+
+      return res
+        .status(200)
+        .json({
+          success: true,
+          data: members,
+        })
+        .end();
+    }
   } catch (e: any) {
     return res
       .status(500)

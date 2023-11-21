@@ -40,8 +40,7 @@ const ScrollBar = React.forwardRef<
     )}
     {...props}
   >
-    {/*//! hide scroll thumb for my chat display ground  */}
-    {/* <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-border" /> */}
+    <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-border" />
   </ScrollAreaPrimitive.ScrollAreaScrollbar>
 ));
 ScrollBar.displayName = ScrollAreaPrimitive.ScrollAreaScrollbar.displayName;

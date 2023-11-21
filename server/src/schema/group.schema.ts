@@ -41,6 +41,9 @@ export const getDataById = z.object({
     groupId: z.string({
       required_error: "Group id is required!",
     }),
+    groupIdForMembers: z.string({
+      required_error: "Group id is required!",
+    }),
   }),
 });
 
