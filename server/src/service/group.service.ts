@@ -7,6 +7,7 @@ import {
 } from "mongoose";
 import {
   Group,
+  GroupDoc,
   GroupMember,
   IGroup,
   IGroupMembers,
@@ -25,8 +26,8 @@ export async function getGroupsByUserId({ userId }: { userId: string }) {
     throw new Error(e.message);
   }
 }
-//! later user or need to delete
-export async function getGroups({ filter }: { filter: FilterQuery<IGroup> }) {
+
+export async function getGroups({ filter }: { filter: FilterQuery<GroupDoc> }) {
   try {
     const group = await Group.findOne(filter);
     if (!group) return null;

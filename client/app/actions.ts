@@ -1,11 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { UserType } from "./(dashboard)/_components/RightSideBar";
 
 export async function createGroup({
   values,
   currentUserId,
   cookie,
+  selectedUsers,
 }: {
   values: {
     groupName: string;
@@ -13,6 +15,7 @@ export async function createGroup({
   };
   currentUserId: string;
   cookie: string;
+  selectedUsers: UserType[];
 }) {
   try {
     const resGroupDate = await fetch("http://localhost:8090/api/groups/", {
@@ -35,12 +38,50 @@ export async function createGroup({
 
     const groupData = await resGroupDate.json();
 
+    await createGroupMember({
+      cookie,
+      values: {
+        addedBy: currentUserId,
+        memberId: currentUserId,
+        groupId: groupData.data._id,
+      },
+    });
+
+    if (selectedUsers.length) {
+      selectedUsers.map(async (user) => {
+        await createGroupMember({
+          cookie,
+          values: {
+            addedBy: currentUserId,
+            memberId: user._id,
+            groupId: groupData.data._id,
+          },
+        });
+      });
+    }
+
+    revalidatePath("/");
+  } catch (e: any) {
+    revalidatePath("/");
+    throw new Error(e.message);
+  }
+}
+
+export async function createGroupMember({
+  values,
+  cookie,
+}: {
+  cookie: string;
+  values: { groupId: string; addedBy: string; memberId: string };
+}) {
+  const { addedBy, groupId, memberId } = values;
+  try {
     await fetch("http://localhost:8090/api/group_members/", {
       method: "POST",
       body: JSON.stringify({
-        groupId: groupData.data._id,
-        addedBy: currentUserId,
-        memberId: currentUserId,
+        groupId,
+        addedBy,
+        memberId,
       }),
       headers: {
         Cookie: `breeze_csrf=${cookie}`,
@@ -52,9 +93,7 @@ export async function createGroup({
         revalidate: 0,
       },
     });
-    revalidatePath("/");
   } catch (e: any) {
-    console.log(e.message);
     revalidatePath("/");
     throw new Error(e);
   }

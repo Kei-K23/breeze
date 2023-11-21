@@ -2,12 +2,17 @@ import { Request, Response } from "express";
 import {
   createGroup,
   createGroupMembers,
+  getGroups,
   getGroupsByIds,
   getGroupsByUserId,
 } from "../service/group.service";
-import mongoose, { FlattenMaps, Schema } from "mongoose";
-import { GetDataByUserId } from "../schema/user.schema";
-import { CreateGroup, CreateGroupMembers } from "../schema/group.schema";
+import { FlattenMaps, Schema } from "mongoose";
+import {
+  CreateGroup,
+  CreateGroupMembers,
+  GetDataById,
+  GetDataByUserId,
+} from "../schema/group.schema";
 
 export async function getGroupsByUserIdHandler(
   req: Request<GetDataByUserId>,
@@ -45,6 +50,46 @@ export async function getGroupsByUserIdHandler(
       .json({
         success: true,
         data: groups,
+      })
+      .end();
+  } catch (e: any) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: e.message,
+      })
+      .end();
+  }
+}
+
+export async function getGroupByIdHandler(
+  req: Request<{}, {}, {}, GetDataById>,
+  res: Response
+) {
+  try {
+    const groupId = req.query.groupId;
+
+    const group = await getGroups({
+      filter: {
+        _id: groupId,
+      },
+    });
+
+    if (!group)
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "Could not find the group",
+        })
+        .end();
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        data: group,
       })
       .end();
   } catch (e: any) {

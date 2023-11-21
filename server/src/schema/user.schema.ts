@@ -36,17 +36,8 @@ export const loginUserSchema = z.object({
   }),
 });
 
-export const getDataByUserId = z.object({
-  params: z.object({
-    userId: z.string({
-      required_error: "User id is required!",
-    }),
-  }),
-});
-
 export type CreateUserType = Omit<
   z.infer<typeof createUserSchema>["body"],
   "confirm_password"
 >;
 export type LoginUserType = z.infer<typeof loginUserSchema>["body"];
-export type GetDataByUserId = z.infer<typeof getDataByUserId>["params"];

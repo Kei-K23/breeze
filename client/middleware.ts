@@ -6,7 +6,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect("http://localhost:3000/");
   }
   return NextResponse.rewrite(
-    new URL(`/dashboard?cookie=${cookie?.value}`, req.url)
+    new URL(`http://localhost:3000/dashboard?cookie=${cookie?.value}`, req.url)
   );
 }
 

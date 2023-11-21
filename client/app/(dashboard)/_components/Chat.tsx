@@ -1,7 +1,6 @@
 "use client";
 
-import * as React from "react";
-import { Check, Plus, Send } from "lucide-react";
+import { Plus, Send } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,27 +13,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 
 const users = [
   {
@@ -66,12 +51,53 @@ const users = [
 
 type User = (typeof users)[number];
 
-export function MessageChat() {
-  const formRef = React.useRef<HTMLDivElement | null>(null);
-  const [open, setOpen] = React.useState(false);
-  const [selectedUsers, setSelectedUsers] = React.useState<User[]>([]);
+interface MessageChatProps {
+  selectedChatGroup: String;
+}
 
-  const [messages, setMessages] = React.useState([
+export function MessageChat({ selectedChatGroup }: MessageChatProps) {
+  const [group, setGroup] = useState<{
+    _id: string;
+    groupName: string;
+    groupDescription: string;
+    ownerId: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }>();
+
+  useEffect(() => {
+    fetchChatGroupData();
+  }, [selectedChatGroup]);
+
+  // fetch chat group data
+  async function fetchChatGroupData() {
+    try {
+      const resGroup = await fetch(
+        `http://localhost:8090/api/groups?groupId=${selectedChatGroup}`,
+        {
+          method: "GET",
+          credentials: "include",
+          next: {
+            revalidate: 0,
+          },
+        }
+      );
+
+      const groupData = await resGroup.json();
+
+      if (resGroup.ok && groupData.success) {
+        setGroup(groupData.data);
+      } else {
+        toast.error(groupData.error);
+      }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  }
+
+  const formRef = useRef<HTMLDivElement | null>(null);
+
+  const [messages, setMessages] = useState([
     {
       role: "agent",
       content: "Hi, how can I help you today?",
@@ -121,7 +147,7 @@ export function MessageChat() {
       content: "I can't log in.",
     },
   ]);
-  const [input, setInput] = React.useState("");
+  const [input, setInput] = useState("");
   const inputLength = input.trim().length;
 
   return (
@@ -129,13 +155,15 @@ export function MessageChat() {
       <Card className="h-full w-full flex-1 ">
         <CardHeader className="flex flex-row items-center">
           <div className="flex items-center space-x-4">
-            <Avatar>
-              <AvatarImage src="/avatars/01.png" alt="Image" />
-              <AvatarFallback>OM</AvatarFallback>
-            </Avatar>
             <div>
-              <p className="text-sm font-medium leading-none">Sofia Davis</p>
-              <p className="text-sm text-muted-foreground">m@example.com</p>
+              <p className="text-sm font-medium leading-none mb-2">
+                {group?.groupName}
+              </p>
+              {group?.groupDescription && (
+                <p className="text-sm text-muted-foreground">
+                  {group.groupDescription}
+                </p>
+              )}
             </div>
           </div>
           <TooltipProvider delayDuration={0}>
@@ -145,7 +173,6 @@ export function MessageChat() {
                   size="icon"
                   variant="outline"
                   className="ml-auto rounded-full"
-                  onClick={() => setOpen(true)}
                 >
                   <Plus className="h-4 w-4" />
                   <span className="sr-only">New message</span>
@@ -212,89 +239,6 @@ export function MessageChat() {
           </form>
         </CardFooter>
       </Card>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="gap-0 p-0 outline-none">
-          <DialogHeader className="px-4 pb-4 pt-5">
-            <DialogTitle>New message</DialogTitle>
-            <DialogDescription>
-              Invite a user to this thread. This will create a new group
-              message.
-            </DialogDescription>
-          </DialogHeader>
-          <Command className="overflow-hidden rounded-t-none border-t">
-            <CommandInput placeholder="Search user..." />
-            <CommandList>
-              <CommandEmpty>No users found.</CommandEmpty>
-              <CommandGroup className="p-2">
-                {users.map((user) => (
-                  <CommandItem
-                    key={user.email}
-                    className="flex items-center px-2"
-                    onSelect={() => {
-                      if (selectedUsers.includes(user)) {
-                        return setSelectedUsers(
-                          selectedUsers.filter(
-                            (selectedUser) => selectedUser !== user
-                          )
-                        );
-                      }
-
-                      return setSelectedUsers(
-                        [...users].filter((u) =>
-                          [...selectedUsers, user].includes(u)
-                        )
-                      );
-                    }}
-                  >
-                    <Avatar>
-                      <AvatarImage src={user.avatar} alt="Image" />
-                      <AvatarFallback>{user.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <div className="ml-2">
-                      <p className="text-sm font-medium leading-none">
-                        {user.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {user.email}
-                      </p>
-                    </div>
-                    {selectedUsers.includes(user) ? (
-                      <Check className="ml-auto flex h-5 w-5 text-primary" />
-                    ) : null}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-          <DialogFooter className="flex items-center border-t p-4 sm:justify-between">
-            {selectedUsers.length > 0 ? (
-              <div className="flex -space-x-2 overflow-hidden">
-                {selectedUsers.map((user) => (
-                  <Avatar
-                    key={user.email}
-                    className="inline-block border-2 border-background"
-                  >
-                    <AvatarImage src={user.avatar} />
-                    <AvatarFallback>{user.name[0]}</AvatarFallback>
-                  </Avatar>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Select users to add to this thread.
-              </p>
-            )}
-            <Button
-              disabled={selectedUsers.length < 2}
-              onClick={() => {
-                setOpen(false);
-              }}
-            >
-              Continue
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

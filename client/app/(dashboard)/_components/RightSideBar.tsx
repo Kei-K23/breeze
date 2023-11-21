@@ -1,9 +1,9 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { randomColor } from "@/lib/helper";
 import { cn } from "@/lib/utils";
-import { Group, User2Icon, UserCircle2 } from "lucide-react";
+import { User2Icon, UserCircle2 } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import toast from "react-hot-toast";
 
 export type FetchUsersDataType = {
   success: true;
@@ -36,6 +36,10 @@ interface RightSideBarProps {
   usersData: Partial<FetchUsersDataType>;
 }
 const RightSideBar = ({ usersData }: RightSideBarProps) => {
+  if (!usersData.success) {
+    toast.error(usersData.error as string);
+  }
+
   return (
     <div className="h-[800px] w-[15%] ">
       <div className="py-2">

@@ -1,5 +1,4 @@
 "use server";
-import axios from "axios";
 import Footer from "./_components/Footer";
 import Header from "./_components/Header";
 import Hero from "./_components/Hero";

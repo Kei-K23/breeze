@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import { FetchUsersDataType, UserType } from "./RightSideBar";
 import CreateGroupDialog from "./CreateGroupDialog";
 
-type FetchGroupsDataType = {
+export type FetchGroupsDataType = {
   success: true;
   data: Array<{
     _id: string;
@@ -30,6 +30,8 @@ interface LeftSideBarProps {
   usersData: Partial<FetchUsersDataType>;
   currentUser: UserType;
   cookie: string;
+  selectedChatGroup?: string;
+  setSelectedChatGroup: (selectedChatGroup: string) => void;
 }
 
 const LeftSideBar = ({
@@ -37,6 +39,8 @@ const LeftSideBar = ({
   usersData,
   currentUser,
   cookie,
+  selectedChatGroup,
+  setSelectedChatGroup,
 }: LeftSideBarProps) => {
   const [open, setOpen] = React.useState(false);
   const [selectedUsers, setSelectedUsers] = React.useState<UserType[]>([]);
@@ -72,8 +76,14 @@ const LeftSideBar = ({
             {groupData.data &&
               groupData.data.map((group) => (
                 <div
-                  className="cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
+                  className={`my-4 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700 ${
+                    selectedChatGroup === group._id &&
+                    "shadow-md shadow-neutral-300 dark:shadow-slate-700"
+                  }`}
                   key={group._id}
+                  onClick={() => {
+                    setSelectedChatGroup(group._id);
+                  }}
                 >
                   <h3>{group.groupName}</h3>
                   <p className="text-neutral-600 dark:text-neutral-400 line-clamp-1">

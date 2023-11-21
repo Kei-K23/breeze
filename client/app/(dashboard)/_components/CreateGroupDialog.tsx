@@ -33,7 +33,6 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
-import { revalidatePath } from "next/cache";
 import { createGroup } from "@/app/actions";
 
 interface CreateGroupDialogProps {
@@ -78,6 +77,7 @@ const CreateGroupDialog = ({
         values,
         currentUserId: currentUser._id,
         cookie,
+        selectedUsers,
       });
 
       toast.success("Successfully created new Group");
@@ -109,7 +109,7 @@ const CreateGroupDialog = ({
                 users.map((user) => (
                   <CommandItem
                     key={user?._id}
-                    className="flex items-center px-2"
+                    className="flex items-center px-2 cursor-pointer"
                     onSelect={() => {
                       if (selectedUsers.includes(user)) {
                         return setSelectedUsers(
