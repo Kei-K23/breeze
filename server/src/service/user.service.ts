@@ -123,7 +123,30 @@ export async function getUserAllUserWithoutCurrentUser({
   try {
     const users = await User.find({
       _id: {
-        $nin: [userId, new mongoose.Types.ObjectId("655a261a8d20f123d6b4bcba")],
+        $nin: [userId, new mongoose.Types.ObjectId("655ca25ae0c3d5a98d137825")],
+      },
+    })
+      .select("-password")
+      .lean();
+
+    if (!users.length) {
+      return null;
+    }
+    return users;
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+
+export async function getAllUserWithoutCurrentUser({
+  userIdArray,
+}: {
+  userIdArray: string[];
+}) {
+  try {
+    const users = await User.find({
+      _id: {
+        $nin: [...userIdArray, "655ca25ae0c3d5a98d137825"],
       },
     })
       .select("-password")

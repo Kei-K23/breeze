@@ -36,8 +36,15 @@ export const loginUserSchema = z.object({
   }),
 });
 
+export const userIdArraySchema = z.object({
+  body: z.object({
+    userIdArray: z.array(z.string()),
+  }),
+});
+
 export type CreateUserType = Omit<
   z.infer<typeof createUserSchema>["body"],
   "confirm_password"
 >;
 export type LoginUserType = z.infer<typeof loginUserSchema>["body"];
+export type UserIdArrayType = z.infer<typeof userIdArraySchema>["body"];

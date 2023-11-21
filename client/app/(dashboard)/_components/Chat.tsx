@@ -3,7 +3,6 @@
 import { Plus, Send, UserCircle2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Tooltip,
   TooltipContent,
@@ -24,6 +23,7 @@ import { UserType } from "./RightSideBar";
 import Image from "next/image";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import AddMemberDialog from "./AddMemberDialog";
 
 const users = [
   {
@@ -56,10 +56,17 @@ const users = [
 type User = (typeof users)[number];
 
 interface MessageChatProps {
-  selectedChatGroup: String;
+  selectedChatGroup: string;
+  cookie: string;
+  usersData: UserType[];
+  currentUserId: string;
 }
 
-export function MessageChat({ selectedChatGroup }: MessageChatProps) {
+export function MessageChat({
+  selectedChatGroup,
+  cookie,
+  currentUserId,
+}: MessageChatProps) {
   const [group, setGroup] = useState<{
     _id: string;
     groupName: string;
@@ -69,6 +76,7 @@ export function MessageChat({ selectedChatGroup }: MessageChatProps) {
     updatedAt: Date;
   }>();
   const [groupMembers, setGroupMembers] = useState<Array<UserType>>([]);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     fetchChatGroupData();
@@ -106,8 +114,6 @@ export function MessageChat({ selectedChatGroup }: MessageChatProps) {
         const groupMembersData = await resGroupMembers.json();
 
         if (resGroupMembers.ok && groupMembersData.success) {
-          console.log(groupData.data);
-
           setGroupMembers(groupMembersData.data);
         } else {
           toast.error(groupMembersData.error);
@@ -191,21 +197,25 @@ export function MessageChat({ selectedChatGroup }: MessageChatProps) {
                   </p>
                 )}
               </div>
-              <TooltipProvider delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="ml-auto rounded-full"
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span className="sr-only">Add new member</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Add new member</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              {selectedChatGroup !=
+                process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID && (
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="ml-auto rounded-full"
+                        onClick={() => setOpen(true)}
+                      >
+                        <Plus className="h-4 w-4" />
+                        <span className="sr-only">Add new member</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Add new member</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </div>
             <div className="relative">
               <Badge className="absolute -top-3 -right-3 z-10 cursor-pointer">
@@ -309,6 +319,14 @@ export function MessageChat({ selectedChatGroup }: MessageChatProps) {
           </form>
         </CardFooter>
       </Card>
+      <AddMemberDialog
+        currentUserId={currentUserId}
+        selectedChatGroup={selectedChatGroup}
+        existMember={groupMembers}
+        setOpen={setOpen}
+        open={open}
+        cookie={cookie}
+      />
     </>
   );
 }

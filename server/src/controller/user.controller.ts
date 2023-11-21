@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
-import { CreateUserType, GetDataByUserId } from "../schema/user.schema";
+import { CreateUserType, UserIdArrayType } from "../schema/user.schema";
 import {
   createUser,
+  getAllUserWithoutCurrentUser,
   getUser,
   getUserAllUserWithoutCurrentUser,
 } from "../service/user.service";
 import { omitDoc } from "../lib/helper";
+import { GetDataByUserId } from "../schema/group.schema";
 
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserType>,
@@ -40,6 +42,42 @@ export async function getUserAllUserWithoutCurrentUserHandler(
   try {
     const userId = req.params.userId;
     const users = await getUserAllUserWithoutCurrentUser({ userId });
+
+    if (!users?.length)
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "Could not find users!",
+        })
+        .end();
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        data: users,
+      })
+      .end();
+  } catch (e: any) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: e.message,
+      })
+      .end();
+  }
+}
+
+export async function getAllUserWithoutCurrentUserHandler(
+  req: Request<{}, {}, UserIdArrayType>,
+  res: Response
+) {
+  try {
+    const users = await getAllUserWithoutCurrentUser({
+      userIdArray: req.body as unknown as string[],
+    });
 
     if (!users?.length)
       return res

@@ -54,7 +54,7 @@ const Dashboard = async ({
   revalidatePath("/");
 
   return (
-    <>
+    <div>
       <Navbar
         name={userData.data.name}
         email={userData.data.email}
@@ -67,7 +67,7 @@ const Dashboard = async ({
         groupData={groupData}
         usersData={usersData}
       />
-    </>
+    </div>
   );
 };
 

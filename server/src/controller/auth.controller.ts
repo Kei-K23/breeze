@@ -133,13 +133,13 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
     await createAddGroupMember({
       filter: {
         memberId: user._id,
-        addedBy: new mongoose.Types.ObjectId("655a261a8d20f123d6b4bcba"),
-        groupId: new mongoose.Types.ObjectId("655a268472a58dfa3fc5c7e0"),
+        addedBy: new mongoose.Types.ObjectId("655ca25ae0c3d5a98d137825"),
+        groupId: new mongoose.Types.ObjectId("655ca2c81733353ac0d565f1"),
       },
       update: {
         memberId: user._id,
-        addedBy: new mongoose.Types.ObjectId("655a261a8d20f123d6b4bcba"),
-        groupId: new mongoose.Types.ObjectId("655a268472a58dfa3fc5c7e0"),
+        addedBy: new mongoose.Types.ObjectId("655ca25ae0c3d5a98d137825"),
+        groupId: new mongoose.Types.ObjectId("655ca2c81733353ac0d565f1"),
       },
       options: {
         upsert: true,
@@ -216,13 +216,13 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
     await createAddGroupMember({
       filter: {
         memberId: user._id,
-        addedBy: new mongoose.Types.ObjectId("655a261a8d20f123d6b4bcba"),
-        groupId: new mongoose.Types.ObjectId("655a268472a58dfa3fc5c7e0"),
+        addedBy: new mongoose.Types.ObjectId("655ca25ae0c3d5a98d137825"),
+        groupId: new mongoose.Types.ObjectId("655ca2c81733353ac0d565f1"),
       },
       update: {
         memberId: user._id,
-        addedBy: new mongoose.Types.ObjectId("655a261a8d20f123d6b4bcba"),
-        groupId: new mongoose.Types.ObjectId("655a268472a58dfa3fc5c7e0"),
+        addedBy: new mongoose.Types.ObjectId("655ca25ae0c3d5a98d137825"),
+        groupId: new mongoose.Types.ObjectId("655ca2c81733353ac0d565f1"),
       },
       options: {
         upsert: true,

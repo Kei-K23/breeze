@@ -32,7 +32,12 @@ const MainDashboard = ({
         groupData={groupData}
         usersData={usersData}
       />
-      <MessageChat selectedChatGroup={selectedChatGroup as string} />
+      <MessageChat
+        cookie={cookie}
+        currentUserId={currentUser._id}
+        usersData={usersData.data as UserType[]}
+        selectedChatGroup={selectedChatGroup as string}
+      />
       <RightSideBar usersData={usersData} />
     </div>
   );

@@ -46,12 +46,12 @@ const RightSideBar = ({ usersData }: RightSideBarProps) => {
         <h2 className="relative px-7 text-lg font-semibold tracking-tight flex items-center gap-2">
           <User2Icon /> <span>Users</span>
         </h2>
-        <ScrollArea className="h-[600px] px-1">
-          <div className="space-y-1 p-2">
+        <ScrollArea className="h-[700px] px-1">
+          <div className=" p-2">
             {usersData.data &&
               usersData.data.map((user) => (
                 <div
-                  className="my-2 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
+                  className="my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
                   key={user?._id}
                 >
                   <div className="flex items-center gap-3 mb-2">

@@ -151,8 +151,9 @@ export async function createGroupMembersHandler(
   req: Request<{}, {}, CreateGroupMembers>,
   res: Response
 ) {
+  const groupMember = req.body.groupMembers;
   try {
-    const newCreatedGroupMembers = await createGroupMembers(req.body);
+    const newCreatedGroupMembers = await createGroupMembers(groupMember);
 
     return res
       .status(201)

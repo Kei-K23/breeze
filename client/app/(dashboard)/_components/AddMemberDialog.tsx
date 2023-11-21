@@ -1,5 +1,13 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Command,
   CommandEmpty,
@@ -7,84 +15,94 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserType } from "./RightSideBar";
-import { Check, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Check, Plus } from "lucide-react";
+import { UserType } from "./RightSideBar";
 import toast from "react-hot-toast";
-import { createGroupAction } from "@/app/actions";
+import { createGroupMemberAction } from "@/app/actions";
+import { useRouter } from "next/navigation";
 
-interface CreateGroupDialogProps {
+interface AddMemberDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-  users: UserType[];
-  setSelectedUsers: (users: UserType[]) => void;
-  selectedUsers: UserType[];
-  currentUser: UserType;
   cookie: string;
+  existMember: UserType[];
+  selectedChatGroup: string;
+  currentUserId: string;
 }
 
-const formSchema = z.object({
-  groupName: z
-    .string({
-      required_error: "Group name is required",
-    })
-    .min(3, "Group name must be at least 3 character long"),
-  groupDescription: z.string({}).optional(),
-});
-
-const CreateGroupDialog = ({
+const AddMemberDialog = ({
   open,
-  selectedUsers,
   setOpen,
-  setSelectedUsers,
-  users,
-  currentUser,
+  existMember,
   cookie,
-}: CreateGroupDialogProps) => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      groupName: "",
-      groupDescription: "",
-    },
-  });
+  selectedChatGroup,
+  currentUserId,
+}: AddMemberDialogProps) => {
+  const router = useRouter();
+  const [selectedUsers, setSelectedUsers] = useState<UserType[]>([]);
+  const [addableUsers, setAddableUsers] = useState<UserType[]>([]);
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const userIdsArray = existMember.reduce((acc: Array<string>, curr) => {
+    const id = curr._id;
+    acc.push(id);
+    return acc;
+  }, []);
+
+  useEffect(() => {
+    if (selectedChatGroup !== process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID) {
+      fetchData();
+    }
+  }, [existMember]);
+
+  async function fetchData() {
     try {
-      await createGroupAction({
-        values,
-        currentUserId: currentUser._id,
-        cookie,
-        selectedUsers,
+      const res = await fetch("http://localhost:8090/api/users/without", {
+        method: "POST",
+        body: JSON.stringify(userIdsArray),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+        next: {
+          revalidate: 0,
+        },
       });
+      const data = await res.json();
 
+      if (res.ok && data.success) {
+        setAddableUsers(data.data);
+        console.log(data.data);
+      } else {
+        toast.error(data.error);
+      }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  }
+
+  async function onSubmit() {
+    try {
+      selectedUsers.map(async (user) => {
+        await createGroupMemberAction({
+          cookie,
+          values: [
+            {
+              addedBy: currentUserId,
+              groupId: selectedChatGroup,
+              memberId: user._id,
+            },
+          ],
+        });
+      });
       toast.success("Successfully created new Group");
       setOpen(false);
       return;
     } catch (e: any) {
-      toast.error("Could not create new group");
+      toast.error(e.message);
       setOpen(false);
       return;
     }
@@ -105,8 +123,8 @@ const CreateGroupDialog = ({
           <CommandList>
             <CommandEmpty>No users found.</CommandEmpty>
             <CommandGroup className="p-2">
-              {users &&
-                users.map((user) => (
+              {addableUsers &&
+                addableUsers.map((user) => (
                   <CommandItem
                     key={user?._id}
                     className="flex items-center px-2 cursor-pointer"
@@ -120,7 +138,7 @@ const CreateGroupDialog = ({
                       }
 
                       return setSelectedUsers(
-                        [...users].filter((u) =>
+                        [...addableUsers].filter((u) =>
                           [...selectedUsers, user].includes(u)
                         )
                       );
@@ -151,7 +169,7 @@ const CreateGroupDialog = ({
             <div className="flex -space-x-2 overflow-hidden">
               {selectedUsers.map((user) => (
                 <Avatar
-                  key={user._id}
+                  key={user.email}
                   className="inline-block border-2 border-background"
                 >
                   <AvatarImage src={user.picture} />
@@ -165,55 +183,19 @@ const CreateGroupDialog = ({
             </p>
           )}
         </div>
-
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-8 px-4 pb-4"
+        <DialogFooter>
+          <Button
+            onClick={() => {
+              onSubmit();
+              router.refresh();
+            }}
           >
-            <FormField
-              control={form.control}
-              name="groupName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Group name:</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g My Awesome Group" {...field} />
-                  </FormControl>
-                  <FormDescription>This is your group name.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="groupDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description:</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g My group description..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    This is your group description.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit">
-              <Plus width={15} height={15} />{" "}
-              <span className="ml-1">Create</span>
-            </Button>
-          </form>
-        </Form>
+            <Plus width={15} height={15} /> <span className="ml-1">Add</span>
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default CreateGroupDialog;
+export default AddMemberDialog;

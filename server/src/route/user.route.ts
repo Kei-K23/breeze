@@ -1,13 +1,15 @@
 import { Router } from "express";
 import {
   createUserHandler,
+  getAllUserWithoutCurrentUserHandler,
   getAuthUserHandler,
   getUserAllUserWithoutCurrentUserHandler,
 } from "../controller/user.controller";
 import validateResource from "../middleware/validateResource";
-import { createUserSchema } from "../schema/user.schema";
+import { createUserSchema, userIdArraySchema } from "../schema/user.schema";
 import requiredAccessToken from "../middleware/requiredAccessToken";
 import revalidateAccessToken from "../middleware/revalidateAccessToken";
+import { getDataByUserId } from "../schema/group.schema";
 
 export default function (route: Router) {
   route.post(
@@ -25,6 +27,14 @@ export default function (route: Router) {
     "/api/users/:userId",
     revalidateAccessToken,
     requiredAccessToken,
+    validateResource(getDataByUserId),
     getUserAllUserWithoutCurrentUserHandler
+  );
+  route.post(
+    "/api/users/without",
+    revalidateAccessToken,
+    requiredAccessToken,
+    // validateResource(userIdArraySchema),
+    getAllUserWithoutCurrentUserHandler
   );
 }

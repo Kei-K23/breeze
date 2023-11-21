@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Group, Plus } from "lucide-react";
-import React from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 
 import { FetchUsersDataType, UserType } from "./RightSideBar";
@@ -42,8 +42,8 @@ const LeftSideBar = ({
   selectedChatGroup,
   setSelectedChatGroup,
 }: LeftSideBarProps) => {
-  const [open, setOpen] = React.useState(false);
-  const [selectedUsers, setSelectedUsers] = React.useState<UserType[]>([]);
+  const [open, setOpen] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState<UserType[]>([]);
 
   if (!groupData.success) {
     toast.error(groupData.error as string);
@@ -71,12 +71,12 @@ const LeftSideBar = ({
             </Tooltip>
           </TooltipProvider>
         </h2>
-        <ScrollArea className="h-[600px]   px-1">
-          <div className="space-y-1 p-2">
+        <ScrollArea className="h-[700px] px-1">
+          <div className="p-2">
             {groupData.data &&
               groupData.data.map((group) => (
                 <div
-                  className={`my-4 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700 ${
+                  className={`my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700 ${
                     selectedChatGroup === group._id &&
                     "shadow-md shadow-neutral-300 dark:shadow-slate-700"
                   }`}

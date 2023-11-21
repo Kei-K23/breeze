@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { UserType } from "./(dashboard)/_components/RightSideBar";
 
-export async function createGroup({
+export async function createGroupAction({
   values,
   currentUserId,
   cookie,
@@ -38,28 +38,31 @@ export async function createGroup({
 
     const groupData = await resGroupDate.json();
 
-    await createGroupMember({
+    await createGroupMemberAction({
       cookie,
-      values: {
-        addedBy: currentUserId,
-        memberId: currentUserId,
-        groupId: groupData.data._id,
-      },
+      values: [
+        {
+          addedBy: currentUserId,
+          memberId: currentUserId,
+          groupId: groupData.data._id,
+        },
+      ],
     });
 
     if (selectedUsers.length) {
       selectedUsers.map(async (user) => {
-        await createGroupMember({
+        await createGroupMemberAction({
           cookie,
-          values: {
-            addedBy: currentUserId,
-            memberId: user._id,
-            groupId: groupData.data._id,
-          },
+          values: [
+            {
+              addedBy: currentUserId,
+              memberId: user._id,
+              groupId: groupData.data._id,
+            },
+          ],
         });
       });
     }
-
     revalidatePath("/");
   } catch (e: any) {
     revalidatePath("/");
@@ -67,21 +70,18 @@ export async function createGroup({
   }
 }
 
-export async function createGroupMember({
+export async function createGroupMemberAction({
   values,
   cookie,
 }: {
   cookie: string;
-  values: { groupId: string; addedBy: string; memberId: string };
+  values: { groupId: string; addedBy: string; memberId: string }[];
 }) {
-  const { addedBy, groupId, memberId } = values;
   try {
     await fetch("http://localhost:8090/api/group_members/", {
       method: "POST",
       body: JSON.stringify({
-        groupId,
-        addedBy,
-        memberId,
+        groupMembers: values,
       }),
       headers: {
         Cookie: `breeze_csrf=${cookie}`,
@@ -93,6 +93,7 @@ export async function createGroupMember({
         revalidate: 0,
       },
     });
+    revalidatePath("/");
   } catch (e: any) {
     revalidatePath("/");
     throw new Error(e);

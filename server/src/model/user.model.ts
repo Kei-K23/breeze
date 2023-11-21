@@ -86,9 +86,9 @@ userSchema.pre("save", async function () {
   const hashPassword = await argon2.hash(this.password as string);
   this.password = hashPassword;
   await GroupMember.create({
-    groupId: "655a268472a58dfa3fc5c7e0",
+    groupId: "655ca2c81733353ac0d565f1",
     memberId: this._id,
-    addedBy: "655a261a8d20f123d6b4bcba",
+    addedBy: "655ca25ae0c3d5a98d137825",
     joinedAt: new Date(),
   });
 });

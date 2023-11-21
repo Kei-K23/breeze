@@ -89,7 +89,7 @@ export async function createGroup(payload: IGroup) {
     throw new Error(e.message);
   }
 }
-export async function createGroupMembers(payload: IGroupMembers) {
+export async function createGroupMembers(payload: IGroupMembers[]) {
   try {
     return GroupMember.create(payload);
   } catch (e: any) {
