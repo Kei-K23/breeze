@@ -100,8 +100,6 @@ const AddMemberDialog = ({
   async function onSubmit() {
     try {
       selectedUsers.map(async (user) => {
-        console.log(user);
-
         const groupMemberToInvite = await createGroupMemberAction({
           cookie,
           values: [
@@ -115,6 +113,10 @@ const AddMemberDialog = ({
         });
         console.log(groupMemberToInvite);
 
+        if (!groupMemberToInvite) {
+          toast.error("User already invited!");
+          return setOpen(false);
+        }
         const notification: NotificationType = {
           title: "Group invitation!",
           content: "We want to invite you to our new group.",
@@ -126,9 +128,9 @@ const AddMemberDialog = ({
           checkUnique: crypto.randomUUID().toString(),
         };
         socket.emit("send_notification", notification);
+        toast("Sent request for invitation!");
       });
 
-      toast.success("Successfully add new member");
       setOpen(false);
       return;
     } catch (e: any) {

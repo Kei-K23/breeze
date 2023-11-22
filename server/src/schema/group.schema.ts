@@ -67,9 +67,17 @@ export const editGroupMemberSchema = z.object({
     status: z.string().optional(),
   }),
 });
+export const deleteGroupMemberSchema = z.object({
+  body: z.object({
+    _id: z.string().optional(),
+  }),
+});
 
 export type CreateGroup = z.infer<typeof createGroup>["body"];
 export type CreateGroupMembers = z.infer<typeof createGroupMembers>["body"];
 export type GetDataByUserId = z.infer<typeof getDataByUserId>["params"];
 export type GetDataByIdType = z.infer<typeof getDataByIdSchema>["query"];
 export type EditGroupMemberType = z.infer<typeof editGroupMemberSchema>;
+export type DeleteGroupMemberType = z.infer<
+  typeof deleteGroupMemberSchema
+>["body"];

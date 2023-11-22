@@ -71,8 +71,6 @@ export async function createGroupMemberAction({
     status?: "Pending" | "Accept";
   }[];
 }) {
-  console.log(values);
-
   try {
     const res = await fetch("http://localhost:8090/api/group_members/", {
       method: "POST",
@@ -90,15 +88,13 @@ export async function createGroupMemberAction({
       },
     });
     const data = await res.json();
-    console.log(data);
 
     revalidatePath("/");
     revalidateTag("group_member");
+
     return data.data;
   } catch (e: any) {
     revalidatePath("/");
-    console.log(e);
-
     throw new Error(e);
   }
 }

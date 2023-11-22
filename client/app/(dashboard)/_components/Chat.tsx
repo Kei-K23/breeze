@@ -24,6 +24,7 @@ import Image from "next/image";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import AddMemberDialog from "./AddMemberDialog";
+import { useSocket } from "@/provider/socket-provider";
 
 const users = [
   {
@@ -77,9 +78,19 @@ export function MessageChat({
   }>();
   const [groupMembers, setGroupMembers] = useState<Array<UserType>>([]);
   const [open, setOpen] = useState(false);
-
+  const { socket } = useSocket();
   useEffect(() => {
     fetchChatGroupData();
+    if (socket) {
+      socket.on(
+        "response_notification_accept",
+        (data: { name: string; senderId: string; receiverId: string }) => {
+          if (data.receiverId === currentUser._id) {
+            fetchChatGroupData();
+          }
+        }
+      );
+    }
   }, [selectedChatGroup]);
 
   // fetch chat group data

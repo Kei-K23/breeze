@@ -130,3 +130,15 @@ export async function editGroupMember({
     throw new Error(e.message);
   }
 }
+
+export async function deleteGroupMember({
+  filter,
+}: {
+  filter: FilterQuery<GroupMembersDoc>;
+}) {
+  try {
+    return await GroupMember.deleteOne(filter);
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}

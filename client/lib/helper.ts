@@ -48,7 +48,6 @@ export function getUniqueData({
   const uniqueFromArr2 = reduceArr2.filter(
     (item) => !reduceArr1.includes(item)
   );
-  console.log(reduceArr1, reduceArr2);
 
   // Combine unique elements from both arrays
   return uniqueFromArr1.concat(uniqueFromArr2) as unknown as UserType[];

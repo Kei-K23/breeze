@@ -60,10 +60,19 @@ const Notification = ({ currentUser }: NotificationProps) => {
       };
 
       socket.on(
-        "response_notification",
+        "response_notification_accept",
         (data: { name: string; senderId: string; receiverId: string }) => {
           if (data.receiverId === currentUser._id) {
             toast(`${data.name} is accepted your invitation`);
+          }
+        }
+      );
+
+      socket.on(
+        "response_notification_decline",
+        (data: { name: string; senderId: string; receiverId: string }) => {
+          if (data.receiverId === currentUser._id) {
+            toast(`Sorry! ${data.name} is reject your invitation`);
           }
         }
       );
@@ -73,6 +82,22 @@ const Notification = ({ currentUser }: NotificationProps) => {
       return () => {
         // Clean up the event listener when the component unmounts
         socket.off("receive_notification", receiveNotification);
+        socket.off(
+          "response_notification_accept",
+          (data: { name: string; senderId: string; receiverId: string }) => {
+            if (data.receiverId === currentUser._id) {
+              toast(`${data.name} is accepted your invitation`);
+            }
+          }
+        );
+        socket.off(
+          "response_notification_decline",
+          (data: { name: string; senderId: string; receiverId: string }) => {
+            if (data.receiverId === currentUser._id) {
+              toast(`Sorry! ${data.name} is reject your invitation`);
+            }
+          }
+        );
       };
     }
   }, [currentUser, notifications, socket]);
@@ -141,13 +166,12 @@ const Notification = ({ currentUser }: NotificationProps) => {
         userId: currentUser._id,
         payload,
       });
-      socket.emit("response_notification", {
+      socket.emit("response_notification_accept", {
         name: currentUser.name,
         senderId: currentUser._id,
         receiverId: notificationSenderId,
       });
     } catch (e: any) {
-      console.log(e);
       toast.error(e.message);
     }
   }
@@ -155,9 +179,13 @@ const Notification = ({ currentUser }: NotificationProps) => {
   async function onClickRemoveNOfUser({
     userId,
     payload,
+    notificationSenderId,
+    _id,
   }: {
     userId: string;
+    notificationSenderId?: string;
     payload: NotificationType;
+    _id?: string;
   }) {
     try {
       await fetch(`http://localhost:8090/api/users/rmN/${userId}`, {
@@ -172,9 +200,30 @@ const Notification = ({ currentUser }: NotificationProps) => {
           revalidate: 0,
         },
       });
+
+      await fetch("http://localhost:8090/api/groups", {
+        method: "DELETE",
+        body: JSON.stringify({
+          _id,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+        next: {
+          revalidate: 0,
+        },
+      });
+
       setNotifications([]);
+
+      socket.emit("response_notification_decline", {
+        name: currentUser.name,
+        senderId: currentUser._id,
+        receiverId: notificationSenderId,
+      });
     } catch (e: any) {
-      console.log(e);
       toast.error(e.message);
     }
   }
@@ -239,6 +288,8 @@ const Notification = ({ currentUser }: NotificationProps) => {
                       await onClickRemoveNOfUser({
                         userId: currentUser._id,
                         payload: n,
+                        notificationSenderId: n.senderId,
+                        _id: n.sourceIdToConfirm,
                       });
                       router.refresh();
                     }}

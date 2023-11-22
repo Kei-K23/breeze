@@ -98,18 +98,6 @@ const RightSideBar = ({ usersData, currentUserId }: RightSideBarProps) => {
                         <h4>No Active</h4>
                       )
 
-                      // (
-                      //   onlineUser.map((onlineU) => {
-                      //     console.log(onlineU);
-
-                      //     if (onlineU === user?._id) {
-                      //       return;
-                      //     } else {
-                      //       return <h4 key={onlineU}>No Active</h4>;
-                      //     }
-                      //   })
-                      // )
-
                       /* {isConnected ? (
                       <>
                         <TooltipProvider delayDuration={0}>

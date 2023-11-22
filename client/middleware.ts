@@ -15,8 +15,6 @@ export async function middleware(req: NextRequest) {
       )
     );
   } catch (e: any) {
-    console.log(e);
-
     return NextResponse.redirect("http://localhost:3000/");
   }
 }

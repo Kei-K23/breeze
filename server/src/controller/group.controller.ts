@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   createGroup,
   createGroupMembers,
+  deleteGroupMember,
   editGroupMember,
   getGroups,
   getGroupsByIds,
@@ -12,6 +13,7 @@ import { FlattenMaps, Schema } from "mongoose";
 import {
   CreateGroup,
   CreateGroupMembers,
+  DeleteGroupMemberType,
   EditGroupMemberType,
   GetDataByIdType,
   GetDataByUserId,
@@ -206,6 +208,32 @@ export async function editGroupMemberHandler(
       .json({
         success: true,
         data: groupMember,
+      })
+      .end();
+  } catch (e: any) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: e.message,
+      })
+      .end();
+  }
+}
+
+export async function deleteGroupMemberHandler(
+  req: Request<{}, {}, DeleteGroupMemberType>,
+  res: Response
+) {
+  try {
+    await deleteGroupMember({
+      filter: req.body,
+    });
+
+    return res
+      .status(200)
+      .json({
+        success: true,
       })
       .end();
   } catch (e: any) {

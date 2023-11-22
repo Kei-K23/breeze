@@ -27,8 +27,11 @@ io.on("connection", (socket) => {
     io.emit("system_active_users", Array.from(activeUsers.values()));
   });
 
-  socket.on("response_notification", (data) => {
-    io.emit("response_notification", data);
+  socket.on("response_notification_accept", (data) => {
+    io.emit("response_notification_accept", data);
+  });
+  socket.on("response_notification_decline", (data) => {
+    io.emit("response_notification_decline", data);
   });
 
   socket.on(
@@ -41,7 +44,6 @@ io.on("connection", (socket) => {
       createdAt: Date;
       receiverId: string;
     }) => {
-      console.log(notification);
       io.emit("receive_notification", notification);
     }
   );
