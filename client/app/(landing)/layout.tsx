@@ -15,6 +15,7 @@ const LandingPageLayout = async ({
         refreshCookie?.value as string,
         process.env.NEXT_PUBLIC_REFRESH_TOKEN_SECRET as string
       );
+
       if (decoded) {
         return redirect("/dashboard");
       }

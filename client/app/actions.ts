@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { UserType } from "./(dashboard)/_components/RightSideBar";
 
 export async function createGroupAction({
@@ -78,7 +78,7 @@ export async function createGroupMemberAction({
   values: { groupId: string; addedBy: string; memberId: string }[];
 }) {
   try {
-    await fetch("http://localhost:8090/api/group_members/", {
+    const res = await fetch("http://localhost:8090/api/group_members/", {
       method: "POST",
       body: JSON.stringify({
         groupMembers: values,
@@ -93,7 +93,11 @@ export async function createGroupMemberAction({
         revalidate: 0,
       },
     });
+    const data = await res.json();
+
     revalidatePath("/");
+    revalidateTag("group_member");
+    return data.data;
   } catch (e: any) {
     revalidatePath("/");
     throw new Error(e);

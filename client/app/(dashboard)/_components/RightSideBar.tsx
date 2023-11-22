@@ -1,17 +1,13 @@
 "use client";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { cn } from "@/lib/utils";
 import { useSocket } from "@/provider/socket-provider";
 import { User2Icon, UserCircle2 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { NotificationType } from "./AddMemberDialog";
 
 export type FetchUsersDataType = {
   success: true;
@@ -39,6 +35,7 @@ export type UserType = {
   email: string;
   picture: string;
   updatedAt: Date;
+  notification?: NotificationType[];
 };
 interface RightSideBarProps {
   usersData: Partial<FetchUsersDataType>;
@@ -46,7 +43,7 @@ interface RightSideBarProps {
 }
 const RightSideBar = ({ usersData, currentUserId }: RightSideBarProps) => {
   const [onlineUser, setOnlineUser] = useState<Array<string>>([]);
-  const { isConnected, socket } = useSocket();
+  const { socket } = useSocket();
 
   useEffect(() => {
     if (!socket) {

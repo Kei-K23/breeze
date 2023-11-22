@@ -17,15 +17,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import { UserType } from "@/app/(dashboard)/_components/RightSideBar";
 
 interface NavbarProp {
   name?: string | null;
   email?: string | null;
   image?: string | null;
+  currentUser?: UserType;
   iconLink: string;
 }
 
-const Navbar = ({ name, email, image, iconLink }: NavbarProp) => {
+const Navbar = ({ name, email, image, iconLink, currentUser }: NavbarProp) => {
   const isScrolled = useScrollTop();
   const { isConnected } = useSocket();
 
@@ -100,7 +102,7 @@ const Navbar = ({ name, email, image, iconLink }: NavbarProp) => {
             </>
           )}
 
-          <Notification />
+          <Notification currentUser={currentUser as UserType} />
 
           <ModeToggle />
         </div>

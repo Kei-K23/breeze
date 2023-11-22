@@ -59,6 +59,7 @@ const Dashboard = async ({
         name={userData.data.name}
         email={userData.data.email}
         image={userData.data.picture}
+        currentUser={userData.data}
         iconLink="/dashboard"
       />
       <MainDashboard

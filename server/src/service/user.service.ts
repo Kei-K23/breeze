@@ -1,5 +1,5 @@
 import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
-import { IUser, User } from "../model/user.model";
+import { IUser, User, UserDoc } from "../model/user.model";
 import axios from "axios";
 import qs from "qs";
 import mongoose from "mongoose";
@@ -68,6 +68,21 @@ export interface GitHubUserResult {
 export async function createUser(payload: Partial<IUser>) {
   try {
     return await User.create(payload);
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+export async function editUser({
+  filter,
+  update,
+  options,
+}: {
+  filter: FilterQuery<UserDoc>;
+  update: UpdateQuery<UserDoc>;
+  options: QueryOptions;
+}) {
+  try {
+    return await User.findOneAndUpdate(filter, update, options);
   } catch (e: any) {
     throw new Error(e.message);
   }

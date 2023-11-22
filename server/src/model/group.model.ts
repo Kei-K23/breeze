@@ -16,6 +16,7 @@ export interface IGroupMembers {
   memberId: string;
   addedBy: string;
   joinedAt?: Date;
+  status: "Pending" | "Accept";
 }
 
 export interface GroupMembersDoc extends mongoose.Document {
@@ -23,6 +24,7 @@ export interface GroupMembersDoc extends mongoose.Document {
   memberId: mongoose.ObjectId;
   addedBy: mongoose.ObjectId;
   joinedAt?: Date;
+  status: string;
 }
 
 const groupSchema = new mongoose.Schema<GroupDoc>(
@@ -63,6 +65,10 @@ const groupMembersSchema = new mongoose.Schema<GroupMembersDoc>(
     joinedAt: {
       type: Date,
       default: new Date(),
+    },
+    status: {
+      type: String,
+      default: "Pending",
     },
   },
   {

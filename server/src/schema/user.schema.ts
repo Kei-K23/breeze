@@ -42,9 +42,31 @@ export const userIdArraySchema = z.object({
   }),
 });
 
+export const editUserSchema = z.object({
+  params: z.object({
+    userId: z.string({
+      required_error: "User id is required!",
+    }),
+  }),
+  body: z.object({
+    name: z
+      .string({
+        required_error: "User name is required!",
+        invalid_type_error: "User name should be string",
+      })
+      .optional(),
+    email: z
+      .string({ required_error: "Email is required" })
+      .email("Invalid email format")
+      .optional(),
+    notification: z.array(z.any()).optional(),
+  }),
+});
+
 export type CreateUserType = Omit<
   z.infer<typeof createUserSchema>["body"],
   "confirm_password"
 >;
 export type LoginUserType = z.infer<typeof loginUserSchema>["body"];
 export type UserIdArrayType = z.infer<typeof userIdArraySchema>["body"];
+export type EditUserType = z.infer<typeof editUserSchema>;

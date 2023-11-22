@@ -12,3 +12,7 @@
 - Landing Page
 - Register Form
 - Login Form
+
+### Need to do
+
+- Accept Invitation form notification message

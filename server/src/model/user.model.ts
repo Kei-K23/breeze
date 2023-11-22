@@ -7,6 +7,7 @@ export interface INotification {
   content: string;
   sourceIdToConfirm: string; /// confirmation id
   senderId: string;
+  senderName: string;
   createdAt: Date;
 }
 
@@ -27,10 +28,11 @@ const NotificationSchema = new mongoose.Schema<INotification>({
   content: { type: String, required: true },
   sourceIdToConfirm: { type: String, required: true },
   senderId: { type: String, required: true },
+  senderName: { type: String, required: true },
   createdAt: { type: Date, default: new Date() },
 });
 
-interface UserDoc extends mongoose.Document {
+export interface UserDoc extends mongoose.Document {
   _id?: mongoose.Types.ObjectId;
   name: string;
   email: string;

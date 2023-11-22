@@ -23,6 +23,7 @@ import { UserType } from "./RightSideBar";
 import toast from "react-hot-toast";
 import { createGroupMemberAction } from "@/app/actions";
 import { useRouter } from "next/navigation";
+import { useSocket } from "@/provider/socket-provider";
 
 interface AddMemberDialogProps {
   open: boolean;
@@ -30,8 +31,21 @@ interface AddMemberDialogProps {
   cookie: string;
   existMember: UserType[];
   selectedChatGroup: string;
-  currentUserId: string;
+  currentUser: UserType;
 }
+
+export type NotificationType = {
+  title: "Group invitation!" | "Friend request!";
+  content:
+    | "We want to invite you to our new group."
+    | "I want to make friend with you";
+  sourceIdToConfirm: string; /// confirmation id
+  senderId: string;
+  senderName: string;
+  createdAt: Date;
+  receiverId: string;
+  checkUnique: string;
+};
 
 const AddMemberDialog = ({
   open,
@@ -39,11 +53,13 @@ const AddMemberDialog = ({
   existMember,
   cookie,
   selectedChatGroup,
-  currentUserId,
+  currentUser,
 }: AddMemberDialogProps) => {
   const router = useRouter();
   const [selectedUsers, setSelectedUsers] = useState<UserType[]>([]);
   const [addableUsers, setAddableUsers] = useState<UserType[]>([]);
+
+  const { socket } = useSocket();
 
   const userIdsArray = existMember.reduce((acc: Array<string>, curr) => {
     const id = curr._id;
@@ -90,18 +106,30 @@ const AddMemberDialog = ({
   async function onSubmit() {
     try {
       selectedUsers.map(async (user) => {
-        await createGroupMemberAction({
+        const groupMemberToInvite = await createGroupMemberAction({
           cookie,
           values: [
             {
-              addedBy: currentUserId,
+              addedBy: currentUser._id,
               groupId: selectedChatGroup,
               memberId: user._id,
             },
           ],
         });
+        const notification: NotificationType = {
+          title: "Group invitation!",
+          content: "We want to invite you to our new group.",
+          createdAt: new Date(),
+          senderId: currentUser._id,
+          senderName: currentUser.name,
+          sourceIdToConfirm: groupMemberToInvite[0]._id,
+          receiverId: user._id,
+          checkUnique: crypto.randomUUID().toString(),
+        };
+        socket.emit("send_notification", notification);
       });
-      toast.success("Successfully created new Group");
+
+      toast.success("Successfully add new member");
       setOpen(false);
       return;
     } catch (e: any) {

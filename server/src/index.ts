@@ -16,6 +16,9 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("Socket connected!", socket.id);
 
+  io.emit("system_active_users", Array.from(activeUsers.values()));
+
+  // event for tracking online and offline status
   socket.on("client_connect", (id) => {
     // Store the user ID in the map when a client connects
     activeUsers.set(socket.id, id);
@@ -24,6 +27,21 @@ io.on("connection", (socket) => {
     io.emit("system_active_users", Array.from(activeUsers.values()));
   });
 
+  socket.on(
+    "send_notification",
+    (notification: {
+      title: string;
+      content: string;
+      sourceIdToConfirm: string; /// confirmation id
+      senderId: string;
+      createdAt: Date;
+      receiverId: string;
+    }) => {
+      console.log(notification);
+      io.emit("receive_notification", notification);
+    }
+  );
+
   socket.on("disconnect", () => {
     console.log("Socket disconnected!");
 
@@ -31,7 +49,7 @@ io.on("connection", (socket) => {
     activeUsers.delete(socket.id);
 
     // Emit the updated list of active users to all clients
-    io.emit("active_users", Array.from(activeUsers.values()));
+    io.emit("system_active_users", Array.from(activeUsers.values()));
   });
 });
 server.listen(PORT, () => {

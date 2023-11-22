@@ -59,13 +59,13 @@ interface MessageChatProps {
   selectedChatGroup: string;
   cookie: string;
   usersData: UserType[];
-  currentUserId: string;
+  currentUser: UserType;
 }
 
 export function MessageChat({
   selectedChatGroup,
   cookie,
-  currentUserId,
+  currentUser,
 }: MessageChatProps) {
   const [group, setGroup] = useState<{
     _id: string;
@@ -106,8 +106,9 @@ export function MessageChat({
             method: "GET",
             credentials: "include",
             next: {
-              revalidate: 0,
+              tags: ["group_member"],
             },
+            cache: "no-cache",
           }
         );
         const groupMembersData = await resGroupMembers.json();
@@ -319,7 +320,7 @@ export function MessageChat({
         </CardFooter>
       </Card>
       <AddMemberDialog
-        currentUserId={currentUserId}
+        currentUser={currentUser}
         selectedChatGroup={selectedChatGroup}
         existMember={groupMembers}
         setOpen={setOpen}

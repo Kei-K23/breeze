@@ -34,7 +34,7 @@ const MainDashboard = ({
       />
       <MessageChat
         cookie={cookie}
-        currentUserId={currentUser._id}
+        currentUser={currentUser}
         usersData={usersData.data as UserType[]}
         selectedChatGroup={selectedChatGroup as string}
       />

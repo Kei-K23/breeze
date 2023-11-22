@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
-import { CreateUserType, UserIdArrayType } from "../schema/user.schema";
+import {
+  CreateUserType,
+  EditUserType,
+  UserIdArrayType,
+} from "../schema/user.schema";
 import {
   createUser,
+  editUser,
   getAllUserWithoutCurrentUser,
   getUser,
   getUserAllUserWithoutCurrentUser,
@@ -15,6 +20,55 @@ export async function createUserHandler(
 ) {
   try {
     const user = await createUser(req.body);
+
+    return res
+      .status(201)
+      .json({
+        success: true,
+        data: omitDoc(user, ["password", "__v"]),
+        message: "Successfully register!",
+      })
+      .end();
+  } catch (e: any) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: e.message,
+      })
+      .end();
+  }
+}
+
+export async function editUserHandler(
+  req: Request<EditUserType["params"], {}, EditUserType["body"]>,
+  res: Response
+) {
+  const userId = req.params.userId;
+  try {
+    const user = await editUser({
+      filter: {
+        _id: userId,
+      },
+      update: {
+        name: req.body.name,
+        email: req.body.email,
+        $push: { notification: req.body.notification },
+      },
+      options: {
+        new: true,
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(500)
+        .json({
+          success: false,
+          error: "Could not update user data!",
+        })
+        .end();
+    }
 
     return res
       .status(201)
