@@ -34,7 +34,7 @@ export default function (route: Router) {
     "/api/users/without",
     revalidateAccessToken,
     requiredAccessToken,
-    // validateResource(userIdArraySchema),
+    validateResource(userIdArraySchema),
     getAllUserWithoutCurrentUserHandler
   );
 }

@@ -2,19 +2,21 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { buttonVariants } from "@/components/ui/button";
-import { Globe2Icon, LogInIcon } from "lucide-react";
+
+import { LogInIcon } from "lucide-react";
 import useScrollTop from "@/hook/use-scroll-top";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "./mode-toggle";
 import { UserAvatar } from "./user-avatar";
 import SocketIndicator from "./socket-indicator";
+import { useSocket } from "@/provider/socket-provider";
+import Notification from "./notification";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 interface NavbarProp {
   name?: string | null;
@@ -25,6 +27,8 @@ interface NavbarProp {
 
 const Navbar = ({ name, email, image, iconLink }: NavbarProp) => {
   const isScrolled = useScrollTop();
+  const { isConnected } = useSocket();
+
   return (
     <header
       className={cn(
@@ -52,7 +56,34 @@ const Navbar = ({ name, email, image, iconLink }: NavbarProp) => {
 
           {email && name ? (
             <>
-              <UserAvatar email={email} name={name} image={image as string} />
+              <div className="flex items-center justify-center relative">
+                <UserAvatar email={email} name={name} image={image as string} />
+                {isConnected ? (
+                  <>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="absolute -top-2 -right-2 w-3 h-3 bg-green-500 rounded-full"></div>
+                        </TooltipTrigger>
+                        {/* <TooltipContent className="top-0">
+                          Online
+                        </TooltipContent> */}
+                      </Tooltip>
+                    </TooltipProvider>
+                  </>
+                ) : (
+                  <>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                        </TooltipTrigger>
+                        {/* <TooltipContent>Offline</TooltipContent> */}
+                      </Tooltip>
+                    </TooltipProvider>
+                  </>
+                )}
+              </div>
             </>
           ) : (
             <>
@@ -69,14 +100,9 @@ const Navbar = ({ name, email, image, iconLink }: NavbarProp) => {
             </>
           )}
 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <ModeToggle />
-              </TooltipTrigger>
-              <TooltipContent>Theme</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Notification />
+
+          <ModeToggle />
         </div>
       </nav>
     </header>

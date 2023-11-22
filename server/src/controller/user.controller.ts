@@ -76,7 +76,7 @@ export async function getAllUserWithoutCurrentUserHandler(
 ) {
   try {
     const users = await getAllUserWithoutCurrentUser({
-      userIdArray: req.body as unknown as string[],
+      userIdArray: req.body.userIdArray as unknown as string[],
     });
 
     if (!users?.length)

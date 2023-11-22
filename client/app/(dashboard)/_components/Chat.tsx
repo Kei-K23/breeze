@@ -110,7 +110,6 @@ export function MessageChat({
             },
           }
         );
-
         const groupMembersData = await resGroupMembers.json();
 
         if (resGroupMembers.ok && groupMembersData.success) {

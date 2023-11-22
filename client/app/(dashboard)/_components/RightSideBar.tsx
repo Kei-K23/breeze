@@ -1,8 +1,16 @@
+"use client";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useSocket } from "@/provider/socket-provider";
 import { User2Icon, UserCircle2 } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export type FetchUsersDataType = {
@@ -34,10 +42,31 @@ export type UserType = {
 };
 interface RightSideBarProps {
   usersData: Partial<FetchUsersDataType>;
+  currentUserId: string;
 }
-const RightSideBar = ({ usersData }: RightSideBarProps) => {
-  if (!usersData.success) {
-    toast.error(usersData.error as string);
+const RightSideBar = ({ usersData, currentUserId }: RightSideBarProps) => {
+  const [onlineUser, setOnlineUser] = useState<Array<string>>([]);
+  const { isConnected, socket } = useSocket();
+
+  useEffect(() => {
+    if (!socket) {
+      return;
+    }
+
+    socket.emit("client_connect", currentUserId);
+
+    socket.on("system_active_users", (users: Array<string>) => {
+      setOnlineUser(users);
+    });
+
+    return () => {
+      // Clean up event listeners
+      socket.off("system_active_users");
+    };
+  }, [socket]);
+
+  if (usersData.error) {
+    toast.error(usersData.error);
   }
 
   return (
@@ -68,6 +97,49 @@ const RightSideBar = ({ usersData }: RightSideBarProps) => {
                     )}
 
                     <h3>{user?.name}</h3>
+                    {
+                      onlineUser.includes(user?._id as string) ? (
+                        <h4>Online</h4>
+                      ) : (
+                        <h4>No Active</h4>
+                      )
+
+                      // (
+                      //   onlineUser.map((onlineU) => {
+                      //     console.log(onlineU);
+
+                      //     if (onlineU === user?._id) {
+                      //       return;
+                      //     } else {
+                      //       return <h4 key={onlineU}>No Active</h4>;
+                      //     }
+                      //   })
+                      // )
+
+                      /* {isConnected ? (
+                      <>
+                        <TooltipProvider delayDuration={0}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                            </TooltipTrigger>
+                            <TooltipContent>Online</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </>
+                    ) : (
+                      <>
+                        <TooltipProvider delayDuration={0}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                            </TooltipTrigger>
+                            <TooltipContent>Offline</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </>
+                    )} */
+                    }
                   </div>
                   <p className="text-neutral-600 dark:text-neutral-400 line-clamp-1">
                     {user?.email}

@@ -61,7 +61,7 @@ const AddMemberDialog = ({
     try {
       const res = await fetch("http://localhost:8090/api/users/without", {
         method: "POST",
-        body: JSON.stringify(userIdsArray),
+        body: JSON.stringify({ userIdArray: userIdsArray }),
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
@@ -75,11 +75,14 @@ const AddMemberDialog = ({
 
       if (res.ok && data.success) {
         setAddableUsers(data.data);
-        console.log(data.data);
       } else {
+        console.log(data);
+
         toast.error(data.error);
       }
     } catch (e: any) {
+      console.log(e);
+
       toast.error(e.message);
     }
   }

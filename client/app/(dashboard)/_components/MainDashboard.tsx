@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MessageChat } from "./Chat";
 import LeftSideBar, { FetchGroupsDataType } from "./LeftSideBar";
 import RightSideBar, { FetchUsersDataType, UserType } from "./RightSideBar";
@@ -38,7 +38,7 @@ const MainDashboard = ({
         usersData={usersData.data as UserType[]}
         selectedChatGroup={selectedChatGroup as string}
       />
-      <RightSideBar usersData={usersData} />
+      <RightSideBar currentUserId={currentUser._id} usersData={usersData} />
     </div>
   );
 };

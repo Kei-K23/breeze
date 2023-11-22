@@ -11,7 +11,7 @@ import validateResource from "../middleware/validateResource";
 import {
   createGroup,
   createGroupMembers,
-  getDataById,
+  getDataByIdSchema,
   getDataByUserId,
 } from "../schema/group.schema";
 
@@ -27,6 +27,7 @@ export default function (route: Router) {
     "/api/groups/",
     revalidateAccessToken,
     requiredAccessToken,
+    validateResource(getDataByIdSchema),
     getGroupByIdHandler
   );
   route.post(

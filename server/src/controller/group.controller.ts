@@ -11,7 +11,7 @@ import { FlattenMaps, Schema } from "mongoose";
 import {
   CreateGroup,
   CreateGroupMembers,
-  GetDataById,
+  GetDataByIdType,
   GetDataByUserId,
 } from "../schema/group.schema";
 
@@ -65,7 +65,7 @@ export async function getGroupsByUserIdHandler(
 }
 
 export async function getGroupByIdHandler(
-  req: Request<{}, {}, {}, GetDataById>,
+  req: Request<{}, {}, {}, GetDataByIdType>,
   res: Response
 ) {
   try {

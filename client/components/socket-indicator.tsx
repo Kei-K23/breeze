@@ -3,7 +3,6 @@
 import { useSocket } from "@/provider/socket-provider";
 import { Badge } from "./ui/badge";
 import { AnnoyedIcon, Smile } from "lucide-react";
-
 const SocketIndicator = () => {
   const { isConnected } = useSocket();
 

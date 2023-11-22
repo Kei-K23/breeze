@@ -40,18 +40,22 @@ export const getDataByUserId = z.object({
   }),
 });
 
-export const getDataById = z.object({
+export const getDataByIdSchema = z.object({
   query: z.object({
-    groupId: z.string({
-      required_error: "Group id is required!",
-    }),
-    groupIdForMembers: z.string({
-      required_error: "Group id is required!",
-    }),
+    groupId: z
+      .string({
+        required_error: "Group id is required!",
+      })
+      .optional(),
+    groupIdForMembers: z
+      .string({
+        required_error: "Group id is required!",
+      })
+      .optional(),
   }),
 });
 
 export type CreateGroup = z.infer<typeof createGroup>["body"];
 export type CreateGroupMembers = z.infer<typeof createGroupMembers>["body"];
 export type GetDataByUserId = z.infer<typeof getDataByUserId>["params"];
-export type GetDataById = z.infer<typeof getDataById>["query"];
+export type GetDataByIdType = z.infer<typeof getDataByIdSchema>["query"];

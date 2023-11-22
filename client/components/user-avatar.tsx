@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,10 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import LogOut from "@/lib/logOut";
-import { Globe2Icon, LayoutDashboardIcon, LogOutIcon } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-
 interface UserAvatarProp {
   name: string;
   email: string;
@@ -22,8 +18,6 @@ interface UserAvatarProp {
 }
 
 export function UserAvatar({ email, image, name }: UserAvatarProp) {
-  const path = usePathname();
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

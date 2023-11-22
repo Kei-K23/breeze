@@ -2,6 +2,14 @@ import mongoose from "mongoose";
 import argon2 from "argon2";
 import { GroupMember } from "./group.model";
 
+export interface INotification {
+  title: string;
+  content: string;
+  sourceIdToConfirm: string; /// confirmation id
+  senderId: string;
+  createdAt: Date;
+}
+
 export interface IUser {
   _id?: string;
   name: string;
@@ -11,7 +19,16 @@ export interface IUser {
   created_at: Date;
   updated_at: Date;
   providerName: "Credentials" | "Google" | "Github";
+  notification?: Array<INotification>;
 }
+
+const NotificationSchema = new mongoose.Schema<INotification>({
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  sourceIdToConfirm: { type: String, required: true },
+  senderId: { type: String, required: true },
+  createdAt: { type: Date, default: new Date() },
+});
 
 interface UserDoc extends mongoose.Document {
   _id?: mongoose.Types.ObjectId;
@@ -22,6 +39,7 @@ interface UserDoc extends mongoose.Document {
   created_at: Date;
   updated_at: Date;
   providerName: "Credentials" | "Google" | "Github";
+  notification?: Array<INotification>;
 }
 
 interface UserModel extends mongoose.Model<UserDoc> {
@@ -75,6 +93,10 @@ const userSchema = new mongoose.Schema<UserDoc, UserModel>(
     providerName: {
       type: String,
       default: "Credentials",
+    },
+    notification: {
+      type: [NotificationSchema],
+      default: undefined,
     },
   },
   {

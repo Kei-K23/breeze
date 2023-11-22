@@ -25,14 +25,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const socket = io("ws://localhost:8090", {
       autoConnect: true,
       reconnection: true,
+      transports: ["websocket", "polling"],
     });
 
     socket.on("connect", () => {
-      setIsConnected(true);
+      setIsConnected(socket.connected);
     });
 
     socket.on("disconnect", () => {
-      setIsConnected(false);
+      setIsConnected(socket.connected);
     });
 
     setSocket(socket);
