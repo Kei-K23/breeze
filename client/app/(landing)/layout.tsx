@@ -11,13 +11,22 @@ const LandingPageLayout = async ({
 
   if (refreshCookie?.name === "breeze_csrf") {
     if (refreshCookie.value) {
-      const decoded = verify(
-        refreshCookie?.value as string,
-        process.env.NEXT_PUBLIC_REFRESH_TOKEN_SECRET as string
-      );
+      try {
+        const decoded = verify(
+          refreshCookie?.value as string,
+          process.env.NEXT_PUBLIC_REFRESH_TOKEN_SECRET as string
+        );
 
-      if (decoded) {
-        return redirect("/dashboard");
+        if (decoded) {
+          return redirect("/dashboard");
+        }
+      } catch (e: any) {
+        return (
+          <div className="h-full">
+            <Navbar iconLink="/" />
+            <main>{children}</main>
+          </div>
+        );
       }
     }
   }

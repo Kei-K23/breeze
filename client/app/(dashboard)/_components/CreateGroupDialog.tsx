@@ -33,7 +33,9 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
-import { createGroupAction } from "@/app/actions";
+import { createGroupAction, createGroupMemberAction } from "@/app/actions";
+import { NotificationType } from "./AddMemberDialog";
+import { useSocket } from "@/provider/socket-provider";
 
 interface CreateGroupDialogProps {
   open: boolean;
@@ -63,6 +65,7 @@ const CreateGroupDialog = ({
   currentUser,
   cookie,
 }: CreateGroupDialogProps) => {
+  const { socket } = useSocket();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -73,12 +76,41 @@ const CreateGroupDialog = ({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await createGroupAction({
+      const group = await createGroupAction({
         values,
         currentUserId: currentUser._id,
         cookie,
         selectedUsers,
       });
+
+      if (selectedUsers.length) {
+        selectedUsers.map(async (user) => {
+          const groupMember = await createGroupMemberAction({
+            cookie,
+            values: [
+              {
+                addedBy: currentUser._id,
+                memberId: user._id,
+                groupId: group._id,
+                status: "Pending",
+              },
+            ],
+          });
+          selectedUsers.map((selectedUser) => {
+            const notification: NotificationType = {
+              title: "Group invitation!",
+              content: "We want to invite you to our new group.",
+              createdAt: new Date(),
+              senderId: currentUser._id,
+              senderName: currentUser.name,
+              sourceIdToConfirm: groupMember[0]._id,
+              receiverId: selectedUser._id,
+              checkUnique: crypto.randomUUID().toString(),
+            };
+            socket.emit("send_notification", notification);
+          });
+        });
+      }
 
       toast.success("Successfully created new Group");
       setOpen(false);

@@ -63,6 +63,17 @@ export const editUserSchema = z.object({
   }),
 });
 
+export const removeNotificationOfUserSchema = z.object({
+  params: z.object({
+    userId: z.string({
+      required_error: "User id is required!",
+    }),
+  }),
+  body: z.object({
+    notification: z.any(),
+  }),
+});
+
 export type CreateUserType = Omit<
   z.infer<typeof createUserSchema>["body"],
   "confirm_password"
@@ -70,3 +81,6 @@ export type CreateUserType = Omit<
 export type LoginUserType = z.infer<typeof loginUserSchema>["body"];
 export type UserIdArrayType = z.infer<typeof userIdArraySchema>["body"];
 export type EditUserType = z.infer<typeof editUserSchema>;
+export type RemoveNotificationOfUserType = z.infer<
+  typeof removeNotificationOfUserSchema
+>;

@@ -62,10 +62,6 @@ const RightSideBar = ({ usersData, currentUserId }: RightSideBarProps) => {
     };
   }, [socket]);
 
-  if (usersData.error) {
-    toast.error(usersData.error);
-  }
-
   return (
     <div className="h-[800px] w-[15%] ">
       <div className="py-2">
@@ -74,7 +70,8 @@ const RightSideBar = ({ usersData, currentUserId }: RightSideBarProps) => {
         </h2>
         <ScrollArea className="h-[700px] px-1">
           <div className=" p-2">
-            {usersData.data &&
+            {usersData.data ? (
+              usersData.data &&
               usersData.data.map((user) => (
                 <div
                   className="my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
@@ -142,7 +139,12 @@ const RightSideBar = ({ usersData, currentUserId }: RightSideBarProps) => {
                     {user?.email}
                   </p>
                 </div>
-              ))}
+              ))
+            ) : (
+              <div>
+                <h2 className="text-center">No user yet!</h2>
+              </div>
+            )}
           </div>
         </ScrollArea>
       </div>

@@ -9,6 +9,7 @@ import {
   Group,
   GroupDoc,
   GroupMember,
+  GroupMembersDoc,
   IGroup,
   IGroupMembers,
 } from "../model/group.model";
@@ -18,6 +19,7 @@ export async function getGroupsByUserId({ userId }: { userId: string }) {
   try {
     const groupMembers = await GroupMember.find({
       memberId: userId,
+      status: "Accept",
     }).lean();
 
     if (!groupMembers.length) return null;
@@ -56,7 +58,7 @@ export async function getGroupsByIds({
 
 export async function getMembersByGroupIds({ groupId }: { groupId: string }) {
   try {
-    const groups = await GroupMember.find({ groupId }).lean();
+    const groups = await GroupMember.find({ groupId, status: "Accept" }).lean();
     if (!groups) return null;
 
     const memberIds = groups.reduce(
@@ -104,6 +106,22 @@ export async function createAddGroupMember({
 }: {
   filter: FilterQuery<IGroupMembers>;
   update: UpdateQuery<IGroupMembers>;
+  options: QueryOptions;
+}) {
+  try {
+    return await GroupMember.findOneAndUpdate(filter, update, options);
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+
+export async function editGroupMember({
+  filter,
+  update,
+  options,
+}: {
+  filter: FilterQuery<GroupMembersDoc>;
+  update: UpdateQuery<GroupMembersDoc>;
   options: QueryOptions;
 }) {
   try {

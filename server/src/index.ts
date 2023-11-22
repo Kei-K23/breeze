@@ -27,6 +27,10 @@ io.on("connection", (socket) => {
     io.emit("system_active_users", Array.from(activeUsers.values()));
   });
 
+  socket.on("response_notification", (data) => {
+    io.emit("response_notification", data);
+  });
+
   socket.on(
     "send_notification",
     (notification: {

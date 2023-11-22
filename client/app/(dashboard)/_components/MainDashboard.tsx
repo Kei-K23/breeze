@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MessageChat } from "./Chat";
 import LeftSideBar, { FetchGroupsDataType } from "./LeftSideBar";
 import RightSideBar, { FetchUsersDataType, UserType } from "./RightSideBar";

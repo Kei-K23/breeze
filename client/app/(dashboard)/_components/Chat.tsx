@@ -198,61 +198,68 @@ export function MessageChat({
                 )}
               </div>
               {selectedChatGroup !=
-                process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID && (
-                <TooltipProvider delayDuration={0}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="ml-auto rounded-full"
-                        onClick={() => setOpen(true)}
-                      >
-                        <Plus className="h-4 w-4" />
-                        <span className="sr-only">Add new member</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Add new member</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
+                process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID &&
+                group?.ownerId === currentUser._id && (
+                  <TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="ml-auto rounded-full"
+                          onClick={() => setOpen(true)}
+                        >
+                          <Plus className="h-4 w-4" />
+                          <span className="sr-only">Add new member</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Add new member</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
             </div>
             <div className="relative">
-              <Badge className="absolute -top-3 -right-3 z-10 cursor-pointer">
-                {groupMembers.length}
-              </Badge>
+              {groupMembers && groupMembers.length > 0 && (
+                <Badge className="absolute -top-3 -right-3 z-10 cursor-pointer">
+                  {groupMembers.length}
+                </Badge>
+              )}
               <ScrollArea className=" w-52 rounded-md border ">
                 <div className="flex w-max items-center gap-3 cursor-pointer m-2">
-                  {groupMembers.map((member) => (
-                    <div key={member._id}>
-                      <TooltipProvider delayDuration={0}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            {member?.picture ? (
-                              <Image
-                                src={member?.picture as string}
-                                alt={member?.name as string}
-                                width={40}
-                                height={40}
-                                className={`rounded-full  ${
-                                  member._id === group?.ownerId &&
-                                  "ring-2 ring-sky-500"
-                                } `}
-                              />
-                            ) : (
-                              <UserCircle2
-                                className={`w-10 h-10 rounded-full  ${
-                                  member._id === group?.ownerId &&
-                                  "ring-2 ring-sky-500"
-                                } `}
-                              />
-                            )}
-                          </TooltipTrigger>
-                          <TooltipContent>{member.name}</TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  ))}
+                  {groupMembers && groupMembers.length > 0 ? (
+                    groupMembers.map((member) => (
+                      <div key={member._id}>
+                        <TooltipProvider delayDuration={0}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              {member?.picture ? (
+                                <Image
+                                  src={member?.picture as string}
+                                  alt={member?.name as string}
+                                  width={40}
+                                  height={40}
+                                  className={`rounded-full  ${
+                                    member._id === group?.ownerId &&
+                                    "ring-2 ring-sky-500"
+                                  } `}
+                                />
+                              ) : (
+                                <UserCircle2
+                                  className={`w-10 h-10 rounded-full  ${
+                                    member._id === group?.ownerId &&
+                                    "ring-2 ring-sky-500"
+                                  } `}
+                                />
+                              )}
+                            </TooltipTrigger>
+                            <TooltipContent>{member.name}</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    ))
+                  ) : (
+                    <h1>No member</h1>
+                  )}
                 </div>
                 <ScrollBar
                   className="h-2 cursor-grabbing "
@@ -319,14 +326,16 @@ export function MessageChat({
           </form>
         </CardFooter>
       </Card>
-      <AddMemberDialog
-        currentUser={currentUser}
-        selectedChatGroup={selectedChatGroup}
-        existMember={groupMembers}
-        setOpen={setOpen}
-        open={open}
-        cookie={cookie}
-      />
+      {group?.ownerId === currentUser._id && (
+        <AddMemberDialog
+          currentUser={currentUser}
+          selectedChatGroup={selectedChatGroup}
+          existMember={groupMembers}
+          setOpen={setOpen}
+          open={open}
+          cookie={cookie}
+        />
+      )}
     </>
   );
 }

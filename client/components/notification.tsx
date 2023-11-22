@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 
 import {
@@ -22,12 +23,15 @@ import { NotificationType } from "@/app/(dashboard)/_components/AddMemberDialog"
 import toast from "react-hot-toast";
 import { UserType } from "@/app/(dashboard)/_components/RightSideBar";
 import { Badge } from "./ui/badge";
+import { editGroupMemberAction } from "@/app/actions";
+import { useRouter } from "next/navigation";
 
 interface NotificationProps {
   currentUser: UserType;
 }
 
 const Notification = ({ currentUser }: NotificationProps) => {
+  const router = useRouter();
   const [notifications, setNotifications] = useState<NotificationType[]>([
     ...(currentUser.notification as NotificationType[]),
   ]);
@@ -50,9 +54,19 @@ const Notification = ({ currentUser }: NotificationProps) => {
               ...prev,
               ...(nArray as NotificationType[]),
             ]);
+            toast("New notification has received");
           }
         }
       };
+
+      socket.on(
+        "response_notification",
+        (data: { name: string; senderId: string; receiverId: string }) => {
+          if (data.receiverId === currentUser._id) {
+            toast(`${data.name} is accepted your invitation`);
+          }
+        }
+      );
 
       socket.on("receive_notification", receiveNotification);
 
@@ -98,20 +112,90 @@ const Notification = ({ currentUser }: NotificationProps) => {
     }
   }
 
+  async function onClickAcceptForGroup({
+    groupMemberId,
+    payload,
+    notificationSenderId,
+  }: {
+    groupMemberId: string;
+    notificationSenderId: string;
+    payload: NotificationType;
+  }) {
+    try {
+      await fetch(`http://localhost:8090/api/groups/${groupMemberId}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          status: "Accept",
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+        next: {
+          revalidate: 0,
+        },
+      });
+      toast("Cong! You have new group");
+      onClickRemoveNOfUser({
+        userId: currentUser._id,
+        payload,
+      });
+      socket.emit("response_notification", {
+        name: currentUser.name,
+        senderId: currentUser._id,
+        receiverId: notificationSenderId,
+      });
+    } catch (e: any) {
+      console.log(e);
+      toast.error(e.message);
+    }
+  }
+
+  async function onClickRemoveNOfUser({
+    userId,
+    payload,
+  }: {
+    userId: string;
+    payload: NotificationType;
+  }) {
+    try {
+      await fetch(`http://localhost:8090/api/users/rmN/${userId}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+        next: {
+          revalidate: 0,
+        },
+      });
+      setNotifications([]);
+    } catch (e: any) {
+      console.log(e);
+      toast.error(e.message);
+    }
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant={"outline"} className="p-2 relative">
+              <div className="relative">
                 <Bell />
                 {notifications.length > 0 && (
-                  <Badge className="absolute -top-3 -right-3">
+                  <Badge
+                    className="px-2 absolute -top-3.5 -right-3.5"
+                    variant={"destructive"}
+                  >
                     {notifications.length}
                   </Badge>
                 )}
-              </Button>
+              </div>
             </TooltipTrigger>
             <TooltipContent>Notification </TooltipContent>
           </Tooltip>
@@ -127,10 +211,41 @@ const Notification = ({ currentUser }: NotificationProps) => {
             <DropdownMenuItem key={n.checkUnique} className="flex">
               <div className="flex flex-col justify-start gap-2">
                 <div className="flex justify-between items-center">
-                  <h3>{n.title}</h3>
-                  <h3>from: {n.senderName}</h3>
+                  <h3 className="text-base font-bold">{n.title}</h3>
+                  <div>
+                    <h3>from: {n.senderName}</h3>
+                    {n.createdAt.toString()}
+                  </div>
                 </div>
                 <p>{n.content}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <Button
+                    size={"sm"}
+                    onClick={async () => {
+                      await onClickAcceptForGroup({
+                        groupMemberId: n.sourceIdToConfirm,
+                        payload: n,
+                        notificationSenderId: n.senderId,
+                      });
+                      router.refresh();
+                    }}
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    size={"sm"}
+                    variant={"destructive"}
+                    onClick={async () => {
+                      await onClickRemoveNOfUser({
+                        userId: currentUser._id,
+                        payload: n,
+                      });
+                      router.refresh();
+                    }}
+                  >
+                    Decline
+                  </Button>
+                </div>
               </div>
             </DropdownMenuItem>
           ))

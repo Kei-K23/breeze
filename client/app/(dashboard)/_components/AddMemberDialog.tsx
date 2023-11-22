@@ -91,14 +91,8 @@ const AddMemberDialog = ({
 
       if (res.ok && data.success) {
         setAddableUsers(data.data);
-      } else {
-        console.log(data);
-
-        toast.error(data.error);
       }
     } catch (e: any) {
-      console.log(e);
-
       toast.error(e.message);
     }
   }
@@ -106,6 +100,8 @@ const AddMemberDialog = ({
   async function onSubmit() {
     try {
       selectedUsers.map(async (user) => {
+        console.log(user);
+
         const groupMemberToInvite = await createGroupMemberAction({
           cookie,
           values: [
@@ -113,9 +109,12 @@ const AddMemberDialog = ({
               addedBy: currentUser._id,
               groupId: selectedChatGroup,
               memberId: user._id,
+              status: "Pending",
             },
           ],
         });
+        console.log(groupMemberToInvite);
+
         const notification: NotificationType = {
           title: "Group invitation!",
           content: "We want to invite you to our new group.",

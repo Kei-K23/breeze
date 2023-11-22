@@ -140,6 +140,7 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
         memberId: user._id,
         addedBy: new mongoose.Types.ObjectId("655ca25ae0c3d5a98d137825"),
         groupId: new mongoose.Types.ObjectId("655ca2c81733353ac0d565f1"),
+        status: "Accept",
       },
       options: {
         upsert: true,
@@ -223,6 +224,7 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
         memberId: user._id,
         addedBy: new mongoose.Types.ObjectId("655ca25ae0c3d5a98d137825"),
         groupId: new mongoose.Types.ObjectId("655ca2c81733353ac0d565f1"),
+        status: "Accept",
       },
       options: {
         upsert: true,

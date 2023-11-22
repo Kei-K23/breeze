@@ -5,11 +5,13 @@ import {
   getAllUserWithoutCurrentUserHandler,
   getAuthUserHandler,
   getUserAllUserWithoutCurrentUserHandler,
+  removeNotificationOfUserHandler,
 } from "../controller/user.controller";
 import validateResource from "../middleware/validateResource";
 import {
   createUserSchema,
   editUserSchema,
+  removeNotificationOfUserSchema,
   userIdArraySchema,
 } from "../schema/user.schema";
 import requiredAccessToken from "../middleware/requiredAccessToken";
@@ -48,5 +50,12 @@ export default function (route: Router) {
     requiredAccessToken,
     validateResource(editUserSchema),
     editUserHandler
+  );
+  route.put(
+    "/api/users/rmN/:userId",
+    revalidateAccessToken,
+    requiredAccessToken,
+    validateResource(removeNotificationOfUserSchema),
+    removeNotificationOfUserHandler
   );
 }

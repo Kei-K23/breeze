@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { UserType } from "./(dashboard)/_components/RightSideBar";
+import { NotificationType } from "./(dashboard)/_components/AddMemberDialog";
 
 export async function createGroupAction({
   values,
@@ -45,25 +46,13 @@ export async function createGroupAction({
           addedBy: currentUserId,
           memberId: currentUserId,
           groupId: groupData.data._id,
+          status: "Accept",
         },
       ],
     });
 
-    if (selectedUsers.length) {
-      selectedUsers.map(async (user) => {
-        await createGroupMemberAction({
-          cookie,
-          values: [
-            {
-              addedBy: currentUserId,
-              memberId: user._id,
-              groupId: groupData.data._id,
-            },
-          ],
-        });
-      });
-    }
     revalidatePath("/");
+    return groupData.data;
   } catch (e: any) {
     revalidatePath("/");
     throw new Error(e.message);
@@ -75,8 +64,15 @@ export async function createGroupMemberAction({
   cookie,
 }: {
   cookie: string;
-  values: { groupId: string; addedBy: string; memberId: string }[];
+  values: {
+    groupId: string;
+    addedBy: string;
+    memberId: string;
+    status?: "Pending" | "Accept";
+  }[];
 }) {
+  console.log(values);
+
   try {
     const res = await fetch("http://localhost:8090/api/group_members/", {
       method: "POST",
@@ -94,12 +90,63 @@ export async function createGroupMemberAction({
       },
     });
     const data = await res.json();
+    console.log(data);
 
     revalidatePath("/");
     revalidateTag("group_member");
     return data.data;
   } catch (e: any) {
     revalidatePath("/");
+    console.log(e);
+
     throw new Error(e);
   }
+}
+
+export async function editGroupMemberAction({
+  groupMemberId,
+  values,
+}: {
+  groupMemberId: string;
+  values: {
+    groupId?: string;
+    memberId?: string;
+    addedBy?: string;
+    joinedAt?: Date;
+    status?: string | "Pending" | "Accept";
+  };
+}) {
+  try {
+    await fetch(`http://localhost:8090/api/groups/${groupMemberId}`, {
+      method: "PUT",
+      body: JSON.stringify(values),
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      credentials: "include",
+      next: {
+        revalidate: 0,
+      },
+    });
+    revalidatePath("/");
+  } catch (e: any) {
+    revalidatePath("/");
+    throw new Error(e);
+  }
+}
+
+export async function removeNOfUserAction({
+  userId,
+  payload,
+}: {
+  userId: string;
+  payload: NotificationType;
+}) {
+  try {
+    await fetch(`http://localhost:8090/api/users/rmN/${userId}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+  } catch (e: any) {}
 }

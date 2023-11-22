@@ -101,8 +101,9 @@ const Navbar = ({ name, email, image, iconLink, currentUser }: NavbarProp) => {
               </TooltipProvider>
             </>
           )}
-
-          <Notification currentUser={currentUser as UserType} />
+          {currentUser && (
+            <Notification currentUser={currentUser as UserType} />
+          )}
 
           <ModeToggle />
         </div>

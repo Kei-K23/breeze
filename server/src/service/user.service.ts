@@ -1,5 +1,5 @@
 import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
-import { IUser, User, UserDoc } from "../model/user.model";
+import { INotification, IUser, User, UserDoc } from "../model/user.model";
 import axios from "axios";
 import qs from "qs";
 import mongoose from "mongoose";
@@ -72,6 +72,7 @@ export async function createUser(payload: Partial<IUser>) {
     throw new Error(e.message);
   }
 }
+
 export async function editUser({
   filter,
   update,
@@ -83,6 +84,19 @@ export async function editUser({
 }) {
   try {
     return await User.findOneAndUpdate(filter, update, options);
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+export async function removeNotificationOfUser({
+  filter,
+  removeN,
+}: {
+  filter: FilterQuery<UserDoc>;
+  removeN: INotification;
+}) {
+  try {
+    return await User.updateOne(filter, { $pull: { notification: removeN } });
   } catch (e: any) {
     throw new Error(e.message);
   }

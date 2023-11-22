@@ -27,6 +27,7 @@ export const createGroupMembers = z.object({
         addedBy: z.string({
           required_error: "Added by user id is required",
         }),
+        status: z.string().optional(),
       })
     ),
   }),
@@ -55,7 +56,20 @@ export const getDataByIdSchema = z.object({
   }),
 });
 
+export const editGroupMemberSchema = z.object({
+  params: z.object({
+    groupMemberId: z.string(),
+  }),
+  body: z.object({
+    groupId: z.string().optional(),
+    memberId: z.string().optional(),
+    addedBy: z.string().optional(),
+    status: z.string().optional(),
+  }),
+});
+
 export type CreateGroup = z.infer<typeof createGroup>["body"];
 export type CreateGroupMembers = z.infer<typeof createGroupMembers>["body"];
 export type GetDataByUserId = z.infer<typeof getDataByUserId>["params"];
 export type GetDataByIdType = z.infer<typeof getDataByIdSchema>["query"];
+export type EditGroupMemberType = z.infer<typeof editGroupMemberSchema>;

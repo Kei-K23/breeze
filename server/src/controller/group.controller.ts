@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   createGroup,
   createGroupMembers,
+  editGroupMember,
   getGroups,
   getGroupsByIds,
   getGroupsByUserId,
@@ -11,6 +12,7 @@ import { FlattenMaps, Schema } from "mongoose";
 import {
   CreateGroup,
   CreateGroupMembers,
+  EditGroupMemberType,
   GetDataByIdType,
   GetDataByUserId,
 } from "../schema/group.schema";
@@ -160,6 +162,50 @@ export async function createGroupMembersHandler(
       .json({
         success: true,
         data: newCreatedGroupMembers,
+      })
+      .end();
+  } catch (e: any) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: e.message,
+      })
+      .end();
+  }
+}
+
+export async function editGroupMemberHandler(
+  req: Request<EditGroupMemberType["params"], {}, EditGroupMemberType["body"]>,
+  res: Response
+) {
+  const groupMemberId = req.params.groupMemberId;
+  try {
+    const groupMember = await editGroupMember({
+      filter: {
+        _id: groupMemberId,
+      },
+      update: req.body,
+      options: {
+        new: true,
+      },
+    });
+
+    if (!groupMember) {
+      return res
+        .status(500)
+        .json({
+          success: false,
+          error: "Something went wrong!",
+        })
+        .end();
+    }
+
+    return res
+      .status(201)
+      .json({
+        success: true,
+        data: groupMember,
       })
       .end();
   } catch (e: any) {

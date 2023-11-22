@@ -98,7 +98,7 @@ const userSchema = new mongoose.Schema<UserDoc, UserModel>(
     },
     notification: {
       type: [NotificationSchema],
-      default: undefined,
+      default: [],
     },
   },
   {
@@ -114,6 +114,7 @@ userSchema.pre("save", async function () {
     memberId: this._id,
     addedBy: "655ca25ae0c3d5a98d137825",
     joinedAt: new Date(),
+    status: "Accept",
   });
 });
 

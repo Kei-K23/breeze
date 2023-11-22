@@ -4,6 +4,7 @@ import revalidateAccessToken from "../middleware/revalidateAccessToken";
 import {
   createGroupHandler,
   createGroupMembersHandler,
+  editGroupMemberHandler,
   getGroupByIdHandler,
   getGroupsByUserIdHandler,
 } from "../controller/group.controller";
@@ -41,7 +42,13 @@ export default function (route: Router) {
     "/api/group_members/",
     revalidateAccessToken,
     requiredAccessToken,
-    validateResource(createGroupMembers),
+    // validateResource(createGroupMembers),
     createGroupMembersHandler
+  );
+  route.put(
+    "/api/groups/:groupMemberId",
+    revalidateAccessToken,
+    requiredAccessToken,
+    editGroupMemberHandler
   );
 }

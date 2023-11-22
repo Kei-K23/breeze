@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   CreateUserType,
   EditUserType,
+  RemoveNotificationOfUserType,
   UserIdArrayType,
 } from "../schema/user.schema";
 import {
@@ -10,9 +11,11 @@ import {
   getAllUserWithoutCurrentUser,
   getUser,
   getUserAllUserWithoutCurrentUser,
+  removeNotificationOfUser,
 } from "../service/user.service";
 import { omitDoc } from "../lib/helper";
 import { GetDataByUserId } from "../schema/group.schema";
+import { INotification } from "../model/user.model";
 
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserType>,
@@ -71,11 +74,55 @@ export async function editUserHandler(
     }
 
     return res
-      .status(201)
+      .status(200)
       .json({
         success: true,
         data: omitDoc(user, ["password", "__v"]),
         message: "Successfully register!",
+      })
+      .end();
+  } catch (e: any) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: e.message,
+      })
+      .end();
+  }
+}
+
+export async function removeNotificationOfUserHandler(
+  req: Request<
+    RemoveNotificationOfUserType["params"],
+    {},
+    RemoveNotificationOfUserType["body"]
+  >,
+  res: Response
+) {
+  const userId = req.params.userId;
+  try {
+    const user = await removeNotificationOfUser({
+      filter: {
+        _id: userId,
+      },
+      removeN: req.body as INotification,
+    });
+
+    if (!user) {
+      return res
+        .status(500)
+        .json({
+          success: false,
+          error: "Could not update user data!",
+        })
+        .end();
+    }
+
+    return res
+      .status(200)
+      .json({
+        success: true,
       })
       .end();
   } catch (e: any) {
