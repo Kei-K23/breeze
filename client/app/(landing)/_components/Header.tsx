@@ -3,8 +3,11 @@ import { ArrowRightIcon } from "lucide-react";
 import LoginDialog from "./LoginDialog";
 
 import Link from "next/link";
+import { cookies } from "next/headers";
 
 const Header = async () => {
+  const refreshCookie = cookies().get("breeze_csrf");
+
   const contentForHeroSection = [
     {
       title: "🚀 Instant Connectivity",
@@ -52,13 +55,13 @@ const Header = async () => {
         ))}
       </div>
 
-      {false ? (
+      {/* {refreshCookie?.name === "breeze_csrf" && refreshCookie.value ? (
         <Link href={"/"} className={buttonVariants({ variant: "default" })}>
           Enter Breeze <ArrowRightIcon className="ml-3" />
         </Link>
       ) : (
-        <LoginDialog />
-      )}
+        )} */}
+      <LoginDialog />
     </>
   );
 };
