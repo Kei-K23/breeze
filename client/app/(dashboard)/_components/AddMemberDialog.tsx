@@ -36,16 +36,20 @@ interface AddMemberDialogProps {
 }
 
 export type NotificationType = {
-  title: "Group invitation!" | "Friend request!";
+  title: "Group invitation!" | "Friend request!" | "Group Deleted!";
   content:
     | "We want to invite you to our new group."
-    | "I want to make friend with you";
-  sourceIdToConfirm: string; /// confirmation id
+    | "I want to make friend with you"
+    | "Sorry! The group is deleted.";
+  sourceIdToConfirm?: string; /// confirmation id
   senderId: string;
   senderName: string;
   createdAt: Date;
   receiverId: string;
   checkUnique: string;
+  groupName?: string;
+  _id?: string;
+  groupId?: string;
 };
 
 const AddMemberDialog = ({
@@ -117,6 +121,7 @@ const AddMemberDialog = ({
           toast.error("User already invited!");
           return setAddMemberOpen(false);
         }
+
         const notification: NotificationType = {
           title: "Group invitation!",
           content: "We want to invite you to our new group.",
@@ -126,7 +131,9 @@ const AddMemberDialog = ({
           sourceIdToConfirm: groupMemberToInvite[0]._id,
           receiverId: user._id,
           checkUnique: crypto.randomUUID().toString(),
+          groupId: groupMemberToInvite[0].groupId,
         };
+
         socket.emit("send_notification", notification);
         toast("Sent request for invitation!");
       });

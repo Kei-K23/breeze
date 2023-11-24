@@ -49,6 +49,8 @@ export async function editUserHandler(
 ) {
   const userId = req.params.userId;
   try {
+    console.log(req.body.notification, "notificaiton request body");
+
     const user = await editUser({
       filter: {
         _id: userId,

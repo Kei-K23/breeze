@@ -28,25 +28,19 @@ io.on("connection", (socket) => {
   });
 
   socket.on("response_notification_accept", (data) => {
+    console.log(data, "receive notification");
+
     io.emit("response_notification_accept", data);
   });
   socket.on("response_notification_decline", (data) => {
     socket.broadcast.emit("response_notification_decline", data);
   });
 
-  socket.on(
-    "send_notification",
-    (notification: {
-      title: string;
-      content: string;
-      sourceIdToConfirm: string; /// confirmation id
-      senderId: string;
-      createdAt: Date;
-      receiverId: string;
-    }) => {
-      io.emit("receive_notification", notification);
-    }
-  );
+  socket.on("send_notification", (notification) => {
+    console.log(notification, "send notficaiotn");
+
+    socket.broadcast.emit("receive_notification", notification);
+  });
 
   socket.on("disconnect", () => {
     console.log("Socket disconnected!");

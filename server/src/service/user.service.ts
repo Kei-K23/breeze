@@ -83,6 +83,8 @@ export async function editUser({
   options: QueryOptions;
 }) {
   try {
+    console.log(update);
+
     return await User.findOneAndUpdate(filter, update, options);
   } catch (e: any) {
     throw new Error(e.message);

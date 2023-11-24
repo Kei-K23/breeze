@@ -106,6 +106,7 @@ const CreateGroupDialog = ({
               sourceIdToConfirm: groupMember[0]._id,
               receiverId: selectedUser._id,
               checkUnique: crypto.randomUUID().toString(),
+              groupId: group._id,
             };
             socket.emit("send_notification", notification);
           });

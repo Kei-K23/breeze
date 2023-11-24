@@ -23,7 +23,7 @@ import { UserType } from "./RightSideBar";
 import Image from "next/image";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import AddMemberDialog from "./AddMemberDialog";
+import AddMemberDialog, { NotificationType } from "./AddMemberDialog";
 import { useSocket } from "@/provider/socket-provider";
 import {
   Dialog,
@@ -76,6 +76,7 @@ type DeleteGroupParaType = {
   ownerId: string;
   groupId: string;
   groupMembers: UserType[];
+  groupName: string;
 };
 
 export function MessageChat({
@@ -101,13 +102,22 @@ export function MessageChat({
   const router = useRouter();
   const { socket } = useSocket();
   useEffect(() => {
-    fetchChatGroupData();
+    fetchChatGroupData({
+      groupId: selectedChatGroup,
+    });
     if (socket) {
       socket.on(
         "response_notification_accept",
-        (data: { name: string; senderId: string; receiverId: string }) => {
+        (data: {
+          name: string;
+          senderId: string;
+          receiverId: string;
+          groupId: string;
+        }) => {
           if (data.receiverId === currentUser._id) {
-            fetchChatGroupData();
+            fetchChatGroupData({
+              groupId: data.groupId,
+            });
           }
         }
       );
@@ -115,10 +125,10 @@ export function MessageChat({
   }, [selectedChatGroup]);
 
   // fetch chat group data
-  async function fetchChatGroupData() {
+  async function fetchChatGroupData({ groupId }: { groupId: string }) {
     try {
       const resGroup = await fetch(
-        `http://localhost:8090/api/groups?groupId=${selectedChatGroup}`,
+        `http://localhost:8090/api/groups?groupId=${groupId}`,
         {
           method: "GET",
           credentials: "include",
@@ -219,6 +229,7 @@ export function MessageChat({
     groupId,
     groupMembers,
     ownerId,
+    groupName,
   }: DeleteGroupParaType) {
     try {
       await fetch(`http://localhost:8090/api/groups/${_id}/${ownerId}`, {
@@ -253,6 +264,18 @@ export function MessageChat({
             receiverId: groupMember._id,
             message: "Group You join is deleted",
           });
+          const notification: NotificationType = {
+            title: "Group Deleted!",
+            content: "Sorry! The group is deleted.",
+            createdAt: new Date(),
+            senderId: currentUser._id,
+            senderName: currentUser.name,
+            receiverId: groupMember._id,
+            checkUnique: crypto.randomUUID().toString(),
+            groupName,
+            groupId,
+          };
+          socket.emit("send_notification", notification);
         });
       }
       setDeleteGroupState(null);
@@ -314,6 +337,7 @@ export function MessageChat({
                                 ownerId: group.ownerId,
                                 groupMembers,
                                 groupId: group._id,
+                                groupName: group.groupName,
                               });
                             setDeleteGroupOpen(true);
                           }}

@@ -24,6 +24,7 @@ import toast from "react-hot-toast";
 import { UserType } from "@/app/(dashboard)/_components/RightSideBar";
 import { Badge } from "./ui/badge";
 import { useRouter } from "next/navigation";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface NotificationProps {
   currentUser: UserType;
@@ -39,20 +40,22 @@ const Notification = ({ currentUser }: NotificationProps) => {
   useEffect(() => {
     if (socket) {
       const receiveNotification = async (notification: NotificationType) => {
+        console.log(notification, "receive notification");
+
         if (currentUser._id === notification.receiverId) {
           const isExistingN = notifications.some(
             (n) => n.checkUnique === notification.checkUnique
           );
 
           if (!isExistingN) {
+            console.log(notification, "add notifciation");
+
             const nArray = await fetchEditUserData({
               userId: notification.receiverId,
               payload: [notification],
             });
-            setNotifications((prev) => [
-              ...prev,
-              ...(nArray as NotificationType[]),
-            ]);
+
+            setNotifications([...(nArray as NotificationType[])]);
             toast("New notification has received");
           }
         }
@@ -118,6 +121,8 @@ const Notification = ({ currentUser }: NotificationProps) => {
     userId: string;
     payload: NotificationType[];
   }) {
+    console.log(payload, "edit notifcation");
+
     try {
       const resEditedUser = await fetch(
         `http://localhost:8090/api/users/${userId}`,
@@ -139,6 +144,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
       );
 
       const editedUserData = await resEditedUser.json();
+      console.log(editedUserData);
 
       return editedUserData.data.notification as NotificationType[];
     } catch (e: any) {
@@ -175,10 +181,13 @@ const Notification = ({ currentUser }: NotificationProps) => {
         userId: currentUser._id,
         payload,
       });
+      console.log(payload, "a");
+
       socket.emit("response_notification_accept", {
         name: currentUser.name,
         senderId: currentUser._id,
         receiverId: notificationSenderId,
+        groupId: payload.groupId,
       });
     } catch (e: any) {
       toast.error(e.message);
@@ -196,6 +205,8 @@ const Notification = ({ currentUser }: NotificationProps) => {
     payload: NotificationType;
     _id?: string;
   }) {
+    console.log(payload);
+
     try {
       await fetch(`http://localhost:8090/api/users/rmN/${userId}`, {
         method: "PUT",
@@ -210,25 +221,29 @@ const Notification = ({ currentUser }: NotificationProps) => {
         },
       });
 
-      await fetch(`http://localhost:8090/api/groups_members/`, {
-        method: "DELETE",
-        body: JSON.stringify({ _id }),
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        credentials: "include",
-        next: {
-          revalidate: 0,
-        },
-      });
+      if (_id) {
+        await fetch(`http://localhost:8090/api/groups_members/`, {
+          method: "DELETE",
+          body: JSON.stringify({ _id }),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          next: {
+            revalidate: 0,
+          },
+        });
 
-      setNotifications([]);
+        socket.emit("response_notification_decline", {
+          name: currentUser.name,
+          senderId: currentUser._id,
+          receiverId: notificationSenderId,
+        });
+      }
 
-      socket.emit("response_notification_decline", {
-        name: currentUser.name,
-        senderId: currentUser._id,
-        receiverId: notificationSenderId,
+      setNotifications((prev) => {
+        return prev.filter((p) => p._id !== payload._id);
       });
     } catch (e: any) {
       toast.error(e.message);
@@ -262,54 +277,81 @@ const Notification = ({ currentUser }: NotificationProps) => {
           Notification {notifications.length}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {notifications && notifications.length ? (
-          notifications.map((n) => (
-            <DropdownMenuItem key={n.checkUnique} className="flex">
-              <div className="flex flex-col justify-start gap-2">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-base font-bold">{n.title}</h3>
-                  <div>
-                    <h3>from: {n.senderName}</h3>
-                    {n.createdAt.toString()}
+        <ScrollArea className="h-[500px]">
+          {notifications && notifications.length ? (
+            notifications.map((n) => (
+              <DropdownMenuItem key={n.checkUnique} className="flex">
+                <div className="flex flex-col justify-start gap-2">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-base font-bold">{n.title}</h3>
+                      {n.groupName && (
+                        <h3 className="text-base">Group name: {n.groupName}</h3>
+                      )}
+                    </div>
+                    <div>
+                      <h3>from: {n.senderName}</h3>
+                      {n.createdAt.toString()}
+                    </div>
+                  </div>
+                  <p>{n.content}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    {n.title === "Group invitation!" && (
+                      <>
+                        <Button
+                          size={"sm"}
+                          onClick={async () => {
+                            await onClickAcceptForGroup({
+                              groupMemberId: n.sourceIdToConfirm as string,
+                              payload: n,
+                              notificationSenderId: n.senderId,
+                            });
+                            router.refresh();
+                          }}
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          size={"sm"}
+                          variant={"destructive"}
+                          onClick={async () => {
+                            await onClickRemoveNOfUser({
+                              userId: currentUser._id,
+                              payload: n,
+                              notificationSenderId: n.senderId,
+                              _id: n.sourceIdToConfirm,
+                            });
+                            router.refresh();
+                          }}
+                        >
+                          Decline
+                        </Button>
+                      </>
+                    )}
+                    {n.title === "Group Deleted!" && (
+                      <Button
+                        size={"sm"}
+                        variant={"destructive"}
+                        onClick={async () => {
+                          await onClickRemoveNOfUser({
+                            userId: currentUser._id,
+                            payload: n,
+                            notificationSenderId: n.senderId,
+                          });
+                          router.refresh();
+                        }}
+                      >
+                        Clear
+                      </Button>
+                    )}
                   </div>
                 </div>
-                <p>{n.content}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <Button
-                    size={"sm"}
-                    onClick={async () => {
-                      await onClickAcceptForGroup({
-                        groupMemberId: n.sourceIdToConfirm,
-                        payload: n,
-                        notificationSenderId: n.senderId,
-                      });
-                      router.refresh();
-                    }}
-                  >
-                    Accept
-                  </Button>
-                  <Button
-                    size={"sm"}
-                    variant={"destructive"}
-                    onClick={async () => {
-                      await onClickRemoveNOfUser({
-                        userId: currentUser._id,
-                        payload: n,
-                        notificationSenderId: n.senderId,
-                        _id: n.sourceIdToConfirm,
-                      });
-                      router.refresh();
-                    }}
-                  >
-                    Decline
-                  </Button>
-                </div>
-              </div>
-            </DropdownMenuItem>
-          ))
-        ) : (
-          <DropdownMenuItem>No notification yet!</DropdownMenuItem>
-        )}
+              </DropdownMenuItem>
+            ))
+          ) : (
+            <DropdownMenuItem>No notification yet!</DropdownMenuItem>
+          )}
+        </ScrollArea>
       </DropdownMenuContent>
     </DropdownMenu>
   );

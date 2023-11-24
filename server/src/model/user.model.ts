@@ -5,10 +5,12 @@ import { GroupMember } from "./group.model";
 export interface INotification {
   title: string;
   content: string;
-  sourceIdToConfirm: string; /// confirmation id
+  sourceIdToConfirm?: string; /// confirmation id
   senderId: string;
   senderName: string;
   createdAt: Date;
+  groupId?: string;
+  checkUnique?: string;
 }
 
 export interface IUser {
@@ -26,10 +28,12 @@ export interface IUser {
 const NotificationSchema = new mongoose.Schema<INotification>({
   title: { type: String, required: true },
   content: { type: String, required: true },
-  sourceIdToConfirm: { type: String, required: true },
+  sourceIdToConfirm: { type: String },
   senderId: { type: String, required: true },
   senderName: { type: String, required: true },
   createdAt: { type: Date, default: new Date() },
+  checkUnique: { type: String },
+  groupId: { type: String },
 });
 
 export interface UserDoc extends mongoose.Document {
