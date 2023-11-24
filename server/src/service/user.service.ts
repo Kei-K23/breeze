@@ -83,13 +83,27 @@ export async function editUser({
   options: QueryOptions;
 }) {
   try {
-    console.log(update);
-
     return await User.findOneAndUpdate(filter, update, options);
   } catch (e: any) {
     throw new Error(e.message);
   }
 }
+export async function manageFriendsForUser({
+  filter,
+  update,
+  options,
+}: {
+  filter: FilterQuery<UserDoc>;
+  update: UpdateQuery<UserDoc>;
+  options: QueryOptions;
+}) {
+  try {
+    return await User.findOneAndUpdate(filter, update, options);
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+
 export async function removeNotificationOfUser({
   filter,
   removeN,

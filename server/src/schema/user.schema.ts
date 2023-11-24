@@ -74,6 +74,25 @@ export const removeNotificationOfUserSchema = z.object({
   }),
 });
 
+export const addFriendForUserSchema = z.object({
+  params: z.object({
+    userId: z.string({
+      required_error: "User id is required!",
+    }),
+  }),
+  body: z.object({
+    friendIds: z.array(
+      z.object({
+        friendId: z.string(),
+        status: z.string().default("Pending"),
+        email: z.string().optional(),
+        picture: z.string().optional(),
+        name: z.string().optional(),
+      })
+    ),
+  }),
+});
+
 export type CreateUserType = Omit<
   z.infer<typeof createUserSchema>["body"],
   "confirm_password"
@@ -84,3 +103,4 @@ export type EditUserType = z.infer<typeof editUserSchema>;
 export type RemoveNotificationOfUserType = z.infer<
   typeof removeNotificationOfUserSchema
 >;
+export type AddFriendForUserType = z.infer<typeof addFriendForUserSchema>;

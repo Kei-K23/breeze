@@ -28,8 +28,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("response_notification_accept", (data) => {
-    console.log(data, "receive notification");
-
     io.emit("response_notification_accept", data);
   });
   socket.on("response_notification_decline", (data) => {
@@ -37,8 +35,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_notification", (notification) => {
-    console.log(notification, "send notficaiotn");
-
     socket.broadcast.emit("receive_notification", notification);
   });
 

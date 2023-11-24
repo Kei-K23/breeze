@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-import { Bell } from "lucide-react";
+import { Bell, Group, Trash } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -40,16 +40,12 @@ const Notification = ({ currentUser }: NotificationProps) => {
   useEffect(() => {
     if (socket) {
       const receiveNotification = async (notification: NotificationType) => {
-        console.log(notification, "receive notification");
-
         if (currentUser._id === notification.receiverId) {
           const isExistingN = notifications.some(
             (n) => n.checkUnique === notification.checkUnique
           );
 
           if (!isExistingN) {
-            console.log(notification, "add notifciation");
-
             const nArray = await fetchEditUserData({
               userId: notification.receiverId,
               payload: [notification],
@@ -121,8 +117,6 @@ const Notification = ({ currentUser }: NotificationProps) => {
     userId: string;
     payload: NotificationType[];
   }) {
-    console.log(payload, "edit notifcation");
-
     try {
       const resEditedUser = await fetch(
         `http://localhost:8090/api/users/${userId}`,
@@ -144,7 +138,6 @@ const Notification = ({ currentUser }: NotificationProps) => {
       );
 
       const editedUserData = await resEditedUser.json();
-      console.log(editedUserData);
 
       return editedUserData.data.notification as NotificationType[];
     } catch (e: any) {
@@ -181,7 +174,6 @@ const Notification = ({ currentUser }: NotificationProps) => {
         userId: currentUser._id,
         payload,
       });
-      console.log(payload, "a");
 
       socket.emit("response_notification_accept", {
         name: currentUser.name,
@@ -205,8 +197,6 @@ const Notification = ({ currentUser }: NotificationProps) => {
     payload: NotificationType;
     _id?: string;
   }) {
-    console.log(payload);
-
     try {
       await fetch(`http://localhost:8090/api/users/rmN/${userId}`, {
         method: "PUT",
@@ -277,21 +267,35 @@ const Notification = ({ currentUser }: NotificationProps) => {
           Notification {notifications.length}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <ScrollArea className="h-[500px]">
+        <ScrollArea className="h-[500px] max-w-[400px]">
           {notifications && notifications.length ? (
             notifications.map((n) => (
-              <DropdownMenuItem key={n.checkUnique} className="flex">
-                <div className="flex flex-col justify-start gap-2">
-                  <div className="flex justify-between items-center">
+              <DropdownMenuItem
+                key={n.checkUnique}
+                className="flex py-2 px-3 border-b dark:border-slate-700 border-neutral-300  last:border-b-0 cursor-pointer"
+              >
+                <div className="flex flex-col justify-start gap-2 w-full">
+                  <div className="flex justify-between items-center w-full">
                     <div>
-                      <h3 className="text-base font-bold">{n.title}</h3>
+                      {n.title === "Group Deleted!" && (
+                        <h3 className="text-base font-bold flex">
+                          <Trash /> {n.title}
+                        </h3>
+                      )}
+                      {n.title === "Group invitation!" && (
+                        <h3 className="text-base font-bold flex">
+                          <Group /> {n.title}
+                        </h3>
+                      )}
                       {n.groupName && (
                         <h3 className="text-base">Group name: {n.groupName}</h3>
                       )}
                     </div>
                     <div>
                       <h3>from: {n.senderName}</h3>
-                      {n.createdAt.toString()}
+                      <h3>
+                        {new Date(n.createdAt).toLocaleDateString("en-US")}
+                      </h3>
                     </div>
                   </div>
                   <p>{n.content}</p>

@@ -1,11 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MessageChat } from "./Chat";
 import LeftSideBar, { FetchGroupsDataType } from "./LeftSideBar";
 import RightSideBar, { FetchUsersDataType, UserType } from "./RightSideBar";
-import toast from "react-hot-toast";
-import { useSocket } from "@/provider/socket-provider";
-import { useRouter } from "next/navigation";
 
 interface MainProps {
   cookie: string;
@@ -40,7 +37,7 @@ const MainDashboard = ({
         usersData={usersData.data as UserType[]}
         selectedChatGroup={selectedChatGroup as string}
       />
-      <RightSideBar currentUserId={currentUser._id} usersData={usersData} />
+      <RightSideBar currentUser={currentUser} usersData={usersData} />
     </div>
   );
 };

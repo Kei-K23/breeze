@@ -13,6 +13,13 @@ export interface INotification {
   checkUnique?: string;
 }
 
+export type FriendDataType = {
+  friendId: string;
+  status: "Pending" | "Friended";
+  email: string;
+  picture: string;
+  name: string;
+};
 export interface IUser {
   _id?: string;
   name: string;
@@ -23,6 +30,7 @@ export interface IUser {
   updated_at: Date;
   providerName: "Credentials" | "Google" | "Github";
   notification?: Array<INotification>;
+  friends?: Array<FriendDataType>;
 }
 
 const NotificationSchema = new mongoose.Schema<INotification>({
@@ -46,6 +54,7 @@ export interface UserDoc extends mongoose.Document {
   updated_at: Date;
   providerName: "Credentials" | "Google" | "Github";
   notification?: Array<INotification>;
+  friends?: Array<FriendDataType>;
 }
 
 interface UserModel extends mongoose.Model<UserDoc> {
@@ -102,6 +111,22 @@ const userSchema = new mongoose.Schema<UserDoc, UserModel>(
     },
     notification: {
       type: [NotificationSchema],
+      default: [],
+    },
+    friends: {
+      type: [
+        {
+          friendId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+          },
+          status: { type: String, default: "Pending" },
+          email: { type: String },
+          picture: { type: String },
+          name: { type: String },
+        },
+      ],
       default: [],
     },
   },

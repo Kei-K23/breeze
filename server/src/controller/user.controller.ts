@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import {
+  AddFriendForUserType,
   CreateUserType,
   EditUserType,
   RemoveNotificationOfUserType,
@@ -49,8 +50,6 @@ export async function editUserHandler(
 ) {
   const userId = req.params.userId;
   try {
-    console.log(req.body.notification, "notificaiton request body");
-
     const user = await editUser({
       filter: {
         _id: userId,
@@ -81,6 +80,57 @@ export async function editUserHandler(
         success: true,
         data: omitDoc(user, ["password", "__v"]),
         message: "Successfully register!",
+      })
+      .end();
+  } catch (e: any) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: e.message,
+      })
+      .end();
+  }
+}
+
+export async function addFriendForUserHandler(
+  req: Request<
+    AddFriendForUserType["params"],
+    {},
+    AddFriendForUserType["body"]
+  >,
+  res: Response
+) {
+  const userId = req.params.userId;
+  try {
+    const user = await editUser({
+      filter: {
+        _id: userId,
+      },
+      update: {
+        $push: { friends: req.body.friendIds },
+      },
+      options: {
+        new: true,
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(500)
+        .json({
+          success: false,
+          error: "Could not add friend!",
+        })
+        .end();
+    }
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        data: omitDoc(user, ["password", "__v"]),
+        message: "Friend Request !",
       })
       .end();
   } catch (e: any) {
