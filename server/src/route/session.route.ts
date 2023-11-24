@@ -7,7 +7,7 @@ import requiredAccessToken from "../middleware/requiredAccessToken";
 
 export default function (route: Router) {
   route.get(
-    "/api/session/:token_id  ",
+    "/api/session/:token_id",
     revalidateAccessToken,
     requiredAccessToken,
     validateResource(getSessionSchema),

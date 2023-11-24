@@ -31,7 +31,7 @@ io.on("connection", (socket) => {
     io.emit("response_notification_accept", data);
   });
   socket.on("response_notification_decline", (data) => {
-    io.emit("response_notification_decline", data);
+    socket.broadcast.emit("response_notification_decline", data);
   });
 
   socket.on(

@@ -27,7 +27,7 @@ export const createGroupMembers = z.object({
         addedBy: z.string({
           required_error: "Added by user id is required",
         }),
-        status: z.string().optional(),
+        status: z.enum(["Accept", "Pending"]).optional(),
       })
     ),
   }),
@@ -70,6 +70,15 @@ export const editGroupMemberSchema = z.object({
 export const deleteGroupMemberSchema = z.object({
   body: z.object({
     _id: z.string().optional(),
+    groupId: z.string().optional(),
+    memberId: z.string().optional(),
+  }),
+});
+
+export const deleteGroupSchema = z.object({
+  params: z.object({
+    _id: z.string(),
+    ownerId: z.string(),
   }),
 });
 
@@ -81,3 +90,4 @@ export type EditGroupMemberType = z.infer<typeof editGroupMemberSchema>;
 export type DeleteGroupMemberType = z.infer<
   typeof deleteGroupMemberSchema
 >["body"];
+export type DeleteGroupType = z.infer<typeof deleteGroupSchema>["params"];

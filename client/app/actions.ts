@@ -144,5 +144,8 @@ export async function removeNOfUserAction({
       method: "PUT",
       body: JSON.stringify(payload),
     });
-  } catch (e: any) {}
+  } catch (e: any) {
+    revalidatePath("/");
+    throw new Error(e);
+  }
 }

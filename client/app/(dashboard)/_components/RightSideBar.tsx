@@ -8,6 +8,11 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { NotificationType } from "./AddMemberDialog";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type FetchUsersDataType = {
   success: true;
@@ -78,50 +83,47 @@ const RightSideBar = ({ usersData, currentUserId }: RightSideBarProps) => {
                   key={user?._id}
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    {user?.picture ? (
-                      <Image
-                        src={user?.picture as string}
-                        alt={user?.name as string}
-                        width={48}
-                        height={48}
-                        className="rounded-full"
-                      />
-                    ) : (
-                      <UserCircle2 className={cn("w-10 h-10 ")} />
-                    )}
+                    <div className="relative">
+                      {user?.picture ? (
+                        <Image
+                          src={user?.picture as string}
+                          alt={user?.name as string}
+                          width={48}
+                          height={48}
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <UserCircle2 className={cn("w-10 h-10 ")} />
+                      )}
+                      {onlineUser.length &&
+                      onlineUser.includes(user?._id as string) ? (
+                        <TooltipProvider delayDuration={0}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div
+                                className={cn(
+                                  "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-green-500"
+                                )}
+                              ></div>
+                            </TooltipTrigger>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <TooltipProvider delayDuration={0}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div
+                                className={cn(
+                                  "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-red-500"
+                                )}
+                              ></div>
+                            </TooltipTrigger>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                    </div>
 
                     <h3>{user?.name}</h3>
-                    {
-                      onlineUser.includes(user?._id as string) ? (
-                        <h4>Online</h4>
-                      ) : (
-                        <h4>No Active</h4>
-                      )
-
-                      /* {isConnected ? (
-                      <>
-                        <TooltipProvider delayDuration={0}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                            </TooltipTrigger>
-                            <TooltipContent>Online</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </>
-                    ) : (
-                      <>
-                        <TooltipProvider delayDuration={0}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                            </TooltipTrigger>
-                            <TooltipContent>Offline</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </>
-                    )} */
-                    }
                   </div>
                   <p className="text-neutral-600 dark:text-neutral-400 line-clamp-1">
                     {user?.email}

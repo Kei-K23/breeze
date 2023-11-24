@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   createGroup,
   createGroupMembers,
+  deleteGroup,
   deleteGroupMember,
   editGroupMember,
   getGroups,
@@ -14,6 +15,7 @@ import {
   CreateGroup,
   CreateGroupMembers,
   DeleteGroupMemberType,
+  DeleteGroupType,
   EditGroupMemberType,
   GetDataByIdType,
   GetDataByUserId,
@@ -228,6 +230,32 @@ export async function deleteGroupMemberHandler(
   try {
     await deleteGroupMember({
       filter: req.body,
+    });
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+      })
+      .end();
+  } catch (e: any) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: e.message,
+      })
+      .end();
+  }
+}
+
+export async function deleteGroupHandler(
+  req: Request<DeleteGroupType>,
+  res: Response
+) {
+  try {
+    await deleteGroup({
+      filter: req.params,
     });
 
     return res

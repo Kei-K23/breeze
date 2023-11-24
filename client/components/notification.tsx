@@ -23,7 +23,6 @@ import { NotificationType } from "@/app/(dashboard)/_components/AddMemberDialog"
 import toast from "react-hot-toast";
 import { UserType } from "@/app/(dashboard)/_components/RightSideBar";
 import { Badge } from "./ui/badge";
-import { editGroupMemberAction } from "@/app/actions";
 import { useRouter } from "next/navigation";
 
 interface NotificationProps {
@@ -70,9 +69,19 @@ const Notification = ({ currentUser }: NotificationProps) => {
 
       socket.on(
         "response_notification_decline",
-        (data: { name: string; senderId: string; receiverId: string }) => {
+        (data: {
+          name: string;
+          senderId: string;
+          receiverId: string;
+          message?: string;
+        }) => {
           if (data.receiverId === currentUser._id) {
-            toast(`Sorry! ${data.name} is reject your invitation`);
+            if (data.message) {
+              toast(data.message);
+              router.refresh();
+            } else {
+              toast(`Sorry! ${data.name} is reject your invitation`);
+            }
           }
         }
       );
@@ -201,11 +210,9 @@ const Notification = ({ currentUser }: NotificationProps) => {
         },
       });
 
-      await fetch("http://localhost:8090/api/groups", {
+      await fetch(`http://localhost:8090/api/groups_members/`, {
         method: "DELETE",
-        body: JSON.stringify({
-          _id,
-        }),
+        body: JSON.stringify({ _id }),
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",

@@ -137,7 +137,15 @@ export async function deleteGroupMember({
   filter: FilterQuery<GroupMembersDoc>;
 }) {
   try {
-    return await GroupMember.deleteOne(filter);
+    await GroupMember.deleteOne(filter);
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
+
+export async function deleteGroup({ filter }: { filter: FilterQuery<IGroup> }) {
+  try {
+    await Group.deleteOne(filter);
   } catch (e: any) {
     throw new Error(e.message);
   }

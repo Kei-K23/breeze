@@ -22,43 +22,37 @@ const LandingPageLayout = async ({
 
   if (refreshCookie?.name === "breeze_csrf") {
     if (refreshCookie.value) {
-      try {
-        const decoded = verify(
-          refreshCookie?.value as string,
-          process.env.NEXT_PUBLIC_REFRESH_TOKEN_SECRET as string
-        ) as JWTDecodedType;
+      const decoded = verify(
+        refreshCookie?.value as string,
+        process.env.NEXT_PUBLIC_REFRESH_TOKEN_SECRET as string
+      ) as JWTDecodedType;
 
-        if (decoded) {
-          try {
-            const resSession = await fetch(
-              `http://localhost:8090/api/session/${decoded.token_id}`,
-              {
-                method: "GET",
-              }
-            );
-
-            const sessionData = await resSession.json();
-
-            if (resSession.ok && sessionData.success) {
-              return redirect("/dashboard");
-            } else {
-              return (
-                <div className="h-full">
-                  <Navbar iconLink="/" />
-                  <main>{children}</main>
-                </div>
-              );
-            }
-          } catch (e: any) {
-            return (
-              <div className="h-full">
-                <Navbar iconLink="/" />
-                <main>{children}</main>
-              </div>
-            );
+      if (decoded) {
+        const resSession = await fetch(
+          `http://localhost:8090/api/session/${decoded.token_id}`,
+          {
+            method: "GET",
+            headers: {
+              Cookie: `breeze_csrf=${refreshCookie.value}`,
+            },
+            next: {
+              revalidate: 0,
+            },
+            credentials: "include",
           }
+        );
+
+        if (resSession.ok) {
+          return redirect("/dashboard");
+        } else {
+          return (
+            <div className="h-full">
+              <Navbar iconLink="/" />
+              <main>{children}</main>
+            </div>
+          );
         }
-      } catch (e: any) {
+      } else {
         return (
           <div className="h-full">
             <Navbar iconLink="/" />

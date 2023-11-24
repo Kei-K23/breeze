@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Send, UserCircle2 } from "lucide-react";
+import { Plus, Send, Trash, UserCircle2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -25,6 +25,14 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import AddMemberDialog from "./AddMemberDialog";
 import { useSocket } from "@/provider/socket-provider";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 const users = [
   {
@@ -63,6 +71,13 @@ interface MessageChatProps {
   currentUser: UserType;
 }
 
+type DeleteGroupParaType = {
+  _id: string;
+  ownerId: string;
+  groupId: string;
+  groupMembers: UserType[];
+};
+
 export function MessageChat({
   selectedChatGroup,
   cookie,
@@ -77,7 +92,13 @@ export function MessageChat({
     updatedAt: Date;
   }>();
   const [groupMembers, setGroupMembers] = useState<Array<UserType>>([]);
-  const [open, setOpen] = useState(false);
+  const [addMemberOpen, setAddMemberOpen] = useState(false);
+  const [deleteGroupOpen, setDeleteGroupOpen] = useState(false);
+
+  const [deleteGroupState, setDeleteGroupState] =
+    useState<DeleteGroupParaType | null>(null);
+
+  const router = useRouter();
   const { socket } = useSocket();
   useEffect(() => {
     fetchChatGroupData();
@@ -117,6 +138,7 @@ export function MessageChat({
             method: "GET",
             credentials: "include",
             next: {
+              revalidate: 0,
               tags: ["group_member"],
             },
             cache: "no-cache",
@@ -192,6 +214,55 @@ export function MessageChat({
   const [input, setInput] = useState("");
   const inputLength = input.trim().length;
 
+  async function onClickDeleteGroup({
+    _id,
+    groupId,
+    groupMembers,
+    ownerId,
+  }: DeleteGroupParaType) {
+    try {
+      await fetch(`http://localhost:8090/api/groups/${_id}/${ownerId}`, {
+        method: "DELETE",
+        credentials: "include",
+        next: {
+          revalidate: 0,
+        },
+        cache: "no-cache",
+      });
+
+      if (groupMembers.length) {
+        groupMembers.map(async (groupMember) => {
+          await fetch(`http://localhost:8090/api/groups_members/`, {
+            method: "DELETE",
+            body: JSON.stringify({
+              groupId,
+              memberId: groupMember._id,
+            }),
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            credentials: "include",
+            next: {
+              revalidate: 0,
+            },
+          });
+          socket.emit("response_notification_decline", {
+            name: currentUser.name,
+            senderId: currentUser._id,
+            receiverId: groupMember._id,
+            message: "Group You join is deleted",
+          });
+        });
+      }
+      setDeleteGroupState(null);
+      toast.success("Successfully deleted the group!");
+    } catch (e: any) {
+      toast.error(e.message);
+      return;
+    }
+  }
+
   return (
     <>
       <Card className="h-full w-full flex-1 ">
@@ -218,13 +289,37 @@ export function MessageChat({
                           size="icon"
                           variant="outline"
                           className="ml-auto rounded-full"
-                          onClick={() => setOpen(true)}
+                          onClick={() => setAddMemberOpen(true)}
                         >
                           <Plus className="h-4 w-4" />
                           <span className="sr-only">Add new member</span>
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Add new member</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              {selectedChatGroup !=
+                process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID &&
+                group?.ownerId === currentUser._id && (
+                  <TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Trash
+                          className="text-red-500 cursor-pointer"
+                          onClick={() => {
+                            if (currentUser._id === group.ownerId)
+                              setDeleteGroupState({
+                                _id: group._id,
+                                ownerId: group.ownerId,
+                                groupMembers,
+                                groupId: group._id,
+                              });
+                            setDeleteGroupOpen(true);
+                          }}
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent>Delete the group</TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 )}
@@ -337,13 +432,37 @@ export function MessageChat({
           </form>
         </CardFooter>
       </Card>
+      <Dialog open={deleteGroupOpen} onOpenChange={setDeleteGroupOpen}>
+        <DialogContent className="gap-0 p-0 outline-none">
+          <DialogHeader className="px-4 pb-4 pt-5">
+            <DialogTitle className="text-red-500 font-semibold text-xl">
+              Delete the group?
+            </DialogTitle>
+            <DialogDescription>This is delete forever!</DialogDescription>
+          </DialogHeader>
+
+          <div className="flex items-center border-t p-4 sm:justify-between">
+            <Button
+              variant={"destructive"}
+              onClick={() => {
+                if (deleteGroupState) onClickDeleteGroup(deleteGroupState);
+                setDeleteGroupOpen(false);
+                router.refresh();
+              }}
+            >
+              Delete
+            </Button>
+            <Button>Cancel</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       {group?.ownerId === currentUser._id && (
         <AddMemberDialog
           currentUser={currentUser}
           selectedChatGroup={selectedChatGroup}
           existMember={groupMembers}
-          setOpen={setOpen}
-          open={open}
+          setAddMemberOpen={setAddMemberOpen}
+          addMemberOpen={addMemberOpen}
           cookie={cookie}
         />
       )}

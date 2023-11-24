@@ -1,8 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MessageChat } from "./Chat";
 import LeftSideBar, { FetchGroupsDataType } from "./LeftSideBar";
 import RightSideBar, { FetchUsersDataType, UserType } from "./RightSideBar";
+import toast from "react-hot-toast";
+import { useSocket } from "@/provider/socket-provider";
+import { useRouter } from "next/navigation";
 
 interface MainProps {
   cookie: string;
@@ -18,7 +21,6 @@ const MainDashboard = ({
   usersData,
 }: MainProps) => {
   const GLOBAL_CHAT_ROOM_ID = process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID;
-
   const [selectedChatGroup, setSelectedChatGroup] =
     useState(GLOBAL_CHAT_ROOM_ID);
 

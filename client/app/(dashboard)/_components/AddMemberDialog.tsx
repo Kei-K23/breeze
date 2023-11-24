@@ -24,10 +24,11 @@ import toast from "react-hot-toast";
 import { createGroupMemberAction } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import { useSocket } from "@/provider/socket-provider";
+import { cn } from "@/lib/utils";
 
 interface AddMemberDialogProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  addMemberOpen: boolean;
+  setAddMemberOpen: (addMemberOpen: boolean) => void;
   cookie: string;
   existMember: UserType[];
   selectedChatGroup: string;
@@ -48,8 +49,8 @@ export type NotificationType = {
 };
 
 const AddMemberDialog = ({
-  open,
-  setOpen,
+  addMemberOpen,
+  setAddMemberOpen,
   existMember,
   cookie,
   selectedChatGroup,
@@ -111,11 +112,10 @@ const AddMemberDialog = ({
             },
           ],
         });
-        console.log(groupMemberToInvite);
 
         if (!groupMemberToInvite) {
           toast.error("User already invited!");
-          return setOpen(false);
+          return setAddMemberOpen(false);
         }
         const notification: NotificationType = {
           title: "Group invitation!",
@@ -131,22 +131,22 @@ const AddMemberDialog = ({
         toast("Sent request for invitation!");
       });
 
-      setOpen(false);
+      setAddMemberOpen(false);
       return;
     } catch (e: any) {
       toast.error(e.message);
-      setOpen(false);
+      setAddMemberOpen(false);
       return;
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={addMemberOpen} onOpenChange={setAddMemberOpen}>
       <DialogContent className="gap-0 p-0 outline-none">
         <DialogHeader className="px-4 pb-4 pt-5">
-          <DialogTitle>Create new Group</DialogTitle>
+          <DialogTitle>Add new members to the group</DialogTitle>
           <DialogDescription>
-            Create your group and organize, invite, share and communicate.
+            Add new users to this group and let&apos;s invite them.
           </DialogDescription>
         </DialogHeader>
 
@@ -211,12 +211,13 @@ const AddMemberDialog = ({
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Select users to add to this group or add users later.
+              Select users to add to this group.
             </p>
           )}
         </div>
-        <DialogFooter>
+        <DialogFooter className="sm:justify-start p-2">
           <Button
+            disabled={selectedUsers.length > 0 ? false : true}
             onClick={() => {
               onSubmit();
               router.refresh();

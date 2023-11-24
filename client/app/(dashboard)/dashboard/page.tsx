@@ -63,9 +63,9 @@ const Dashboard = async ({
         iconLink="/dashboard"
       />
       <MainDashboard
+        groupData={groupData}
         cookie={searchParams.cookie as string}
         currentUser={userData.data}
-        groupData={groupData}
         usersData={usersData}
       />
     </>

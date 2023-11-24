@@ -4,6 +4,7 @@ import revalidateAccessToken from "../middleware/revalidateAccessToken";
 import {
   createGroupHandler,
   createGroupMembersHandler,
+  deleteGroupHandler,
   deleteGroupMemberHandler,
   editGroupMemberHandler,
   getGroupByIdHandler,
@@ -14,6 +15,7 @@ import {
   createGroup,
   createGroupMembers,
   deleteGroupMemberSchema,
+  deleteGroupSchema,
   getDataByIdSchema,
   getDataByUserId,
 } from "../schema/group.schema";
@@ -54,10 +56,17 @@ export default function (route: Router) {
     editGroupMemberHandler
   );
   route.delete(
-    "/api/groups/",
+    "/api/groups_members/",
     revalidateAccessToken,
     requiredAccessToken,
     validateResource(deleteGroupMemberSchema),
     deleteGroupMemberHandler
+  );
+  route.delete(
+    "/api/groups/:_id/:ownerId",
+    revalidateAccessToken,
+    requiredAccessToken,
+    validateResource(deleteGroupSchema),
+    deleteGroupHandler
   );
 }
