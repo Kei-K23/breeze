@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import {
+  AcceptFriendForUserType,
   AddFriendForUserType,
   CreateUserType,
   EditUserType,
@@ -131,6 +132,58 @@ export async function addFriendForUserHandler(
         success: true,
         data: omitDoc(user, ["password", "__v"]),
         message: "Friend Request !",
+      })
+      .end();
+  } catch (e: any) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: e.message,
+      })
+      .end();
+  }
+}
+
+export async function acceptFriendForUserHandler(
+  req: Request<
+    AcceptFriendForUserType["params"],
+    {},
+    AcceptFriendForUserType["body"]
+  >,
+  res: Response
+) {
+  const userId = req.params.userId;
+  try {
+    const user = await editUser({
+      filter: {
+        _id: userId,
+        "friends.friendId": req.body.friendId,
+      },
+      update: {
+        "friends.$.status": req.body.status || "Friended",
+      },
+      options: {
+        new: true,
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(500)
+        .json({
+          success: false,
+          error: "Could not accept friend!",
+        })
+        .end();
+    }
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        data: omitDoc(user, ["password", "__v"]),
+        message: "Successfully accept the friend !",
       })
       .end();
   } catch (e: any) {

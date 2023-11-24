@@ -26,7 +26,7 @@ io.on("connection", (socket) => {
     // Emit the updated list of active users to all clients
     io.emit("system_active_users", Array.from(activeUsers.values()));
   });
-
+  // event for notification response for accept group
   socket.on("response_notification_accept", (data) => {
     io.emit("response_notification_accept", data);
   });
@@ -34,6 +34,7 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("response_notification_decline", data);
   });
 
+  // event for notification sending to user
   socket.on("send_notification", (notification) => {
     socket.broadcast.emit("receive_notification", notification);
   });
@@ -46,6 +47,12 @@ io.on("connection", (socket) => {
 
     // Emit the updated list of active users to all clients
     io.emit("system_active_users", Array.from(activeUsers.values()));
+  });
+
+  // event for add friend request
+  socket.on("add_friend", (data) => {
+    console.log(data);
+    socket.broadcast.emit("add_friend", data);
   });
 });
 server.listen(PORT, () => {

@@ -11,6 +11,9 @@ export interface INotification {
   createdAt: Date;
   groupId?: string;
   checkUnique?: string;
+  receiverId?: string;
+  senderEmail?: string;
+  senderPicture?: string;
 }
 
 export type FriendDataType = {
@@ -42,6 +45,9 @@ const NotificationSchema = new mongoose.Schema<INotification>({
   createdAt: { type: Date, default: new Date() },
   checkUnique: { type: String },
   groupId: { type: String },
+  receiverId: { type: String },
+  senderEmail: { type: String },
+  senderPicture: { type: String },
 });
 
 export interface UserDoc extends mongoose.Document {
@@ -120,6 +126,7 @@ const userSchema = new mongoose.Schema<UserDoc, UserModel>(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true,
+            unique: true,
           },
           status: { type: String, default: "Pending" },
           email: { type: String },

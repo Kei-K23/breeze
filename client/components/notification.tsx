@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-import { Bell, Group, Trash } from "lucide-react";
+import { Bell, Group, Trash, User } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -87,6 +87,25 @@ const Notification = ({ currentUser }: NotificationProps) => {
 
       socket.on("receive_notification", receiveNotification);
 
+      // socket for add friend request
+      socket.on("add_friend", async (data: NotificationType) => {
+        if (currentUser._id === data.receiverId) {
+          const isExistingN = notifications.some(
+            (n) => n.checkUnique === data.checkUnique
+          );
+
+          if (!isExistingN) {
+            const nArray = await fetchEditUserData({
+              userId: data.receiverId,
+              payload: [data],
+            });
+            console.log(nArray);
+
+            setNotifications([...(nArray as NotificationType[])]);
+            toast(`${data.senderName} is want to friend with you`);
+          }
+        }
+      });
       return () => {
         // Clean up the event listener when the component unmounts
         socket.off("receive_notification", receiveNotification);
@@ -106,6 +125,10 @@ const Notification = ({ currentUser }: NotificationProps) => {
             }
           }
         );
+        socket.off("add_friend", (data: NotificationType) => {
+          setNotifications((prev) => [...prev, data]);
+          toast(`${data.senderName} is want to friend with you`);
+        });
       };
     }
   }, [currentUser, notifications, socket]);
@@ -240,6 +263,79 @@ const Notification = ({ currentUser }: NotificationProps) => {
     }
   }
 
+  async function onClickAcceptFriendRequest({
+    friendId,
+    senderName,
+    senderId,
+    senderEmail,
+    senderPicture,
+  }: {
+    senderName: string;
+    friendId: string;
+    senderId: string;
+    senderEmail?: string;
+    senderPicture?: string;
+  }) {
+    console.log(friendId);
+
+    try {
+      const resAcceptFriend = await fetch(
+        `http://localhost:8090/api/users/accept-friends/${senderId}`,
+        {
+          method: "PUT",
+          body: JSON.stringify({
+            friendId: friendId,
+            status: "Friended",
+          }),
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          next: {
+            revalidate: 0,
+          },
+          cache: "no-cache",
+        }
+      );
+      const acceptFriendData = await resAcceptFriend.json();
+
+      if (resAcceptFriend.ok && acceptFriendData.success) {
+        await fetch(
+          `http://localhost:8090/api/users/add-friends/${currentUser._id}`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              friendIds: [
+                {
+                  email: senderEmail,
+                  friendId: senderId,
+                  name: senderName,
+                  picture: senderPicture,
+                  status: "Friended",
+                },
+              ],
+            }),
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            next: {
+              revalidate: 0,
+            },
+            cache: "no-cache",
+          }
+        );
+        toast(`You are now friend with ${senderName}`);
+      } else {
+        toast.error(acceptFriendData.error);
+      }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -285,6 +381,11 @@ const Notification = ({ currentUser }: NotificationProps) => {
                       {n.title === "Group invitation!" && (
                         <h3 className="text-base font-bold flex">
                           <Group /> {n.title}
+                        </h3>
+                      )}
+                      {n.title === "Friend request!" && (
+                        <h3 className="text-base font-bold flex">
+                          <User /> {n.title}
                         </h3>
                       )}
                       {n.groupName && (
@@ -347,6 +448,40 @@ const Notification = ({ currentUser }: NotificationProps) => {
                       >
                         Clear
                       </Button>
+                    )}
+                    {n.title === "Friend request!" && (
+                      <>
+                        <Button
+                          size={"sm"}
+                          onClick={async () => {
+                            await onClickAcceptFriendRequest({
+                              friendId: n.receiverId,
+                              senderName: n.senderName,
+                              senderId: n.senderId,
+                              senderEmail: n.senderEmail,
+                              senderPicture: n.senderPicture,
+                            });
+                            router.refresh();
+                          }}
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          size={"sm"}
+                          variant={"destructive"}
+                          // onClick={async () => {
+                          //   await onClickRemoveNOfUser({
+                          //     userId: currentUser._id,
+                          //     payload: n,
+                          //     notificationSenderId: n.senderId,
+                          //     _id: n.sourceIdToConfirm,
+                          //   });
+                          //   router.refresh();
+                          // }}
+                        >
+                          Decline
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>

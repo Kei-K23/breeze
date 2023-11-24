@@ -1,5 +1,7 @@
 import { Router } from "express";
 import {
+  acceptFriendForUserHandler,
+  addFriendForUserHandler,
   createUserHandler,
   editUserHandler,
   getAllUserWithoutCurrentUserHandler,
@@ -9,6 +11,8 @@ import {
 } from "../controller/user.controller";
 import validateResource from "../middleware/validateResource";
 import {
+  acceptFriendForUserSchema,
+  addFriendForUserSchema,
   createUserSchema,
   editUserSchema,
   removeNotificationOfUserSchema,
@@ -57,5 +61,20 @@ export default function (route: Router) {
     requiredAccessToken,
     validateResource(removeNotificationOfUserSchema),
     removeNotificationOfUserHandler
+  );
+  // add friends
+  route.post(
+    "/api/users/add-friends/:userId",
+    revalidateAccessToken,
+    requiredAccessToken,
+    validateResource(addFriendForUserSchema),
+    addFriendForUserHandler
+  );
+  route.put(
+    "/api/users/accept-friends/:userId",
+    revalidateAccessToken,
+    requiredAccessToken,
+    validateResource(acceptFriendForUserSchema),
+    acceptFriendForUserHandler
   );
 }
