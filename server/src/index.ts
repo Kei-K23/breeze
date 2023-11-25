@@ -51,20 +51,16 @@ io.on("connection", (socket) => {
 
   // event for add friend request
   socket.on("add_friend", (data) => {
-    console.log(data);
     socket.broadcast.emit("add_friend", data);
   });
 
   // event for accept friend request
   socket.on("accept_friend", (data) => {
-    console.log(data);
-
     socket.broadcast.emit("accept_friend", data);
   });
 
   // event for decline friend request
   socket.on("decline_friend", (data) => {
-    console.log(data);
     socket.broadcast.emit("decline_friend", data);
   });
 });

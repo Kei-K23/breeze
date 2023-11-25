@@ -24,7 +24,6 @@ import toast from "react-hot-toast";
 import { createGroupMemberAction } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import { useSocket } from "@/provider/socket-provider";
-import { cn } from "@/lib/utils";
 
 interface AddMemberDialogProps {
   addMemberOpen: boolean;

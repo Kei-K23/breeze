@@ -61,7 +61,11 @@ const Notification = ({ currentUser }: NotificationProps) => {
             });
 
             setNotifications([...(nArray as NotificationType[])]);
-            toast("Sorry! Group you joined is deleted.");
+            if (notification.title === "Group invitation!") {
+              toast("Receive new group invitation for you!");
+            } else {
+              toast("Sorry! Group you joined is deleted.");
+            }
             router.refresh();
           }
         }
@@ -85,8 +89,8 @@ const Notification = ({ currentUser }: NotificationProps) => {
               toast(
                 `${notification.senderName} is accepted your group invitation`
               );
-              router.refresh();
             }
+            router.refresh();
           }
         }
       );
@@ -108,6 +112,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
               toast(
                 `Sorry! ${notification.senderName} is reject your invitation`
               );
+              router.refresh();
             }
           }
         }
@@ -127,6 +132,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
               userId: data.receiverId,
               payload: [data],
             });
+
             setNotifications([...(nArray as NotificationType[])]);
             toast(`${data.senderName} is want to friend with you`);
             router.refresh();
@@ -145,6 +151,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
               userId: data.receiverId,
               payload: [data],
             });
+
             setNotifications([...(nArray as NotificationType[])]);
             toast(`${data.senderName} is accepted to friend with you`);
             router.refresh();
@@ -163,6 +170,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
               userId: data.receiverId,
               payload: [data],
             });
+
             setNotifications([...(nArray as NotificationType[])]);
 
             toast(`${data.senderName} is decline your friend request`);
@@ -176,6 +184,8 @@ const Notification = ({ currentUser }: NotificationProps) => {
         socket.off("receive_notification", receiveNotification);
         socket.off("response_notification_accept");
         socket.off("response_notification_decline");
+        socket.off("add_friend");
+        socket.off("decline_friend");
         socket.off("accept_friend");
       };
     }
@@ -327,8 +337,6 @@ const Notification = ({ currentUser }: NotificationProps) => {
     friendId,
     senderName,
     senderId,
-    senderEmail,
-    senderPicture,
     payload,
   }: {
     senderName: string;
@@ -338,8 +346,6 @@ const Notification = ({ currentUser }: NotificationProps) => {
     senderPicture?: string;
     payload: NotificationType;
   }) {
-    console.log(friendId);
-
     try {
       const resAcceptFriend = await fetch(
         `http://localhost:8090/api/users/accept-friends/${senderId}`,
@@ -364,19 +370,12 @@ const Notification = ({ currentUser }: NotificationProps) => {
 
       if (resAcceptFriend.ok && acceptFriendData.success) {
         await fetch(
-          `http://localhost:8090/api/users/add-friends/${currentUser._id}`,
+          `http://localhost:8090/api/users/accept-friends/${payload.receiverId}`,
           {
-            method: "POST",
+            method: "PUT",
             body: JSON.stringify({
-              friendIds: [
-                {
-                  email: senderEmail,
-                  friendId: senderId,
-                  name: senderName,
-                  picture: senderPicture,
-                  status: "Friended",
-                },
-              ],
+              friendId: senderId,
+              status: "Friended",
             }),
             credentials: "include",
             headers: {
@@ -389,6 +388,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
             cache: "no-cache",
           }
         );
+
         await fetch(`http://localhost:8090/api/users/rmN/${currentUser._id}`, {
           method: "PUT",
           body: JSON.stringify(payload),
@@ -456,6 +456,21 @@ const Notification = ({ currentUser }: NotificationProps) => {
         {
           method: "DELETE",
           body: JSON.stringify({ friendId }),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          next: {
+            revalidate: 0,
+          },
+        }
+      );
+      await fetch(
+        `http://localhost:8090/api/users/decline-friends/${currentUser._id}`,
+        {
+          method: "DELETE",
+          body: JSON.stringify({ friendId: senderId }),
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",

@@ -68,7 +68,6 @@ interface RightSideBarProps {
 }
 const RightSideBar = ({ usersData, currentUser }: RightSideBarProps) => {
   const [onlineUser, setOnlineUser] = useState<Array<string>>([]);
-  const [friends, setFriends] = useState<FriendDataType[]>(currentUser.friends);
   const { socket } = useSocket();
   const router = useRouter();
 
@@ -83,8 +82,15 @@ const RightSideBar = ({ usersData, currentUser }: RightSideBarProps) => {
       setOnlineUser(users);
     });
 
+    socket.on("add_friend", (data: NotificationType) => {
+      if (currentUser._id === data.receiverId) {
+        router.refresh();
+      }
+    });
+
     return () => {
       socket.off("system_active_users");
+      socket.off("add_friend");
     };
   }, [socket]);
 
@@ -114,9 +120,32 @@ const RightSideBar = ({ usersData, currentUser }: RightSideBarProps) => {
           cache: "no-cache",
         }
       );
+
+      await fetch(`http://localhost:8090/api/users/add-friends/${friendId}`, {
+        method: "POST",
+        body: JSON.stringify({
+          friendIds: [
+            {
+              email: currentUser.email,
+              friendId: currentUser._id,
+              name: currentUser.name,
+              picture: currentUser.picture,
+              status: "Pending",
+            },
+          ],
+        }),
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        next: {
+          revalidate: 0,
+        },
+        cache: "no-cache",
+      });
       const addFriendData = await resAddFriend.json();
       if (resAddFriend.ok && addFriendData.success) {
-        setFriends(addFriendData.data.friends);
         // add friend request notification message data
 
         const addFriRequestNotification: NotificationType = {
@@ -132,6 +161,7 @@ const RightSideBar = ({ usersData, currentUser }: RightSideBarProps) => {
         };
 
         socket.emit("add_friend", addFriRequestNotification);
+        router.refresh();
       } else {
         toast.error(addFriendData.error);
       }

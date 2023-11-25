@@ -113,6 +113,9 @@ export function MessageChat({
           });
         }
       });
+      return () => {
+        socket.off("response_notification_accept");
+      }
     }
   }, [selectedChatGroup]);
 
