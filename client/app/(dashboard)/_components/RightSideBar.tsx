@@ -117,11 +117,11 @@ const RightSideBar = ({ usersData, currentUser }: RightSideBarProps) => {
       const addFriendData = await resAddFriend.json();
       if (resAddFriend.ok && addFriendData.success) {
         setFriends(addFriendData.data.friends);
-
         // add friend request notification message data
+
         const addFriRequestNotification: NotificationType = {
           title: "Friend request!",
-          content: "I want to make friend with you",
+          content: "I want to make friend with you.",
           createdAt: new Date(),
           senderId: currentUser._id,
           senderName: currentUser.name,
@@ -200,6 +200,8 @@ const RightSideBar = ({ usersData, currentUser }: RightSideBarProps) => {
                       </div>
                     </div>
                   );
+                } else if (user.status === "Pending") {
+                  <h2 className="text-center">No friends yet!</h2>;
                 } else {
                   <h2 className="text-center">No friends yet!</h2>;
                 }
@@ -274,7 +276,10 @@ const RightSideBar = ({ usersData, currentUser }: RightSideBarProps) => {
                   <div className="mt-2">
                     {currentUser && currentUser.friends.length > 0 ? (
                       currentUser.friends.map((friend) => {
-                        if (friend.friendId === user?._id) {
+                        if (
+                          friend.friendId === user?._id &&
+                          friend.status === "Friended"
+                        ) {
                           return (
                             <Button
                               disabled

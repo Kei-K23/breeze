@@ -10,7 +10,16 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-import { Bell, Group, Trash, User } from "lucide-react";
+import {
+  Bell,
+  Check,
+  Group,
+  Trash,
+  User,
+  UserCheck,
+  UserX,
+  X,
+} from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -52,34 +61,53 @@ const Notification = ({ currentUser }: NotificationProps) => {
             });
 
             setNotifications([...(nArray as NotificationType[])]);
-            toast("New notification has received");
+            toast("Sorry! Group you joined is deleted.");
+            router.refresh();
           }
         }
       };
 
       socket.on(
         "response_notification_accept",
-        (data: { name: string; senderId: string; receiverId: string }) => {
-          if (data.receiverId === currentUser._id) {
-            toast(`${data.name} is accepted your invitation`);
+        async (notification: NotificationType) => {
+          if (notification.receiverId === currentUser._id) {
+            const isExistingN = notifications.some(
+              (n) => n.checkUnique === notification.checkUnique
+            );
+
+            if (!isExistingN) {
+              const nArray = await fetchEditUserData({
+                userId: notification.receiverId,
+                payload: [notification],
+              });
+
+              setNotifications([...(nArray as NotificationType[])]);
+              toast(
+                `${notification.senderName} is accepted your group invitation`
+              );
+              router.refresh();
+            }
           }
         }
       );
 
       socket.on(
         "response_notification_decline",
-        (data: {
-          name: string;
-          senderId: string;
-          receiverId: string;
-          message?: string;
-        }) => {
-          if (data.receiverId === currentUser._id) {
-            if (data.message) {
-              toast(data.message);
-              router.refresh();
-            } else {
-              toast(`Sorry! ${data.name} is reject your invitation`);
+        async (notification: NotificationType) => {
+          if (notification.receiverId === currentUser._id) {
+            const isExistingN = notifications.some(
+              (n) => n.checkUnique === notification.checkUnique
+            );
+
+            if (!isExistingN) {
+              const nArray = await fetchEditUserData({
+                userId: notification.receiverId,
+                payload: [notification],
+              });
+              setNotifications([...(nArray as NotificationType[])]);
+              toast(
+                `Sorry! ${notification.senderName} is reject your invitation`
+              );
             }
           }
         }
@@ -99,36 +127,56 @@ const Notification = ({ currentUser }: NotificationProps) => {
               userId: data.receiverId,
               payload: [data],
             });
-            console.log(nArray);
-
             setNotifications([...(nArray as NotificationType[])]);
             toast(`${data.senderName} is want to friend with you`);
+            router.refresh();
           }
         }
       });
+
+      socket.on("accept_friend", async (data: NotificationType) => {
+        if (currentUser._id === data.receiverId) {
+          const isExistingN = notifications.some(
+            (n) => n.checkUnique === data.checkUnique
+          );
+
+          if (!isExistingN) {
+            const nArray = await fetchEditUserData({
+              userId: data.receiverId,
+              payload: [data],
+            });
+            setNotifications([...(nArray as NotificationType[])]);
+            toast(`${data.senderName} is accepted to friend with you`);
+            router.refresh();
+          }
+        }
+      });
+
+      socket.on("decline_friend", async (data: NotificationType) => {
+        if (currentUser._id === data.receiverId) {
+          const isExistingN = notifications.some(
+            (n) => n.checkUnique === data.checkUnique
+          );
+
+          if (!isExistingN) {
+            const nArray = await fetchEditUserData({
+              userId: data.receiverId,
+              payload: [data],
+            });
+            setNotifications([...(nArray as NotificationType[])]);
+
+            toast(`${data.senderName} is decline your friend request`);
+            router.refresh();
+          }
+        }
+      });
+
       return () => {
         // Clean up the event listener when the component unmounts
         socket.off("receive_notification", receiveNotification);
-        socket.off(
-          "response_notification_accept",
-          (data: { name: string; senderId: string; receiverId: string }) => {
-            if (data.receiverId === currentUser._id) {
-              toast(`${data.name} is accepted your invitation`);
-            }
-          }
-        );
-        socket.off(
-          "response_notification_decline",
-          (data: { name: string; senderId: string; receiverId: string }) => {
-            if (data.receiverId === currentUser._id) {
-              toast(`Sorry! ${data.name} is reject your invitation`);
-            }
-          }
-        );
-        socket.off("add_friend", (data: NotificationType) => {
-          setNotifications((prev) => [...prev, data]);
-          toast(`${data.senderName} is want to friend with you`);
-        });
+        socket.off("response_notification_accept");
+        socket.off("response_notification_decline");
+        socket.off("accept_friend");
       };
     }
   }, [currentUser, notifications, socket]);
@@ -198,12 +246,18 @@ const Notification = ({ currentUser }: NotificationProps) => {
         payload,
       });
 
-      socket.emit("response_notification_accept", {
-        name: currentUser.name,
-        senderId: currentUser._id,
+      const notification: NotificationType = {
+        title: "Accept group invitation!",
+        content: "Congrats! Group invitation accepted.",
+        createdAt: new Date(),
+        checkUnique: crypto.randomUUID().toString(),
         receiverId: notificationSenderId,
+        senderId: currentUser._id,
+        senderName: currentUser.name,
         groupId: payload.groupId,
-      });
+      };
+
+      socket.emit("response_notification_accept", notification);
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -248,11 +302,17 @@ const Notification = ({ currentUser }: NotificationProps) => {
           },
         });
 
-        socket.emit("response_notification_decline", {
-          name: currentUser.name,
+        const notification: NotificationType = {
+          title: "Decline group invitation!",
+          content: "Sorry! I would like to decline your group invitation.",
+          createdAt: new Date(),
+          checkUnique: crypto.randomUUID().toString(),
+          receiverId: notificationSenderId as string,
           senderId: currentUser._id,
-          receiverId: notificationSenderId,
-        });
+          senderName: currentUser.name,
+          groupId: payload.groupId,
+        };
+        socket.emit("response_notification_decline", notification);
       }
 
       setNotifications((prev) => {
@@ -269,12 +329,14 @@ const Notification = ({ currentUser }: NotificationProps) => {
     senderId,
     senderEmail,
     senderPicture,
+    payload,
   }: {
     senderName: string;
     friendId: string;
     senderId: string;
     senderEmail?: string;
     senderPicture?: string;
+    payload: NotificationType;
   }) {
     console.log(friendId);
 
@@ -327,10 +389,126 @@ const Notification = ({ currentUser }: NotificationProps) => {
             cache: "no-cache",
           }
         );
+        await fetch(`http://localhost:8090/api/users/rmN/${currentUser._id}`, {
+          method: "PUT",
+          body: JSON.stringify(payload),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          next: {
+            revalidate: 0,
+          },
+        });
+        setNotifications((prev) => {
+          return prev.filter((p) => p._id !== payload._id);
+        });
+
         toast(`You are now friend with ${senderName}`);
+
+        const notification: NotificationType = {
+          title: "Accept friend request!",
+          content: "Congrats! Friend request accepted.",
+          createdAt: new Date(),
+          checkUnique: crypto.randomUUID().toString(),
+          receiverId: payload.senderId,
+          senderId: currentUser._id,
+          senderName: currentUser.name,
+        };
+
+        socket.emit("accept_friend", notification);
       } else {
         toast.error(acceptFriendData.error);
       }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  }
+
+  async function onClickRemoveFriendRequest({
+    payload,
+    friendId,
+    senderId,
+    senderName,
+  }: {
+    payload: NotificationType;
+    friendId: string;
+    senderName: string;
+    senderId: string;
+  }) {
+    try {
+      await fetch(`http://localhost:8090/api/users/rmN/${currentUser._id}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+        next: {
+          revalidate: 0,
+        },
+      });
+
+      await fetch(
+        `http://localhost:8090/api/users/decline-friends/${senderId}`,
+        {
+          method: "DELETE",
+          body: JSON.stringify({ friendId }),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          next: {
+            revalidate: 0,
+          },
+        }
+      );
+      setNotifications((prev) => {
+        return prev.filter((p) => p._id !== payload._id);
+      });
+
+      const notification: NotificationType = {
+        title: "Decline friend request!",
+        content: "Sorry! I would like to decline your friend request.",
+        createdAt: new Date(),
+        checkUnique: crypto.randomUUID().toString(),
+        receiverId: payload.senderId,
+        senderId: currentUser._id,
+        senderName: currentUser.name,
+      };
+
+      socket.emit("decline_friend", notification);
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  }
+
+  async function removeNotification({
+    userId,
+    payload,
+  }: {
+    userId: string;
+    payload: NotificationType;
+  }) {
+    try {
+      await fetch(`http://localhost:8090/api/users/rmN/${userId}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+        next: {
+          revalidate: 0,
+        },
+      });
+      setNotifications((prev) => {
+        return prev.filter((p) => p._id !== payload._id);
+      });
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -374,7 +552,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
                   <div className="flex justify-between items-center w-full">
                     <div>
                       {n.title === "Group Deleted!" && (
-                        <h3 className="text-base font-bold flex">
+                        <h3 className="text-base font-bold flex  text-red-500">
                           <Trash /> {n.title}
                         </h3>
                       )}
@@ -386,6 +564,26 @@ const Notification = ({ currentUser }: NotificationProps) => {
                       {n.title === "Friend request!" && (
                         <h3 className="text-base font-bold flex">
                           <User /> {n.title}
+                        </h3>
+                      )}
+                      {n.title === "Accept group invitation!" && (
+                        <h3 className="text-base font-bold flex text-green-500">
+                          <Check /> {n.title}
+                        </h3>
+                      )}
+                      {n.title === "Accept friend request!" && (
+                        <h3 className="text-base font-bold flex text-green-500">
+                          <UserCheck /> {n.title}
+                        </h3>
+                      )}
+                      {n.title === "Decline friend request!" && (
+                        <h3 className="text-base font-bold flex text-red-500">
+                          <UserX /> {n.title}
+                        </h3>
+                      )}
+                      {n.title === "Decline group invitation!" && (
+                        <h3 className="text-base font-bold flex text-red-500">
+                          <X /> {n.title}
                         </h3>
                       )}
                       {n.groupName && (
@@ -460,6 +658,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
                               senderId: n.senderId,
                               senderEmail: n.senderEmail,
                               senderPicture: n.senderPicture,
+                              payload: n,
                             });
                             router.refresh();
                           }}
@@ -469,19 +668,79 @@ const Notification = ({ currentUser }: NotificationProps) => {
                         <Button
                           size={"sm"}
                           variant={"destructive"}
-                          // onClick={async () => {
-                          //   await onClickRemoveNOfUser({
-                          //     userId: currentUser._id,
-                          //     payload: n,
-                          //     notificationSenderId: n.senderId,
-                          //     _id: n.sourceIdToConfirm,
-                          //   });
-                          //   router.refresh();
-                          // }}
+                          onClick={async () => {
+                            await onClickRemoveFriendRequest({
+                              friendId: n.receiverId,
+                              payload: n,
+                              senderId: n.senderId,
+                              senderName: n.senderName,
+                            });
+                            router.refresh();
+                          }}
                         >
                           Decline
                         </Button>
                       </>
+                    )}
+                    {n.title === "Accept group invitation!" && (
+                      <Button
+                        size={"sm"}
+                        variant={"destructive"}
+                        onClick={async () => {
+                          await removeNotification({
+                            userId: currentUser._id,
+                            payload: n,
+                          });
+                          router.refresh();
+                        }}
+                      >
+                        Clear
+                      </Button>
+                    )}
+                    {n.title === "Decline group invitation!" && (
+                      <Button
+                        size={"sm"}
+                        variant={"destructive"}
+                        onClick={async () => {
+                          await removeNotification({
+                            userId: currentUser._id,
+                            payload: n,
+                          });
+                          router.refresh();
+                        }}
+                      >
+                        Clear
+                      </Button>
+                    )}
+                    {n.title === "Accept friend request!" && (
+                      <Button
+                        size={"sm"}
+                        variant={"destructive"}
+                        onClick={async () => {
+                          await removeNotification({
+                            userId: currentUser._id,
+                            payload: n,
+                          });
+                          router.refresh();
+                        }}
+                      >
+                        Clear
+                      </Button>
+                    )}
+                    {n.title === "Decline friend request!" && (
+                      <Button
+                        size={"sm"}
+                        variant={"destructive"}
+                        onClick={async () => {
+                          await removeNotification({
+                            userId: currentUser._id,
+                            payload: n,
+                          });
+                          router.refresh();
+                        }}
+                      >
+                        Clear
+                      </Button>
                     )}
                   </div>
                 </div>

@@ -3,6 +3,7 @@ import {
   AcceptFriendForUserType,
   AddFriendForUserType,
   CreateUserType,
+  DeclineFriendForUserType,
   EditUserType,
   RemoveNotificationOfUserType,
   UserIdArrayType,
@@ -184,6 +185,58 @@ export async function acceptFriendForUserHandler(
         success: true,
         data: omitDoc(user, ["password", "__v"]),
         message: "Successfully accept the friend !",
+      })
+      .end();
+  } catch (e: any) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: e.message,
+      })
+      .end();
+  }
+}
+
+export async function declineFriendForUserHandler(
+  req: Request<
+    DeclineFriendForUserType["params"],
+    {},
+    DeclineFriendForUserType["body"]
+  >,
+  res: Response
+) {
+  const userId = req.params.userId;
+  try {
+    const user = await editUser({
+      filter: {
+        _id: userId,
+        "friends.friendId": req.body.friendId,
+      },
+      update: {
+        $pull: { friends: { friendId: req.body.friendId } },
+      },
+      options: {
+        new: true,
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(500)
+        .json({
+          success: false,
+          error: "Something went wrong! Could not decline friend request. ",
+        })
+        .end();
+    }
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        data: omitDoc(user, ["password", "__v"]),
+        message: "Successfully decline the friend request !",
       })
       .end();
   } catch (e: any) {

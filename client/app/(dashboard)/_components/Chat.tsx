@@ -106,21 +106,13 @@ export function MessageChat({
       groupId: selectedChatGroup,
     });
     if (socket) {
-      socket.on(
-        "response_notification_accept",
-        (data: {
-          name: string;
-          senderId: string;
-          receiverId: string;
-          groupId: string;
-        }) => {
-          if (data.receiverId === currentUser._id) {
-            fetchChatGroupData({
-              groupId: data.groupId,
-            });
-          }
+      socket.on("response_notification_accept", (data: NotificationType) => {
+        if (data.receiverId === currentUser._id) {
+          fetchChatGroupData({
+            groupId: data.groupId as string,
+          });
         }
-      );
+      });
     }
   }, [selectedChatGroup]);
 
@@ -257,12 +249,6 @@ export function MessageChat({
             next: {
               revalidate: 0,
             },
-          });
-          socket.emit("response_notification_decline", {
-            name: currentUser.name,
-            senderId: currentUser._id,
-            receiverId: groupMember._id,
-            message: "Group You join is deleted",
           });
           const notification: NotificationType = {
             title: "Group Deleted!",

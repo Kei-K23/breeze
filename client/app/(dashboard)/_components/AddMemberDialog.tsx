@@ -36,11 +36,22 @@ interface AddMemberDialogProps {
 }
 
 export type NotificationType = {
-  title: "Group invitation!" | "Friend request!" | "Group Deleted!";
+  title:
+    | "Group invitation!"
+    | "Friend request!"
+    | "Group Deleted!"
+    | "Decline group invitation!"
+    | "Decline friend request!"
+    | "Accept group invitation!"
+    | "Accept friend request!";
   content:
     | "We want to invite you to our new group."
-    | "I want to make friend with you"
-    | "Sorry! The group is deleted.";
+    | "I want to make friend with you."
+    | "Sorry! The group is deleted."
+    | "Sorry! I would like to decline your group invitation."
+    | "Sorry! I would like to decline your friend request."
+    | "Congrats! Group invitation accepted."
+    | "Congrats! Friend request accepted.";
   sourceIdToConfirm?: string; /// confirmation id
   senderId: string;
   senderName: string;
@@ -68,11 +79,13 @@ const AddMemberDialog = ({
 
   const { socket } = useSocket();
 
-  const userIdsArray = existMember.reduce((acc: Array<string>, curr) => {
-    const id = curr._id;
-    acc.push(id);
-    return acc;
-  }, []);
+  const userIdsArray = existMember
+    ? existMember.reduce((acc: Array<string>, curr) => {
+        const id = curr._id;
+        acc.push(id);
+        return acc;
+      }, [])
+    : [];
 
   useEffect(() => {
     if (selectedChatGroup !== process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID) {

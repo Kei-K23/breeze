@@ -3,6 +3,7 @@ import {
   acceptFriendForUserHandler,
   addFriendForUserHandler,
   createUserHandler,
+  declineFriendForUserHandler,
   editUserHandler,
   getAllUserWithoutCurrentUserHandler,
   getAuthUserHandler,
@@ -14,6 +15,7 @@ import {
   acceptFriendForUserSchema,
   addFriendForUserSchema,
   createUserSchema,
+  declineFriendForUserSchema,
   editUserSchema,
   removeNotificationOfUserSchema,
   userIdArraySchema,
@@ -76,5 +78,12 @@ export default function (route: Router) {
     requiredAccessToken,
     validateResource(acceptFriendForUserSchema),
     acceptFriendForUserHandler
+  );
+  route.delete(
+    "/api/users/decline-friends/:userId",
+    revalidateAccessToken,
+    requiredAccessToken,
+    validateResource(declineFriendForUserSchema),
+    declineFriendForUserHandler
   );
 }

@@ -104,6 +104,16 @@ export const acceptFriendForUserSchema = z.object({
     status: z.string().default("Friended"),
   }),
 });
+export const declineFriendForUserSchema = z.object({
+  params: z.object({
+    userId: z.string({
+      required_error: "User id is required!",
+    }),
+  }),
+  body: z.object({
+    friendId: z.string(),
+  }),
+});
 
 export type CreateUserType = Omit<
   z.infer<typeof createUserSchema>["body"],
@@ -117,3 +127,6 @@ export type RemoveNotificationOfUserType = z.infer<
 >;
 export type AddFriendForUserType = z.infer<typeof addFriendForUserSchema>;
 export type AcceptFriendForUserType = z.infer<typeof acceptFriendForUserSchema>;
+export type DeclineFriendForUserType = z.infer<
+  typeof declineFriendForUserSchema
+>;
