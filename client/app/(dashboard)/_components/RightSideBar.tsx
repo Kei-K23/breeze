@@ -29,6 +29,7 @@ export type FriendDataType = {
   email: string;
   picture: string;
   name: string;
+  customUniqueGroupId: string;
 };
 
 export type FetchUsersDataType = {
@@ -65,9 +66,18 @@ export type UserType = {
 interface RightSideBarProps {
   usersData: Partial<FetchUsersDataType>;
   currentUser: UserType;
+  selectedChatGroup: string;
+  setSelectedChatGroup: (selectedChatGroup: string) => void;
 }
-const RightSideBar = ({ usersData, currentUser }: RightSideBarProps) => {
-  const [onlineUser, setOnlineUser] = useState<Array<string>>([]);
+const RightSideBar = ({
+  selectedChatGroup,
+  usersData,
+  setSelectedChatGroup,
+  currentUser,
+}: RightSideBarProps) => {
+  const [onlineUser, setOnlineUser] = useState<
+    Array<{ id: string; roomId: string }>
+  >([]);
   const { socket } = useSocket();
   const router = useRouter();
 
@@ -76,11 +86,17 @@ const RightSideBar = ({ usersData, currentUser }: RightSideBarProps) => {
       return;
     }
 
-    socket.emit("client_connect", currentUser._id);
-
-    socket.on("system_active_users", (users: Array<string>) => {
-      setOnlineUser(users);
-    });
+    socket.on(
+      "system_active_users",
+      (
+        users: Array<{
+          id: string;
+          roomId: string;
+        }>
+      ) => {
+        setOnlineUser(users);
+      }
+    );
 
     socket.on("add_friend", (data: NotificationType) => {
       if (currentUser._id === data.receiverId) {
@@ -185,6 +201,9 @@ const RightSideBar = ({ usersData, currentUser }: RightSideBarProps) => {
                     <div
                       className="my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
                       key={user?.friendId}
+                      onClick={() => {
+                        setSelectedChatGroup(user.customUniqueGroupId);
+                      }}
                     >
                       <div className="flex flex-col items-center gap-1 mb-2">
                         <div className="relative">
@@ -200,7 +219,9 @@ const RightSideBar = ({ usersData, currentUser }: RightSideBarProps) => {
                             <UserCircle2 className={cn("w-10 h-10 ")} />
                           )}
                           {onlineUser.length &&
-                          onlineUser.includes(user?.friendId as string) ? (
+                          onlineUser.some(
+                            (online) => online.id === (user?.friendId as string)
+                          ) ? (
                             <TooltipProvider delayDuration={0}>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -271,7 +292,9 @@ const RightSideBar = ({ usersData, currentUser }: RightSideBarProps) => {
                         <UserCircle2 className={cn("w-10 h-10 ")} />
                       )}
                       {onlineUser.length &&
-                      onlineUser.includes(user?._id as string) ? (
+                      onlineUser.some(
+                        (online) => online.id === (user?._id as string)
+                      ) ? (
                         <TooltipProvider delayDuration={0}>
                           <Tooltip>
                             <TooltipTrigger asChild>

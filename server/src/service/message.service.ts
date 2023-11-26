@@ -22,6 +22,7 @@ export async function getMessages({
       .limit(limit)
       .lean();
     if (!messages.length) return null;
+    messages.reverse();
     return messages;
   } catch (e: any) {
     throw new Error(e.message);

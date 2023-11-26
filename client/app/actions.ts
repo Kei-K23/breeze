@@ -8,7 +8,6 @@ export async function createGroupAction({
   values,
   currentUserId,
   cookie,
-  selectedUsers,
 }: {
   values: {
     groupName: string;
@@ -24,7 +23,7 @@ export async function createGroupAction({
       body: JSON.stringify({
         groupName: values.groupName,
         groupDescription: values.groupDescription,
-        ownerId: currentUserId,
+        ownerId: [currentUserId],
       }),
       headers: {
         Cookie: `breeze_csrf=${cookie}`,

@@ -102,6 +102,7 @@ export const acceptFriendForUserSchema = z.object({
   body: z.object({
     friendId: z.string(),
     status: z.string().default("Friended"),
+    customUniqueGroupId: z.string(),
   }),
 });
 export const declineFriendForUserSchema = z.object({

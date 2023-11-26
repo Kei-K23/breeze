@@ -8,11 +8,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Group, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 
 import { FetchUsersDataType, UserType } from "./RightSideBar";
 import CreateGroupDialog from "./CreateGroupDialog";
+import { useSocket } from "@/provider/socket-provider";
 
 export type FetchGroupsDataType = {
   success: true;
@@ -44,6 +45,7 @@ const LeftSideBar = ({
 }: LeftSideBarProps) => {
   const [open, setOpen] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<UserType[]>([]);
+  const { socket } = useSocket();
 
   if (!groupData.success) {
     toast.error(groupData.error as string);

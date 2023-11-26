@@ -14,6 +14,7 @@ export interface INotification {
   receiverId?: string;
   senderEmail?: string;
   senderPicture?: string;
+  customUniqueGroupId?: string;
 }
 
 export type FriendDataType = {
@@ -48,6 +49,7 @@ const NotificationSchema = new mongoose.Schema<INotification>({
   receiverId: { type: String },
   senderEmail: { type: String },
   senderPicture: { type: String },
+  customUniqueGroupId: { type: String },
 });
 
 export interface UserDoc extends mongoose.Document {
@@ -132,6 +134,7 @@ const userSchema = new mongoose.Schema<UserDoc, UserModel>(
           email: { type: String },
           picture: { type: String },
           name: { type: String },
+          customUniqueGroupId: { type: String },
         },
       ],
       default: [],

@@ -163,9 +163,11 @@ export async function acceptFriendForUserHandler(
       },
       update: {
         "friends.$.status": req.body.status || "Friended",
+        "friends.$.customUniqueGroupId": req.body.customUniqueGroupId,
       },
       options: {
         new: true,
+        upsert: true,
       },
     });
 

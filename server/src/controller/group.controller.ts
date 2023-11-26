@@ -250,12 +250,12 @@ export async function deleteGroupMemberHandler(
 }
 
 export async function deleteGroupHandler(
-  req: Request<DeleteGroupType>,
+  req: Request<{}, {}, DeleteGroupType>,
   res: Response
 ) {
   try {
     await deleteGroup({
-      filter: req.params,
+      filter: req.body,
     });
 
     return res

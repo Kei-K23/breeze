@@ -8,9 +8,9 @@ export const createGroup = z.object({
       })
       .min(3, "Group name must be at least 3 character long"),
     groupDescription: z.string({}).optional(),
-    ownerId: z.string({
-      required_error: "Group owner id is required",
-    }),
+    ownerId: z.array(z.string()),
+    customUniqueGroupId: z.string().optional(),
+    groupUserNames: z.array(z.string()).optional(),
   }),
 });
 
@@ -76,9 +76,9 @@ export const deleteGroupMemberSchema = z.object({
 });
 
 export const deleteGroupSchema = z.object({
-  params: z.object({
+  body: z.object({
     _id: z.string(),
-    ownerId: z.string(),
+    ownerId: z.array(z.string()),
   }),
 });
 
@@ -90,4 +90,4 @@ export type EditGroupMemberType = z.infer<typeof editGroupMemberSchema>;
 export type DeleteGroupMemberType = z.infer<
   typeof deleteGroupMemberSchema
 >["body"];
-export type DeleteGroupType = z.infer<typeof deleteGroupSchema>["params"];
+export type DeleteGroupType = z.infer<typeof deleteGroupSchema>["body"];

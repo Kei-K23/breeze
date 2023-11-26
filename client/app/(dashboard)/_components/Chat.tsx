@@ -17,7 +17,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { UserType } from "./RightSideBar";
 import Image from "next/image";
@@ -33,47 +33,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
-
-const users = [
-  {
-    name: "Olivia Martin",
-    email: "m@example.com",
-    avatar: "/avatars/01.png",
-  },
-  {
-    name: "Isabella Nguyen",
-    email: "isabella.nguyen@email.com",
-    avatar: "/avatars/03.png",
-  },
-  {
-    name: "Emma Wilson",
-    email: "emma@example.com",
-    avatar: "/avatars/05.png",
-  },
-  {
-    name: "Jackson Lee",
-    email: "lee@example.com",
-    avatar: "/avatars/02.png",
-  },
-  {
-    name: "William Kim",
-    email: "will@email.com",
-    avatar: "/avatars/04.png",
-  },
-] as const;
-
-type User = (typeof users)[number];
+import { IMessage } from "./MainDashboard";
+import { isUUID } from "@/lib/helper";
 
 interface MessageChatProps {
   selectedChatGroup: string;
   cookie: string;
   usersData: UserType[];
   currentUser: UserType;
+  fetchMessages: IMessage[];
+  setFetchMessages: (fetchMessages: IMessage[]) => void;
 }
 
 type DeleteGroupParaType = {
   _id: string;
-  ownerId: string;
+  ownerId: string[];
   groupId: string;
   groupMembers: UserType[];
   groupName: string;
@@ -83,28 +57,48 @@ export function MessageChat({
   selectedChatGroup,
   cookie,
   currentUser,
+  fetchMessages,
+  usersData,
+  setFetchMessages,
 }: MessageChatProps) {
   const [group, setGroup] = useState<{
     _id: string;
     groupName: string;
     groupDescription: string;
-    ownerId: string;
+    ownerId: string[];
     createdAt: Date;
     updatedAt: Date;
   }>();
   const [groupMembers, setGroupMembers] = useState<Array<UserType>>([]);
   const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [deleteGroupOpen, setDeleteGroupOpen] = useState(false);
-
+  const [input, setInput] = useState("");
   const [deleteGroupState, setDeleteGroupState] =
     useState<DeleteGroupParaType | null>(null);
-
+  const [typingName, setTypingName] = useState("");
+  const [timeOutCleaner, setTimeOutCleaner] = useState<NodeJS.Timeout | null>(
+    null
+  );
   const router = useRouter();
   const { socket } = useSocket();
+  const formRef = useRef<HTMLDivElement | null>(null);
+
+  const inputLength = input.trim().length;
+
+  const userIdsArray = usersData
+    ? usersData.reduce((acc: Array<string>, curr) => {
+        const id = curr._id;
+        acc.push(id);
+        return acc;
+      }, [])
+    : [];
+
   useEffect(() => {
-    fetchChatGroupData({
-      groupId: selectedChatGroup,
-    });
+    if (!isUUID(selectedChatGroup)) {
+      fetchChatGroupData({
+        groupId: selectedChatGroup,
+      });
+    }
     if (socket) {
       socket.on("response_notification_accept", (data: NotificationType) => {
         if (data.receiverId === currentUser._id) {
@@ -113,9 +107,45 @@ export function MessageChat({
           });
         }
       });
+
+      let timeOutForFormRef: any;
+      let timeOutForClearTyping: any;
+
+      socket.on("message", (message: IMessage[]) => {
+        console.log("message", message);
+
+        setFetchMessages(message);
+        clearInterval(timeOutForFormRef);
+        timeOutForFormRef = setTimeout(() => {
+          if (formRef.current) {
+            formRef.current.scrollTop = formRef.current.scrollHeight + 100000;
+          }
+        }, 100);
+      });
+
+      socket.on(
+        "typing_message",
+        ({ roomId, name }: { roomId: string; name: string }) => {
+          console.log("typing", roomId, name);
+
+          setTypingName(name);
+          if (timeOutForClearTyping) {
+            clearInterval(timeOutForClearTyping);
+          }
+          timeOutForClearTyping = setTimeout(() => {
+            setTypingName("");
+          }, 1000);
+        }
+      );
+
       return () => {
         socket.off("response_notification_accept");
-      }
+        socket.off("message");
+        socket.off("typing");
+        if (timeOutCleaner) {
+          clearInterval(timeOutCleaner);
+        }
+      };
     }
   }, [selectedChatGroup]);
 
@@ -164,61 +194,6 @@ export function MessageChat({
     }
   }
 
-  const formRef = useRef<HTMLDivElement | null>(null);
-
-  const [messages, setMessages] = useState([
-    {
-      role: "agent",
-      content: "Hi, how can I help you today?",
-    },
-    {
-      role: "user",
-      content: "Hey, I'm having trouble with my account.",
-    },
-    {
-      role: "agent",
-      content: "What seems to be the problem?",
-    },
-    {
-      role: "user",
-      content: "I can't log in.",
-    },
-    {
-      role: "agent",
-      content: "What seems to be the problem?",
-    },
-    {
-      role: "user",
-      content: "I can't log in.",
-    },
-    {
-      role: "agent",
-      content: "What seems to be the problem?",
-    },
-    {
-      role: "user",
-      content: "I can't log in.",
-    },
-    {
-      role: "agent",
-      content: "What seems to be the problem?",
-    },
-    {
-      role: "user",
-      content: "I can't log in.",
-    },
-    {
-      role: "agent",
-      content: "What seems to be the problem?",
-    },
-    {
-      role: "user",
-      content: "I can't log in.",
-    },
-  ]);
-  const [input, setInput] = useState("");
-  const inputLength = input.trim().length;
-
   async function onClickDeleteGroup({
     _id,
     groupId,
@@ -230,6 +205,10 @@ export function MessageChat({
       await fetch(`http://localhost:8090/api/groups/${_id}/${ownerId}`, {
         method: "DELETE",
         credentials: "include",
+        body: JSON.stringify({
+          _id,
+          ownerId: [ownerId],
+        }),
         next: {
           revalidate: 0,
         },
@@ -275,6 +254,53 @@ export function MessageChat({
     }
   }
 
+  async function onSubmitCreateMessages({
+    payload,
+    event,
+  }: {
+    payload: IMessage;
+    event: FormEvent<HTMLFormElement>;
+  }) {
+    event.preventDefault();
+    if (inputLength === 0) return;
+
+    try {
+      const newMessageRes = await fetch("http://localhost:8090/api/messages/", {
+        method: "POST",
+        body: JSON.stringify(payload),
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        next: { revalidate: 0 },
+        cache: "no-cache",
+      });
+
+      const newMessageData = await newMessageRes.json();
+      if (newMessageRes.ok && newMessageData.success) {
+        console.log(fetchMessages);
+
+        setFetchMessages([...fetchMessages, payload]);
+        setInput("");
+        setTimeout(() => {
+          if (formRef.current) {
+            formRef.current.scrollTop = formRef.current.scrollHeight + 100000;
+          }
+        }, 100);
+        socket.emit("chat_message", {
+          roomId: selectedChatGroup,
+          message: [...fetchMessages, payload],
+        });
+      } else {
+        toast.error(newMessageData.error);
+      }
+    } catch (e: any) {
+      console.log(e);
+      toast.error("Could not send message!");
+    }
+  }
+
   return (
     <>
       <Card className="h-full w-full flex-1 ">
@@ -290,10 +316,17 @@ export function MessageChat({
                     {group.groupDescription}
                   </p>
                 )}
+                {typingName ? (
+                  <p className="text-sm text-muted-foreground italic">
+                    {typingName} is typing...
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">...</p>
+                )}
               </div>
               {selectedChatGroup !=
                 process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID &&
-                group?.ownerId === currentUser._id && (
+                group?.ownerId.some((id) => id === currentUser._id) && (
                   <TooltipProvider delayDuration={0}>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -313,14 +346,18 @@ export function MessageChat({
                 )}
               {selectedChatGroup !=
                 process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID &&
-                group?.ownerId === currentUser._id && (
+                group?.ownerId.some((id) => id === currentUser._id) && (
                   <TooltipProvider delayDuration={0}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Trash
                           className="text-red-500 cursor-pointer"
                           onClick={() => {
-                            if (currentUser._id === group.ownerId)
+                            if (
+                              group?.ownerId.some(
+                                (id) => id === currentUser._id
+                              )
+                            )
                               setDeleteGroupState({
                                 _id: group._id,
                                 ownerId: group.ownerId,
@@ -358,15 +395,16 @@ export function MessageChat({
                                   width={40}
                                   height={40}
                                   className={`rounded-full  ${
-                                    member._id === group?.ownerId &&
+                                    group?.ownerId[0] === member._id &&
                                     "ring-2 ring-sky-500"
                                   } `}
                                 />
                               ) : (
                                 <UserCircle2
                                   className={`w-10 h-10 rounded-full  ${
-                                    member._id === group?.ownerId &&
-                                    "ring-2 ring-sky-500"
+                                    group?.ownerId.some(
+                                      (id) => id === member._id
+                                    ) && "ring-2 ring-sky-500"
                                   } `}
                                 />
                               )}
@@ -393,40 +431,37 @@ export function MessageChat({
             ref={formRef}
             className="space-y-4 overflow-auto h-[640px] no-scrollbar"
           >
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={cn(
-                  "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
-                  message.role === "user"
-                    ? "ml-auto bg-primary text-primary-foreground"
-                    : "bg-muted"
-                )}
-              >
-                {message.content}
-              </div>
-            ))}
+            {fetchMessages.length > 0 ? (
+              fetchMessages.map((message, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
+                    message.senderId === currentUser._id
+                      ? "ml-auto bg-primary text-primary-foreground"
+                      : "bg-muted"
+                  )}
+                >
+                  {message.textMessage}
+                </div>
+              ))
+            ) : (
+              <div>No message to show</div>
+            )}
           </div>
         </CardContent>
         <CardFooter>
           <form
             onSubmit={(event) => {
-              event.preventDefault();
-              if (inputLength === 0) return;
-              setMessages([
-                ...messages,
-                {
-                  role: "user",
-                  content: input,
+              onSubmitCreateMessages({
+                payload: {
+                  groupId: selectedChatGroup,
+                  receiverId: [...userIdsArray],
+                  textMessage: input,
+                  senderId: currentUser._id,
                 },
-              ]);
-              setInput("");
-              setTimeout(() => {
-                if (formRef.current) {
-                  formRef.current.scrollTop =
-                    formRef.current.scrollHeight + 100000;
-                }
-              }, 0);
+                event,
+              });
             }}
             className="flex w-full items-center space-x-2"
           >
@@ -436,7 +471,14 @@ export function MessageChat({
               className="flex-1"
               autoComplete="off"
               value={input}
-              onChange={(event) => setInput(event.target.value)}
+              onChange={(event) => {
+                setInput(event.target.value);
+                socket.emit("join_room", selectedChatGroup);
+                socket.emit("typing_message", {
+                  roomId: selectedChatGroup,
+                  name: currentUser.name,
+                });
+              }}
             />
             <Button type="submit" size="icon" disabled={inputLength === 0}>
               <Send className="h-4 w-4" />
@@ -469,7 +511,7 @@ export function MessageChat({
           </div>
         </DialogContent>
       </Dialog>
-      {group?.ownerId === currentUser._id && (
+      {group?.ownerId.some((id) => id === currentUser._id) && (
         <AddMemberDialog
           currentUser={currentUser}
           selectedChatGroup={selectedChatGroup}

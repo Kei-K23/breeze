@@ -4,7 +4,7 @@ export interface IMessage {
   senderId: string;
   receiverId: Array<string>;
   groupId: string;
-  messageText: string;
+  textMessage: string;
   isRead?: boolean;
 }
 export interface MessageDoc extends mongoose.Document {
@@ -42,4 +42,4 @@ const messageSchema = new mongoose.Schema<MessageDoc>(
   { timestamps: true }
 );
 
-export const Message = mongoose.model("Group", messageSchema);
+export const Message = mongoose.model("Message", messageSchema);

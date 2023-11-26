@@ -51,6 +51,22 @@ const Dashboard = async ({
 
   const usersData = await resUsersDate.json();
 
+  const messagesRes = await fetch(
+    `http://localhost:8090/api/messages/${
+      process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID
+    }/?limit=${15}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        Cookie: `breeze_csrf=${searchParams.cookie}`,
+      },
+      cache: "no-cache",
+    }
+  );
+  const fetchMessagesDataFromPage = await messagesRes.json();
+
   revalidatePath("/");
 
   return (
@@ -67,6 +83,7 @@ const Dashboard = async ({
         cookie={searchParams.cookie as string}
         currentUser={userData.data}
         usersData={usersData}
+        fetchMessagesDataFromPage={fetchMessagesDataFromPage.data}
       />
     </>
   );

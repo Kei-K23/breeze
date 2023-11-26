@@ -1,14 +1,24 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MessageChat } from "./Chat";
 import LeftSideBar, { FetchGroupsDataType } from "./LeftSideBar";
 import RightSideBar, { FetchUsersDataType, UserType } from "./RightSideBar";
+import toast from "react-hot-toast";
+import { useSocket } from "@/provider/socket-provider";
 
+export interface IMessage {
+  senderId: string;
+  receiverId: Array<string>;
+  groupId: string;
+  textMessage: string;
+  isRead?: boolean;
+}
 interface MainProps {
   cookie: string;
   currentUser: UserType;
   groupData: FetchGroupsDataType;
   usersData: FetchUsersDataType;
+  fetchMessagesDataFromPage: IMessage[];
 }
 
 const MainDashboard = ({
@@ -16,10 +26,59 @@ const MainDashboard = ({
   currentUser,
   groupData,
   usersData,
+  fetchMessagesDataFromPage,
 }: MainProps) => {
   const GLOBAL_CHAT_ROOM_ID = process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID;
+
   const [selectedChatGroup, setSelectedChatGroup] =
     useState(GLOBAL_CHAT_ROOM_ID);
+  const [fetchMessages, setFetchMessages] = useState<IMessage[]>(
+    fetchMessagesDataFromPage
+  );
+
+  const { socket } = useSocket();
+
+  useEffect(() => {
+    fetchMessagesData();
+    if (socket) {
+      socket.emit("join_room", selectedChatGroup);
+      socket.emit("client_connect", {
+        id: currentUser._id,
+        roomId: selectedChatGroup,
+      });
+
+      return () => {
+        socket.off("join_room");
+        socket.off("client_connect");
+      };
+    }
+  }, [selectedChatGroup, socket]);
+
+  async function fetchMessagesData(limit = 15) {
+    try {
+      const messagesRes = await fetch(
+        `http://localhost:8090/api/messages/${selectedChatGroup}/?limit=${limit}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            Accept: "application/json",
+          },
+          cache: "no-cache",
+        }
+      );
+      const messagesData = await messagesRes.json();
+
+      if (messagesRes.ok && messagesData.success) {
+        setFetchMessages(messagesData.data);
+      } else {
+        setFetchMessages([]);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Something went wrong went retrieving messages!");
+    }
+  }
 
   return (
     <div className="h-full flex items-center ">
@@ -32,12 +91,19 @@ const MainDashboard = ({
         usersData={usersData}
       />
       <MessageChat
+        fetchMessages={fetchMessages}
+        setFetchMessages={setFetchMessages}
         cookie={cookie}
         currentUser={currentUser}
         usersData={usersData.data as UserType[]}
         selectedChatGroup={selectedChatGroup as string}
       />
-      <RightSideBar currentUser={currentUser} usersData={usersData} />
+      <RightSideBar
+        setSelectedChatGroup={setSelectedChatGroup}
+        selectedChatGroup={selectedChatGroup as string}
+        currentUser={currentUser}
+        usersData={usersData}
+      />
     </div>
   );
 };

@@ -346,36 +346,36 @@ const Notification = ({ currentUser }: NotificationProps) => {
     senderPicture?: string;
     payload: NotificationType;
   }) {
+    const uniqueId = crypto.randomUUID().toString();
     try {
-      const resAcceptFriend = await fetch(
-        `http://localhost:8090/api/users/accept-friends/${senderId}`,
-        {
-          method: "PUT",
-          body: JSON.stringify({
-            friendId: friendId,
-            status: "Friended",
-          }),
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          next: {
-            revalidate: 0,
-          },
-          cache: "no-cache",
-        }
-      );
-      const acceptFriendData = await resAcceptFriend.json();
+      const resGroupData = await fetch("http://localhost:8090/api/groups/", {
+        method: "POST",
+        body: JSON.stringify({
+          groupName: `${currentUser.name}-${senderName}`,
+          ownerId: [senderId, payload.receiverId],
+          customUniqueGroupId: uniqueId,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+        next: {
+          revalidate: 0,
+        },
+      });
 
-      if (resAcceptFriend.ok && acceptFriendData.success) {
-        await fetch(
-          `http://localhost:8090/api/users/accept-friends/${payload.receiverId}`,
+      const groupData = await resGroupData.json();
+
+      if (resGroupData.ok && groupData.success) {
+        const resAcceptFriend = await fetch(
+          `http://localhost:8090/api/users/accept-friends/${senderId}`,
           {
             method: "PUT",
             body: JSON.stringify({
-              friendId: senderId,
+              friendId: friendId,
               status: "Friended",
+              customUniqueGroupId: uniqueId,
             }),
             credentials: "include",
             headers: {
@@ -388,38 +388,67 @@ const Notification = ({ currentUser }: NotificationProps) => {
             cache: "no-cache",
           }
         );
+        const acceptFriendData = await resAcceptFriend.json();
 
-        await fetch(`http://localhost:8090/api/users/rmN/${currentUser._id}`, {
-          method: "PUT",
-          body: JSON.stringify(payload),
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          credentials: "include",
-          next: {
-            revalidate: 0,
-          },
-        });
-        setNotifications((prev) => {
-          return prev.filter((p) => p._id !== payload._id);
-        });
+        if (resAcceptFriend.ok && acceptFriendData.success) {
+          await fetch(
+            `http://localhost:8090/api/users/accept-friends/${payload.receiverId}`,
+            {
+              method: "PUT",
+              body: JSON.stringify({
+                friendId: senderId,
+                status: "Friended",
+                customUniqueGroupId: uniqueId,
+              }),
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              next: {
+                revalidate: 0,
+              },
+              cache: "no-cache",
+            }
+          );
 
-        toast(`You are now friend with ${senderName}`);
+          await fetch(
+            `http://localhost:8090/api/users/rmN/${currentUser._id}`,
+            {
+              method: "PUT",
+              body: JSON.stringify(payload),
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              credentials: "include",
+              next: {
+                revalidate: 0,
+              },
+            }
+          );
+          setNotifications((prev) => {
+            return prev.filter((p) => p._id !== payload._id);
+          });
 
-        const notification: NotificationType = {
-          title: "Accept friend request!",
-          content: "Congrats! Friend request accepted.",
-          createdAt: new Date(),
-          checkUnique: crypto.randomUUID().toString(),
-          receiverId: payload.senderId,
-          senderId: currentUser._id,
-          senderName: currentUser.name,
-        };
+          toast(`You are now friend with ${senderName}`);
 
-        socket.emit("accept_friend", notification);
+          const notification: NotificationType = {
+            title: "Accept friend request!",
+            content: "Congrats! Friend request accepted.",
+            createdAt: new Date(),
+            checkUnique: crypto.randomUUID().toString(),
+            receiverId: payload.senderId,
+            senderId: currentUser._id,
+            senderName: currentUser.name,
+          };
+
+          socket.emit("accept_friend", notification);
+        } else {
+          toast.error(acceptFriendData.error);
+        }
       } else {
-        toast.error(acceptFriendData.error);
+        toast.error(groupData.error);
       }
     } catch (e: any) {
       toast.error(e.message);

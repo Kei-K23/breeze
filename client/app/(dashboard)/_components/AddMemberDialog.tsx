@@ -62,6 +62,7 @@ export type NotificationType = {
   groupId?: string;
   senderEmail?: string;
   senderPicture?: string;
+  customUniqueGroupId?: string;
 };
 
 const AddMemberDialog = ({

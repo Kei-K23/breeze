@@ -2,14 +2,18 @@ import mongoose from "mongoose";
 
 export interface IGroup {
   groupName: string;
-  ownerId: string;
+  ownerId: Array<string>;
   groupDescription?: string;
+  customUniqueGroupId?: string;
+  groupUserNames?: Array<string>;
 }
 
 export interface GroupDoc extends mongoose.Document {
   groupName: string;
-  ownerId: mongoose.ObjectId;
+  ownerId: Array<mongoose.ObjectId>;
   groupDescription: string;
+  customUniqueGroupId?: string;
+  groupUserNames?: Array<string>;
 }
 export interface IGroupMembers {
   groupId: string;
@@ -37,9 +41,15 @@ const groupSchema = new mongoose.Schema<GroupDoc>(
       type: String,
     },
     ownerId: {
-      type: mongoose.Types.ObjectId,
+      type: [mongoose.Schema.Types.ObjectId],
       required: true,
       ref: "User",
+    },
+    customUniqueGroupId: {
+      type: String,
+    },
+    groupUserNames: {
+      type: [String],
     },
   },
   {

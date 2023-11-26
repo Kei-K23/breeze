@@ -28,7 +28,7 @@ export async function createMessageHandler(
 }
 
 export async function getMessagesHandler(
-  req: Request<GetMessagesType>,
+  req: Request<GetMessagesType["params"], {}, {}, GetMessagesType["query"]>,
   res: Response
 ) {
   try {
@@ -36,7 +36,7 @@ export async function getMessagesHandler(
       filter: {
         groupId: req.params.groupId,
       },
-      limit: 15,
+      limit: +req.query.limit,
     });
 
     if (!messages)
