@@ -85,6 +85,10 @@ const LeftSideBar = ({
                   key={group._id}
                   onClick={() => {
                     setSelectedChatGroup(group._id);
+                    socket.emit("join_room", {
+                      roomId: group._id,
+                      name: currentUser.name,
+                    });
                   }}
                 >
                   <h3>{group.groupName}</h3>

@@ -354,6 +354,10 @@ const Notification = ({ currentUser }: NotificationProps) => {
           groupName: `${currentUser.name}-${senderName}`,
           ownerId: [senderId, payload.receiverId],
           customUniqueGroupId: uniqueId,
+          groupUserNames: [
+            { name: currentUser.name, id: currentUser._id },
+            { name: senderName, id: senderId },
+          ],
         }),
         headers: {
           "Content-Type": "application/json",
@@ -376,6 +380,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
               friendId: friendId,
               status: "Friended",
               customUniqueGroupId: uniqueId,
+              groupId: groupData.data._id,
             }),
             credentials: "include",
             headers: {
@@ -399,6 +404,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
                 friendId: senderId,
                 status: "Friended",
                 customUniqueGroupId: uniqueId,
+                groupId: groupData.data._id,
               }),
               credentials: "include",
               headers: {

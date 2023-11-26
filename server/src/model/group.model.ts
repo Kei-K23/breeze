@@ -5,7 +5,10 @@ export interface IGroup {
   ownerId: Array<string>;
   groupDescription?: string;
   customUniqueGroupId?: string;
-  groupUserNames?: Array<string>;
+  groupUserNames?: Array<{
+    name: string;
+    id: string;
+  }>;
 }
 
 export interface GroupDoc extends mongoose.Document {
@@ -13,7 +16,10 @@ export interface GroupDoc extends mongoose.Document {
   ownerId: Array<mongoose.ObjectId>;
   groupDescription: string;
   customUniqueGroupId?: string;
-  groupUserNames?: Array<string>;
+  groupUserNames?: Array<{
+    name: string;
+    id: string;
+  }>;
 }
 export interface IGroupMembers {
   groupId: string;
@@ -49,7 +55,12 @@ const groupSchema = new mongoose.Schema<GroupDoc>(
       type: String,
     },
     groupUserNames: {
-      type: [String],
+      type: [
+        {
+          name: { type: String },
+          id: { type: String },
+        },
+      ],
     },
   },
   {

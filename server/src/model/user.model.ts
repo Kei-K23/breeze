@@ -23,6 +23,8 @@ export type FriendDataType = {
   email: string;
   picture: string;
   name: string;
+  customUniqueGroupId?: string;
+  groupId?: string;
 };
 export interface IUser {
   _id?: string;
@@ -135,6 +137,7 @@ const userSchema = new mongoose.Schema<UserDoc, UserModel>(
           picture: { type: String },
           name: { type: String },
           customUniqueGroupId: { type: String },
+          groupId: { type: String },
         },
       ],
       default: [],

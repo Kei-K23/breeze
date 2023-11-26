@@ -10,7 +10,14 @@ export const createGroup = z.object({
     groupDescription: z.string({}).optional(),
     ownerId: z.array(z.string()),
     customUniqueGroupId: z.string().optional(),
-    groupUserNames: z.array(z.string()).optional(),
+    groupUserNames: z
+      .array(
+        z.object({
+          name: z.string(),
+          id: z.string(),
+        })
+      )
+      .optional(),
   }),
 });
 

@@ -1,4 +1,4 @@
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import { createExpressApp } from "./lib/server";
 import { createServer } from "http";
 import { dbConnect } from "./lib/db";
@@ -72,7 +72,7 @@ io.on("connection", (socket) => {
   });
 
   // event for join room
-  socket.on("join_room", (roomId) => {
+  socket.on("join_room", ({ roomId, name }) => {
     socket.join(roomId);
   });
 
@@ -81,6 +81,11 @@ io.on("connection", (socket) => {
   });
   socket.on("typing_message", ({ roomId, name }) => {
     socket.broadcast.to(roomId).emit("typing_message", { roomId, name });
+  });
+
+  // event for leaving a room
+  socket.on("leave_room", ({ roomId }) => {
+    socket.leave(roomId);
   });
 });
 server.listen(PORT, () => {

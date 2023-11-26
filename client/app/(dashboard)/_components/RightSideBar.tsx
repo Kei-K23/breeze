@@ -29,7 +29,8 @@ export type FriendDataType = {
   email: string;
   picture: string;
   name: string;
-  customUniqueGroupId: string;
+  customUniqueGroupId?: string;
+  groupId?: string;
 };
 
 export type FetchUsersDataType = {
@@ -107,6 +108,7 @@ const RightSideBar = ({
     return () => {
       socket.off("system_active_users");
       socket.off("add_friend");
+      socket.emit("leave_room", { roomId: selectedChatGroup });
     };
   }, [socket]);
 
@@ -202,7 +204,11 @@ const RightSideBar = ({
                       className="my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
                       key={user?.friendId}
                       onClick={() => {
-                        setSelectedChatGroup(user.customUniqueGroupId);
+                        setSelectedChatGroup(user.groupId as string);
+                        socket.emit("join_room", {
+                          roomId: user.groupId,
+                          name: currentUser.name,
+                        });
                       }}
                     >
                       <div className="flex flex-col items-center gap-1 mb-2">

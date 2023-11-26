@@ -68,6 +68,11 @@ export function MessageChat({
     ownerId: string[];
     createdAt: Date;
     updatedAt: Date;
+    groupUserNames?: Array<{
+      name: string;
+      id: string;
+    }>;
+    customUniqueGroupId?: string;
   }>();
   const [groupMembers, setGroupMembers] = useState<Array<UserType>>([]);
   const [addMemberOpen, setAddMemberOpen] = useState(false);
@@ -76,9 +81,7 @@ export function MessageChat({
   const [deleteGroupState, setDeleteGroupState] =
     useState<DeleteGroupParaType | null>(null);
   const [typingName, setTypingName] = useState("");
-  const [timeOutCleaner, setTimeOutCleaner] = useState<NodeJS.Timeout | null>(
-    null
-  );
+
   const router = useRouter();
   const { socket } = useSocket();
   const formRef = useRef<HTMLDivElement | null>(null);
@@ -112,8 +115,6 @@ export function MessageChat({
       let timeOutForClearTyping: any;
 
       socket.on("message", (message: IMessage[]) => {
-        console.log("message", message);
-
         setFetchMessages(message);
         clearInterval(timeOutForFormRef);
         timeOutForFormRef = setTimeout(() => {
@@ -126,15 +127,15 @@ export function MessageChat({
       socket.on(
         "typing_message",
         ({ roomId, name }: { roomId: string; name: string }) => {
-          console.log("typing", roomId, name);
-
-          setTypingName(name);
-          if (timeOutForClearTyping) {
-            clearInterval(timeOutForClearTyping);
+          if (roomId === selectedChatGroup) {
+            setTypingName(name);
+            if (timeOutForClearTyping) {
+              clearInterval(timeOutForClearTyping);
+            }
+            timeOutForClearTyping = setTimeout(() => {
+              setTypingName("");
+            }, 1000);
           }
-          timeOutForClearTyping = setTimeout(() => {
-            setTypingName("");
-          }, 1000);
         }
       );
 
@@ -142,9 +143,6 @@ export function MessageChat({
         socket.off("response_notification_accept");
         socket.off("message");
         socket.off("typing");
-        if (timeOutCleaner) {
-          clearInterval(timeOutCleaner);
-        }
       };
     }
   }, [selectedChatGroup]);
@@ -292,6 +290,7 @@ export function MessageChat({
           roomId: selectedChatGroup,
           message: [...fetchMessages, payload],
         });
+        setTypingName("");
       } else {
         toast.error(newMessageData.error);
       }
@@ -304,17 +303,32 @@ export function MessageChat({
   return (
     <>
       <Card className="h-full w-full flex-1 ">
-        <CardHeader className="flex flex-row items-center">
+        <CardHeader className="flex flex-row items-center pb-2">
           <div className="flex items-center justify-between w-full space-x-4">
             <div className="flex items-center gap-4">
               <div>
-                <p className="text-sm font-medium leading-none mb-2">
-                  {group?.groupName}
-                </p>
-                {group?.groupDescription && (
-                  <p className="text-sm text-muted-foreground">
-                    {group.groupDescription}
-                  </p>
+                {group?.customUniqueGroupId ? (
+                  <>
+                    <p className="text-sm font-medium leading-none mb-2">
+                      {
+                        group?.groupUserNames?.filter(
+                          (user) => user.id !== currentUser._id
+                        )[0].name
+                      }
+                    </p>
+                    <p className="text-sm text-muted-foreground">-</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-medium leading-none mb-2">
+                      {group?.groupName}
+                    </p>
+                    {group?.groupDescription && (
+                      <p className="text-sm text-muted-foreground">
+                        {group.groupDescription}
+                      </p>
+                    )}
+                  </>
                 )}
                 {typingName ? (
                   <p className="text-sm text-muted-foreground italic">
@@ -326,6 +340,7 @@ export function MessageChat({
               </div>
               {selectedChatGroup !=
                 process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID &&
+                !group?.customUniqueGroupId &&
                 group?.ownerId.some((id) => id === currentUser._id) && (
                   <TooltipProvider delayDuration={0}>
                     <Tooltip>
@@ -346,6 +361,7 @@ export function MessageChat({
                 )}
               {selectedChatGroup !=
                 process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID &&
+                !group?.customUniqueGroupId &&
                 group?.ownerId.some((id) => id === currentUser._id) && (
                   <TooltipProvider delayDuration={0}>
                     <Tooltip>
@@ -374,58 +390,61 @@ export function MessageChat({
                   </TooltipProvider>
                 )}
             </div>
-            <div className="relative">
-              {groupMembers && groupMembers.length > 0 && (
-                <Badge className="absolute -top-3 -right-3 z-10 cursor-pointer">
-                  {groupMembers.length}
-                </Badge>
-              )}
-              <ScrollArea className=" w-52 rounded-md border ">
-                <div className="flex w-max items-center gap-3 cursor-pointer m-2">
-                  {groupMembers && groupMembers.length > 0 ? (
-                    groupMembers.map((member) => (
-                      <div key={member._id}>
-                        <TooltipProvider delayDuration={0}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              {member?.picture ? (
-                                <Image
-                                  src={member?.picture as string}
-                                  alt={member?.name as string}
-                                  width={40}
-                                  height={40}
-                                  className={`rounded-full  ${
-                                    group?.ownerId[0] === member._id &&
-                                    "ring-2 ring-sky-500"
-                                  } `}
-                                />
-                              ) : (
-                                <UserCircle2
-                                  className={`w-10 h-10 rounded-full  ${
-                                    group?.ownerId.some(
-                                      (id) => id === member._id
-                                    ) && "ring-2 ring-sky-500"
-                                  } `}
-                                />
-                              )}
-                            </TooltipTrigger>
-                            <TooltipContent>{member.name}</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ))
-                  ) : (
-                    <h1>No member</h1>
-                  )}
-                </div>
-                <ScrollBar
-                  className="h-2 cursor-grabbing "
-                  orientation="horizontal"
-                />
-              </ScrollArea>
-            </div>
+            {!group?.customUniqueGroupId && (
+              <div className="relative">
+                {groupMembers && groupMembers.length > 0 && (
+                  <Badge className="absolute -top-3 -right-3 z-10 cursor-pointer">
+                    {groupMembers.length}
+                  </Badge>
+                )}
+                <ScrollArea className=" w-52 rounded-md border ">
+                  <div className="flex w-max items-center gap-3 cursor-pointer m-2">
+                    {groupMembers && groupMembers.length > 0 ? (
+                      groupMembers.map((member) => (
+                        <div key={member._id}>
+                          <TooltipProvider delayDuration={0}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                {member?.picture ? (
+                                  <Image
+                                    src={member?.picture as string}
+                                    alt={member?.name as string}
+                                    width={40}
+                                    height={40}
+                                    className={`rounded-full  ${
+                                      group?.ownerId[0] === member._id &&
+                                      "ring-2 ring-sky-500"
+                                    } `}
+                                  />
+                                ) : (
+                                  <UserCircle2
+                                    className={`w-10 h-10 rounded-full  ${
+                                      group?.ownerId.some(
+                                        (id) => id === member._id
+                                      ) && "ring-2 ring-sky-500"
+                                    } `}
+                                  />
+                                )}
+                              </TooltipTrigger>
+                              <TooltipContent>{member.name}</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                      ))
+                    ) : (
+                      <h1>No member</h1>
+                    )}
+                  </div>
+                  <ScrollBar
+                    className="h-2 cursor-grabbing "
+                    orientation="horizontal"
+                  />
+                </ScrollArea>
+              </div>
+            )}
           </div>
         </CardHeader>
+        <div className="h-[1px] w-full  dark:bg-slate-700 bg-neutral-300"></div>
         <CardContent>
           <div
             ref={formRef}
@@ -473,7 +492,6 @@ export function MessageChat({
               value={input}
               onChange={(event) => {
                 setInput(event.target.value);
-                socket.emit("join_room", selectedChatGroup);
                 socket.emit("typing_message", {
                   roomId: selectedChatGroup,
                   name: currentUser.name,

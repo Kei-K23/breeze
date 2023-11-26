@@ -41,7 +41,10 @@ const MainDashboard = ({
   useEffect(() => {
     fetchMessagesData();
     if (socket) {
-      socket.emit("join_room", selectedChatGroup);
+      socket.emit("join_room", {
+        roomId: selectedChatGroup,
+        name: currentUser.name,
+      });
       socket.emit("client_connect", {
         id: currentUser._id,
         roomId: selectedChatGroup,
@@ -50,6 +53,7 @@ const MainDashboard = ({
       return () => {
         socket.off("join_room");
         socket.off("client_connect");
+        socket.emit("leave_room", { roomId: selectedChatGroup });
       };
     }
   }, [selectedChatGroup, socket]);
@@ -64,7 +68,7 @@ const MainDashboard = ({
           headers: {
             Accept: "application/json",
           },
-          cache: "no-cache",
+          next: { revalidate: 0 },
         }
       );
       const messagesData = await messagesRes.json();
