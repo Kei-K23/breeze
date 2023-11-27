@@ -36,6 +36,7 @@ const registerForm = z
   });
 
 const RegisterFrom = () => {
+  const NEXT_ROOT_URL = process.env.NEXT_ROOT_URL;
   const router = useRouter();
   const form = useForm<z.infer<typeof registerForm>>({
     resolver: zodResolver(registerForm),
@@ -70,7 +71,7 @@ const RegisterFrom = () => {
 
       if (res.ok && data.success) {
         toast.success("Successfully register");
-        return router.push("/");
+        return router.push(NEXT_ROOT_URL as string);
       } else {
         toast.error(data.error);
       }

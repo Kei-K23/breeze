@@ -22,6 +22,11 @@ import { verifyJWT } from "../lib/jwt.utils";
 import { ISession } from "../model/session.model";
 import { createAddGroupMember } from "../service/group.service";
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
+
+const FRONTEND_URL = process.env.CORS_ORIGIN_URL;
+console.log(FRONTEND_URL);
 
 export async function loginHandler(
   req: Request<{}, {}, LoginUserType>,
@@ -47,7 +52,7 @@ export async function loginHandler(
 
     res.cookie("breeze_csrf", refreshToken, {
       httpOnly: true,
-      domain: "localhost",
+      domain: "breeze-real-time-chat-app.vercel.app",
       path: "/",
       sameSite: "lax",
       secure: false,
@@ -123,7 +128,7 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
 
     res.cookie("breeze_csrf", refreshToken, {
       httpOnly: true,
-      domain: "localhost",
+      domain: "breeze-real-time-chat-app.vercel.app",
       path: "/",
       sameSite: "lax",
       secure: false,
@@ -148,15 +153,17 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
       },
     });
 
-    return res.redirect("http://localhost:3000/dashboard");
+    // return res.redirect(`${FRONTEND_URL}dashboard`);
+    return res.redirect(`${FRONTEND_URL}/dashboard`);
   } catch (e: any) {
-    return res
+    res
       .status(500)
       .json({
         success: false,
         error: e.message,
       })
-      .end();
+      .end()
+      .redirect(FRONTEND_URL as string);
   }
 }
 
@@ -207,7 +214,7 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
 
     res.cookie("breeze_csrf", refreshToken, {
       httpOnly: true,
-      domain: "localhost",
+      domain: "breeze-real-time-chat-app.vercel.app",
       path: "/",
       sameSite: "lax",
       secure: false,
@@ -232,15 +239,16 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
       },
     });
 
-    return res.redirect("http://localhost:3000/dashboard");
+    return res.redirect(`${FRONTEND_URL}/dashboard`);
   } catch (e: any) {
-    return res
+    res
       .status(500)
       .json({
         success: false,
         error: e.message,
       })
-      .end();
+      .end()
+      .redirect(FRONTEND_URL as string);
   }
 }
 
@@ -261,7 +269,7 @@ export async function logOutHandler(req: Request, res: Response) {
 
     req.headers.authorization = "";
     res.clearCookie("breeze_csrf");
-    return res.redirect("http://localhost:3000/");
+    return res.redirect(FRONTEND_URL as string);
   } catch (e: any) {
     return res
       .status(500)

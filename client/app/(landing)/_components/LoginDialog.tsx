@@ -41,6 +41,8 @@ const loginForm = z.object({
 });
 
 export default function LoginDialog() {
+  const NEXT_ROOT_URL = process.env.NEXT_ROOT_URL;
+
   const router = useRouter();
 
   const form = useForm<z.infer<typeof loginForm>>({
@@ -72,7 +74,7 @@ export default function LoginDialog() {
 
       if (res.ok && res.status == 200 && data.success) {
         toast.success(data.message);
-        router.push("/dashboard");
+        router.push(`${NEXT_ROOT_URL}/dashboard`);
         return;
       } else {
         return toast.error(data.error);
