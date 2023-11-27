@@ -8,14 +8,14 @@ const SocketIndicator = () => {
 
   if (!isConnected) {
     return (
-      <Badge className="text-yellow-600">
+      <Badge className="text-yellow-600 hidden xl:flex ">
         <AnnoyedIcon /> <h3 className="ml-2 ">Connecting</h3>
       </Badge>
     );
   }
 
   return (
-    <Badge className="text-green-600">
+    <Badge className="text-green-600  hidden xl:flex">
       <Smile /> <h3 className="ml-2 ">Real-Time connection</h3>
     </Badge>
   );

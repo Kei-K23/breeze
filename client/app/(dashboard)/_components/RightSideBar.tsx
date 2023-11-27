@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 import { NotificationType } from "./AddMemberDialog";
 import {
   Tooltip,
+  TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -203,62 +204,57 @@ const RightSideBar = ({
               currentUser.friends.map((user) => {
                 if (user.status === "Friended") {
                   return (
-                    <div
-                      className="my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
-                      key={user?.friendId}
-                      onClick={() => {
-                        setSelectedChatGroup(user.groupId as string);
-                        socket.emit("join_room", {
-                          roomId: user.groupId,
-                          name: currentUser.name,
-                        });
-                      }}
-                    >
-                      <div className="flex flex-col items-center gap-1 mb-2">
-                        <div className="relative">
-                          {user?.picture ? (
-                            <Image
-                              src={user?.picture as string}
-                              alt={user?.name as string}
-                              width={48}
-                              height={48}
-                              className="rounded-full"
-                            />
-                          ) : (
-                            <UserCircle2 className={cn("w-10 h-10 ")} />
-                          )}
-                          {onlineUser.length &&
-                          onlineUser.some(
-                            (online) => online.id === (user?.friendId as string)
-                          ) ? (
-                            <TooltipProvider delayDuration={0}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
+                    <TooltipProvider key={user?.friendId} delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div
+                            className="my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
+                            onClick={() => {
+                              setSelectedChatGroup(user.groupId as string);
+                              socket.emit("join_room", {
+                                roomId: user.groupId,
+                                name: currentUser.name,
+                              });
+                            }}
+                          >
+                            <div className="flex flex-col items-center gap-1 mb-2">
+                              <div className="relative">
+                                {user?.picture ? (
+                                  <Image
+                                    src={user?.picture as string}
+                                    alt={user?.name as string}
+                                    width={48}
+                                    height={48}
+                                    className="rounded-full"
+                                  />
+                                ) : (
+                                  <UserCircle2 className={cn("w-10 h-10 ")} />
+                                )}
+                                {onlineUser.length &&
+                                onlineUser.some(
+                                  (online) =>
+                                    online.id === (user?.friendId as string)
+                                ) ? (
                                   <div
                                     className={cn(
                                       "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-green-500"
                                     )}
                                   ></div>
-                                </TooltipTrigger>
-                              </Tooltip>
-                            </TooltipProvider>
-                          ) : (
-                            <TooltipProvider delayDuration={0}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
+                                ) : (
                                   <div
                                     className={cn(
                                       "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-red-500"
                                     )}
                                   ></div>
-                                </TooltipTrigger>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
-                        </div>
-                        <h3>{user?.name}</h3>
-                      </div>
-                    </div>
+                                )}
+                              </div>
+                              <h3 className="line-clamp-1">{user?.name}</h3>
+                            </div>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>{user?.name}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   );
                 } else if (user.status === "Pending") {
                   <h2 className="text-center">No friends yet!</h2>;
@@ -278,13 +274,13 @@ const RightSideBar = ({
         <h2 className="relative px-7 text-lg font-semibold tracking-tight flex items-center gap-2 mb-2">
           <User2Icon /> <span>Users</span>
         </h2>
-        <ScrollArea className="h-[350px] px-1">
-          <div className=" p-2">
+        <ScrollArea className="h-[350px] px-1 max-w-[300px]">
+          <div className="p-2 max-w-[300px]">
             {usersData.data ? (
               usersData.data &&
               usersData.data.map((user) => (
                 <div
-                  className="my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
+                  className="my-3 cursor-pointer py-2 pl-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
                   key={user?._id}
                 >
                   <div className="flex items-center gap-3 mb-2">
@@ -304,29 +300,17 @@ const RightSideBar = ({
                       onlineUser.some(
                         (online) => online.id === (user?._id as string)
                       ) ? (
-                        <TooltipProvider delayDuration={0}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div
-                                className={cn(
-                                  "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-green-500"
-                                )}
-                              ></div>
-                            </TooltipTrigger>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <div
+                          className={cn(
+                            "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-green-500"
+                          )}
+                        ></div>
                       ) : (
-                        <TooltipProvider delayDuration={0}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div
-                                className={cn(
-                                  "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-red-500"
-                                )}
-                              ></div>
-                            </TooltipTrigger>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <div
+                          className={cn(
+                            "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-red-500"
+                          )}
+                        ></div>
                       )}
                     </div>
 
@@ -412,7 +396,7 @@ const RightSideBar = ({
                         <UserPlus2 /> Add Friend
                       </Button>
                     )} */}
-                    {currentUser && currentUser.friends.length > 0 ? (
+                    {/* {currentUser && currentUser.friends.length > 0 ? (
                       currentUser.friends.map((friend) => {
                         if (friend.friendId === user?._id) {
                           if (friend.status === "Friended") {
@@ -476,7 +460,62 @@ const RightSideBar = ({
                         {" "}
                         <UserPlus2 /> Add Friend
                       </Button>
-                    )}
+                    )} */}
+
+                    {currentUser && currentUser.friends.length > 0
+                      ? currentUser.friends.map((friend) => {
+                          if (friend.friendId === user?._id) {
+                            if (friend.status === "Friended") {
+                              return (
+                                <Button
+                                  disabled
+                                  key={friend.friendId}
+                                  className="flex gap-1 bg-green-500 cursor-wait"
+                                >
+                                  <User /> Friend
+                                </Button>
+                              );
+                            } else if (friend.status === "Pending") {
+                              return (
+                                <Button
+                                  disabled
+                                  key={friend.friendId}
+                                  className="flex gap-1 bg-yellow-500 cursor-wait"
+                                >
+                                  <Hourglass /> Waiting....
+                                </Button>
+                              );
+                            } else {
+                              return null; // To avoid unexpected rendering if none of the conditions are met
+                            }
+                          }
+                          // If the friendId doesn't match, continue the loop
+                          return null;
+                        })
+                      : null}
+
+                    {/* Add Friend button outside the mapping */}
+                    {!currentUser ||
+                      (currentUser.friends.every(
+                        (friend) => friend.friendId !== user?._id
+                      ) && (
+                        <Button
+                          size={"sm"}
+                          className="flex gap-1 bg-sky-500"
+                          onClick={() => {
+                            onClickRequestAddFriend({
+                              email: user?.email,
+                              friendId: user?._id,
+                              name: user?.name,
+                              picture: user?.picture,
+                              status: "Pending",
+                            });
+                            router.refresh();
+                          }}
+                        >
+                          <UserPlus2 /> Add Friend
+                        </Button>
+                      ))}
                   </div>
                 </div>
               ))
@@ -488,6 +527,7 @@ const RightSideBar = ({
           </div>
         </ScrollArea>
       </div>
+
       <Sheet open={isRightSheetOpen} onOpenChange={setIsRightSheetOpen}>
         <SheetContent side={"right"} className="w-[250px] p-0 pt-14">
           <SheetHeader>
@@ -501,63 +541,57 @@ const RightSideBar = ({
                 currentUser.friends.map((user) => {
                   if (user.status === "Friended") {
                     return (
-                      <div
-                        className="my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
-                        key={user?.friendId}
-                        onClick={() => {
-                          setSelectedChatGroup(user.groupId as string);
-                          socket.emit("join_room", {
-                            roomId: user.groupId,
-                            name: currentUser.name,
-                          });
-                        }}
-                      >
-                        <div className="flex flex-col items-center gap-1 mb-2">
-                          <div className="relative">
-                            {user?.picture ? (
-                              <Image
-                                src={user?.picture as string}
-                                alt={user?.name as string}
-                                width={48}
-                                height={48}
-                                className="rounded-full"
-                              />
-                            ) : (
-                              <UserCircle2 className={cn("w-10 h-10 ")} />
-                            )}
-                            {onlineUser.length &&
-                            onlineUser.some(
-                              (online) =>
-                                online.id === (user?.friendId as string)
-                            ) ? (
-                              <TooltipProvider delayDuration={0}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
+                      <TooltipProvider key={user?.friendId} delayDuration={0}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              className="my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
+                              onClick={() => {
+                                setSelectedChatGroup(user.groupId as string);
+                                socket.emit("join_room", {
+                                  roomId: user.groupId,
+                                  name: currentUser.name,
+                                });
+                              }}
+                            >
+                              <div className="flex flex-col items-center gap-1 mb-2">
+                                <div className="relative">
+                                  {user?.picture ? (
+                                    <Image
+                                      src={user?.picture as string}
+                                      alt={user?.name as string}
+                                      width={48}
+                                      height={48}
+                                      className="rounded-full"
+                                    />
+                                  ) : (
+                                    <UserCircle2 className={cn("w-10 h-10 ")} />
+                                  )}
+                                  {onlineUser.length &&
+                                  onlineUser.some(
+                                    (online) =>
+                                      online.id === (user?.friendId as string)
+                                  ) ? (
                                     <div
                                       className={cn(
                                         "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-green-500"
                                       )}
                                     ></div>
-                                  </TooltipTrigger>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
-                              <TooltipProvider delayDuration={0}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
+                                  ) : (
                                     <div
                                       className={cn(
                                         "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-red-500"
                                       )}
                                     ></div>
-                                  </TooltipTrigger>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
-                          </div>
-                          <h3>{user?.name}</h3>
-                        </div>
-                      </div>
+                                  )}
+                                </div>
+                                <h3 className="line-clamp-1">{user?.name}</h3>
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>{user?.name}</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     );
                   } else if (user.status === "Pending") {
                     <h2 className="text-center">No friends yet!</h2>;
@@ -576,13 +610,13 @@ const RightSideBar = ({
             <h2 className="relative px-7 text-lg font-semibold tracking-tight flex items-center gap-2">
               <User2Icon /> <span className="hidden 2xl:block">Users</span>
             </h2>
-            <ScrollArea className="h-[350px] px-1">
-              <div className=" p-2">
+            <ScrollArea className="h-[350px] px-1 ">
+              <div className=" p-2 ">
                 {usersData.data ? (
                   usersData.data &&
                   usersData.data.map((user) => (
                     <div
-                      className="my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
+                      className=" my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
                       key={user?._id}
                     >
                       <div className="flex items-center gap-3 mb-2">
@@ -602,29 +636,17 @@ const RightSideBar = ({
                           onlineUser.some(
                             (online) => online.id === (user?._id as string)
                           ) ? (
-                            <TooltipProvider delayDuration={0}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div
-                                    className={cn(
-                                      "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-green-500"
-                                    )}
-                                  ></div>
-                                </TooltipTrigger>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <div
+                              className={cn(
+                                "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-green-500"
+                              )}
+                            ></div>
                           ) : (
-                            <TooltipProvider delayDuration={0}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div
-                                    className={cn(
-                                      "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-red-500"
-                                    )}
-                                  ></div>
-                                </TooltipTrigger>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <div
+                              className={cn(
+                                "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-red-500"
+                              )}
+                            ></div>
                           )}
                         </div>
 
@@ -710,71 +732,60 @@ const RightSideBar = ({
                         <UserPlus2 /> Add Friend
                       </Button>
                     )} */}
-                        {currentUser && currentUser.friends.length > 0 ? (
-                          currentUser.friends.map((friend) => {
-                            if (friend.friendId === user?._id) {
-                              if (friend.status === "Friended") {
-                                return (
-                                  <Button
-                                    disabled
-                                    key={friend.friendId}
-                                    className="flex gap-1 bg-green-500 cursor-wait"
-                                  >
-                                    <User /> Friend
-                                  </Button>
-                                );
-                              } else if (friend.status === "Pending") {
-                                return (
-                                  <Button
-                                    disabled
-                                    key={friend.friendId}
-                                    className="flex gap-1 bg-yellow-500 cursor-wait"
-                                  >
-                                    <Hourglass /> Waiting....
-                                  </Button>
-                                );
+                        {currentUser && currentUser.friends.length > 0
+                          ? currentUser.friends.map((friend) => {
+                              if (friend.friendId === user?._id) {
+                                if (friend.status === "Friended") {
+                                  return (
+                                    <Button
+                                      disabled
+                                      key={friend.friendId}
+                                      className="flex gap-1 bg-green-500 cursor-wait"
+                                    >
+                                      <User /> Friend
+                                    </Button>
+                                  );
+                                } else if (friend.status === "Pending") {
+                                  return (
+                                    <Button
+                                      disabled
+                                      key={friend.friendId}
+                                      className="flex gap-1 bg-yellow-500 cursor-wait"
+                                    >
+                                      <Hourglass /> Waiting....
+                                    </Button>
+                                  );
+                                } else {
+                                  return null; // To avoid unexpected rendering if none of the conditions are met
+                                }
                               }
-                            } else {
-                              return (
-                                <Button
-                                  key={friend.friendId}
-                                  size={"sm"}
-                                  className="flex gap-1 bg-sky-500"
-                                  onClick={() => {
-                                    onClickRequestAddFriend({
-                                      email: user?.email,
-                                      friendId: user?._id,
-                                      name: user?.name,
-                                      picture: user?.picture,
-                                      status: "Pending",
-                                    });
-                                    router.refresh();
-                                  }}
-                                >
-                                  <UserPlus2 /> Add Friend
-                                </Button>
-                              );
-                            }
-                          })
-                        ) : (
-                          <Button
-                            size={"sm"}
-                            className="flex gap-1 bg-sky-500"
-                            onClick={() => {
-                              onClickRequestAddFriend({
-                                email: user?.email,
-                                friendId: user?._id,
-                                name: user?.name,
-                                picture: user?.picture,
-                                status: "Pending",
-                              });
-                              router.refresh();
-                            }}
-                          >
-                            {" "}
-                            <UserPlus2 /> Add Friend
-                          </Button>
-                        )}
+                              // If the friendId doesn't match, continue the loop
+                              return null;
+                            })
+                          : null}
+
+                        {/* Add Friend button outside the mapping */}
+                        {!currentUser ||
+                          (currentUser.friends.every(
+                            (friend) => friend.friendId !== user?._id
+                          ) && (
+                            <Button
+                              size={"sm"}
+                              className="flex gap-1 bg-sky-500"
+                              onClick={() => {
+                                onClickRequestAddFriend({
+                                  email: user?.email,
+                                  friendId: user?._id,
+                                  name: user?.name,
+                                  picture: user?.picture,
+                                  status: "Pending",
+                                });
+                                router.refresh();
+                              }}
+                            >
+                              <UserPlus2 /> Add Friend
+                            </Button>
+                          ))}
                       </div>
                     </div>
                   ))
