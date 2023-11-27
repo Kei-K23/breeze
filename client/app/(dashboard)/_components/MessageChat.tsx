@@ -36,6 +36,7 @@ import { useRouter } from "next/navigation";
 import { IMessage } from "./MainDashboard";
 import { isUUID } from "@/lib/helper";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface MessageChatProps {
   selectedChatGroup: string;
@@ -44,6 +45,7 @@ interface MessageChatProps {
   currentUser: UserType;
   fetchMessages: IMessage[];
   setFetchMessages: (fetchMessages: IMessage[]) => void;
+  setSelectedChatGroup: (selectedChatGroup: string) => void;
 }
 
 type DeleteGroupParaType = {
@@ -56,6 +58,7 @@ type DeleteGroupParaType = {
 
 export function MessageChat({
   selectedChatGroup,
+  setSelectedChatGroup,
   cookie,
   currentUser,
   fetchMessages,
@@ -104,13 +107,25 @@ export function MessageChat({
       });
     }
     if (socket) {
-      socket.on("response_notification_accept", (data: NotificationType) => {
-        if (data.receiverId === currentUser._id) {
-          fetchChatGroupData({
-            groupId: data.groupId as string,
-          });
+      socket.on(
+        "response_notification_accept_group",
+        async (notification: NotificationType) => {
+          if (notification.receiverId === currentUser._id) {
+            fetchChatGroupData({
+              groupId: notification.groupId as string,
+            });
+          }
         }
-      });
+      );
+      socket.on(
+        "response_notification_delete_group",
+        async (notification: NotificationType) => {
+          if (notification.receiverId === currentUser._id) {
+            setSelectedChatGroup("");
+            router.refresh();
+          }
+        }
+      );
 
       let timeOutForFormRef: any;
       let timeOutForClearTyping: any;
@@ -141,7 +156,8 @@ export function MessageChat({
       );
 
       return () => {
-        socket.off("response_notification_accept");
+        socket.off("response_notification_accept_group");
+        socket.off("response_notification_delete_group");
         socket.off("message");
         socket.off("typing");
       };
@@ -202,13 +218,16 @@ export function MessageChat({
     groupName,
   }: DeleteGroupParaType) {
     try {
-      await fetch(`http://localhost:8090/api/groups/${_id}/${ownerId}`, {
+      await fetch(`http://localhost:8090/api/groups/`, {
         method: "DELETE",
         credentials: "include",
         body: JSON.stringify({
           _id,
-          ownerId: [ownerId],
         }),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         next: {
           revalidate: 0,
         },
@@ -243,11 +262,27 @@ export function MessageChat({
             groupName,
             groupId,
           };
+          await fetch("http://localhost:8090/api/messages/", {
+            method: "DELETE",
+            body: JSON.stringify({
+              groupId,
+            }),
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            credentials: "include",
+            next: {
+              revalidate: 0,
+            },
+          });
           socket.emit("send_notification", notification);
         });
       }
       setDeleteGroupState(null);
+      setSelectedChatGroup("");
       toast.success("Successfully deleted the group!");
+      router.refresh();
     } catch (e: any) {
       toast.error(e.message);
       return;
@@ -302,12 +337,12 @@ export function MessageChat({
 
   return (
     <>
-      <Card className="h-full w-full flex-1 rounded-none">
-        <CardHeader className="flex flex-row items-center pb-2">
+      <Card className="h-full w-full flex-1 rounded-none relative">
+        <CardHeader className="flex flex-row items-center pb-1  lg:pb-2">
           <div className="flex items-center justify-between w-full space-x-4">
             <div className="flex items-center gap-4">
               <div>
-                {group?.customUniqueGroupId ? (
+                {selectedChatGroup && group?.customUniqueGroupId ? (
                   <>
                     <div className="flex items-center gap-2 mb-2">
                       {currentUser.friends.some(
@@ -344,15 +379,25 @@ export function MessageChat({
                       </p>
                     </div>
                   </>
-                ) : group ? (
+                ) : selectedChatGroup && group ? (
                   <>
                     <p className="text-sm font-medium leading-none mb-2">
                       {group?.groupName}
                     </p>
                     {group?.groupDescription ? (
-                      <p className="text-sm text-muted-foreground">
-                        {group.groupDescription}
-                      </p>
+                      <TooltipProvider delayDuration={0}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <p className="text-sm text-muted-foreground line-clamp-1 w-[90px]">
+                              {group.groupDescription}
+                            </p>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {" "}
+                            {group.groupDescription}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     ) : (
                       <p className="text-sm text-muted-foreground">---</p>
                     )}
@@ -360,9 +405,9 @@ export function MessageChat({
                 ) : (
                   <div className="flex">
                     <div>
-                      <Skeleton className="h-12 w-12 rounded-full" />
+                      <Skeleton className="h-11 w-11 lg:h-12 lg:w-12 rounded-full" />
                     </div>
-                    <Skeleton className="h-3 w-[50px]" />
+                    <Skeleton className="h-2 lg:h-3  w-[40px] lg:w-[50px]" />
                   </div>
                 )}
                 {typingName ? (
@@ -375,6 +420,7 @@ export function MessageChat({
               </div>
               {selectedChatGroup !=
                 process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID &&
+                selectedChatGroup &&
                 !group?.customUniqueGroupId &&
                 group?.ownerId.some((id) => id === currentUser._id) && (
                   <TooltipProvider delayDuration={0}>
@@ -396,6 +442,7 @@ export function MessageChat({
                 )}
               {selectedChatGroup !=
                 process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID &&
+                selectedChatGroup &&
                 !group?.customUniqueGroupId &&
                 group?.ownerId.some((id) => id === currentUser._id) && (
                   <TooltipProvider delayDuration={0}>
@@ -425,7 +472,8 @@ export function MessageChat({
                   </TooltipProvider>
                 )}
             </div>
-            {!group?.customUniqueGroupId &&
+            {selectedChatGroup &&
+              !group?.customUniqueGroupId &&
               (groupMembers && groupMembers.length > 0 ? (
                 <div className="relative">
                   {groupMembers && groupMembers.length > 0 && (
@@ -433,7 +481,7 @@ export function MessageChat({
                       {groupMembers.length}
                     </Badge>
                   )}
-                  <ScrollArea className=" w-52 rounded-md border ">
+                  <ScrollArea className="w-32 lg:w-52 rounded-md border ">
                     <div className="flex w-max items-center gap-3 cursor-pointer m-2">
                       {groupMembers && groupMembers.length > 0 ? (
                         groupMembers.map((member) => (
@@ -445,8 +493,8 @@ export function MessageChat({
                                     <Image
                                       src={member?.picture as string}
                                       alt={member?.name as string}
-                                      width={40}
-                                      height={40}
+                                      width={35}
+                                      height={35}
                                       className={`rounded-full  ${
                                         group?.ownerId[0] === member._id &&
                                         "ring-2 ring-sky-500"
@@ -454,7 +502,7 @@ export function MessageChat({
                                     />
                                   ) : (
                                     <UserCircle2
-                                      className={`w-10 h-10 rounded-full  ${
+                                      className={`w-9 h-9 rounded-full  ${
                                         group?.ownerId.some(
                                           (id) => id === member._id
                                         ) && "ring-2 ring-sky-500"
@@ -489,9 +537,9 @@ export function MessageChat({
           {selectedChatGroup ? (
             <div
               ref={formRef}
-              className="space-y-4 overflow-auto h-[640px] no-scrollbar"
+              className="space-y-4 overflow-auto  h-[400px]  lg:h-[550px] xl:h-[640px] no-scrollbar"
             >
-              {fetchMessages.length > 0 ? (
+              {fetchMessages && fetchMessages.length > 0 ? (
                 fetchMessages.map((message, index) => (
                   <div
                     key={index}
@@ -502,65 +550,112 @@ export function MessageChat({
                         : "bg-muted"
                     )}
                   >
+                    {usersData.map((user) => {
+                      if (user._id === message.senderId) {
+                        return (
+                          <div
+                            key={user._id}
+                            className="flex items-center gap-2"
+                          >
+                            <Avatar className="h-6 w-6 lg:h-7 lg:w-7">
+                              {user.picture ? (
+                                <>
+                                  <AvatarImage
+                                    src={user.picture}
+                                    alt={user.name}
+                                  />
+                                  <AvatarFallback>{user.name}</AvatarFallback>
+                                </>
+                              ) : (
+                                <UserCircle2 className="h-6 w-6 lg:h-7 lg:w-7" />
+                              )}
+                            </Avatar>
+                            <h3>{user.name}</h3>
+                          </div>
+                        );
+                      }
+                    })}
+                    {currentUser._id === message.senderId && (
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-6 w-6 lg:h-7 lg:w-7">
+                          {currentUser.picture ? (
+                            <>
+                              <AvatarImage
+                                src={currentUser.picture}
+                                alt={currentUser.name}
+                              />
+                              <AvatarFallback>
+                                {currentUser.name}
+                              </AvatarFallback>
+                            </>
+                          ) : (
+                            <UserCircle2 className="h-6 w-6 lg:h-7 lg:w-7" />
+                          )}
+                        </Avatar>
+                        <h3>You</h3>
+                      </div>
+                    )}
                     {message.textMessage}
                   </div>
                 ))
               ) : (
-                <div className="flex justify-center items-center flex-col h-full">
+                <div className="overflow-auto no-scrollbar text-slate-500 flex justify-center items-center flex-col h-[400px]  lg:h-[550px] xl:h-[640px]">
                   <h2>No message yet in this group!</h2>
                   <h2>Be first person that send the message!</h2>
                 </div>
               )}
             </div>
           ) : (
-            <div className="flex justify-center items-center space-y-4 overflow-auto h-[640px] no-scrollbar">
+            <div className="flex flex-col lg:flex-row justify-center items-center space-y-4 overflow-auto h-[400px]  lg:h-[550px] xl:h-[640px] no-scrollbar">
               <Image
                 src={"/chatImg.png"}
                 alt="chat image"
                 width={200}
                 height={200}
               />
-              <h2 className="ml-4">
+              <h2 className="lg:ml-4 text-slate-500">
                 Start communicate by clicking Groups or Your friends
               </h2>
             </div>
           )}
         </CardContent>
-        <CardFooter>
-          <form
-            onSubmit={(event) => {
-              onSubmitCreateMessages({
-                payload: {
-                  groupId: selectedChatGroup,
-                  receiverId: [...userIdsArray],
-                  textMessage: input,
-                  senderId: currentUser._id,
-                },
-                event,
-              });
-            }}
-            className="flex w-full items-center space-x-2"
-          >
-            <Input
-              id="message"
-              placeholder="Type your message..."
-              className="flex-1"
-              autoComplete="off"
-              value={input}
-              onChange={(event) => {
-                setInput(event.target.value);
-                socket.emit("typing_message", {
-                  roomId: selectedChatGroup,
-                  name: currentUser.name,
+        {selectedChatGroup && (
+          <CardFooter className="absolute w-full p-0 ">
+            <form
+              onSubmit={(event) => {
+                onSubmitCreateMessages({
+                  payload: {
+                    groupId: selectedChatGroup,
+                    receiverId: [...userIdsArray],
+                    textMessage: input,
+                    senderId: currentUser._id,
+                  },
+                  event,
                 });
               }}
-            />
-            <Button type="submit" size="icon" disabled={inputLength === 0}>
-              <Send className="h-4 w-4" />
-              <span className="sr-only">Send</span>
-            </Button>
-          </form>
-        </CardFooter>
+              className="flex w-full items-center space-x-2"
+            >
+              <Input
+                id="message"
+                placeholder="Type your message..."
+                className="flex-1"
+                autoComplete="off"
+                value={input}
+                onChange={(event) => {
+                  setInput(event.target.value);
+                  socket.emit("typing_message", {
+                    roomId: selectedChatGroup,
+                    name: currentUser.name,
+                  });
+                }}
+              />
+              <Button type="submit" size="icon" disabled={inputLength === 0}>
+                <Send className="h-4 w-4" />
+                <span className="sr-only">Send</span>
+              </Button>
+            </form>
+          </CardFooter>
+        )}
       </Card>
       <Dialog open={deleteGroupOpen} onOpenChange={setDeleteGroupOpen}>
         <DialogContent className="gap-0 p-0 outline-none">
@@ -571,7 +666,7 @@ export function MessageChat({
             <DialogDescription>This is delete forever!</DialogDescription>
           </DialogHeader>
 
-          <div className="flex items-center border-t p-4 sm:justify-between">
+          <div className="flex items-center border-t p-4 justify-between">
             <Button
               variant={"destructive"}
               onClick={() => {
@@ -582,7 +677,13 @@ export function MessageChat({
             >
               Delete
             </Button>
-            <Button>Cancel</Button>
+            <Button
+              onClick={() => {
+                setDeleteGroupOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

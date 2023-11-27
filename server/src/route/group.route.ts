@@ -63,7 +63,7 @@ export default function (route: Router) {
     deleteGroupMemberHandler
   );
   route.delete(
-    "/api/groups/:_id/:ownerId",
+    "/api/groups/",
     revalidateAccessToken,
     requiredAccessToken,
     validateResource(deleteGroupSchema),

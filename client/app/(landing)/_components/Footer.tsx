@@ -16,7 +16,7 @@ const Footer = () => {
             height={30}
           />
         </Link>
-        <div>© {getCurrentYear()} NoteHub. All rights reserved.</div>
+        <div>© {getCurrentYear()} Breeze. All rights reserved.</div>
         <div>
           Create with 💙 by{" "}
           <Link
@@ -36,7 +36,7 @@ const Footer = () => {
           Privacy & Policy
         </Link>
         <Link
-          href={"/teams&conditions"}
+          href={"/terms&conditions"}
           className={buttonVariants({ variant: "ghost" })}
         >
           Teams & Conditions

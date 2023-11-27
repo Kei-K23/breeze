@@ -106,83 +106,47 @@ const Navbar = ({ name, email, image, iconLink, currentUser }: NavbarProp) => {
 
           <ModeToggle />
 
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button variant={"outline"}>
-                <Menu />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[200px]">
-              <DropdownMenuLabel className="text-center">
-                Menu
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Button
-                  className="w-full flex items-center  gap-2 justify-start p-0"
-                  variant={"ghost"}
-                  onClick={() => {
-                    isLeftSheetOpen
-                      ? setIsLeftSheetOpen(false)
-                      : setIsLeftSheetOpen(true);
-                  }}
-                >
-                  <Group /> <span>Groups</span>
+          {currentUser && (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Button variant={"outline"} className="block 2xl:hidden">
+                  <Menu />
                 </Button>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Button
-                  className="w-full flex items-center  gap-2 justify-start p-0"
-                  variant={"ghost"}
-                  onClick={() => {
-                    isRightSheetOpen
-                      ? setIsRightSheetOpen(false)
-                      : setIsRightSheetOpen(true);
-                  }}
-                >
-                  <Users /> <span>Friends</span>
-                </Button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* <TooltipProvider delayDuration={0}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  className="block 2xl:hidden"
-                  variant={"ghost"}
-                  onClick={() => {
-                    isLeftSheetOpen
-                      ? setIsLeftSheetOpen(false)
-                      : setIsLeftSheetOpen(true);
-                  }}
-                >
-                  <Group />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Groups</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider delayDuration={0}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  className="block 2xl:hidden"
-                  variant={"ghost"}
-                  onClick={() => {
-                    isRightSheetOpen
-                      ? setIsRightSheetOpen(false)
-                      : setIsRightSheetOpen(true);
-                  }}
-                >
-                  <Users />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Friends</TooltipContent>
-            </Tooltip>
-          </TooltipProvider> */}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[200px]">
+                <DropdownMenuLabel className="text-center">
+                  Menu
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Button
+                    className="w-full flex items-center  gap-2 justify-start p-0"
+                    variant={"ghost"}
+                    onClick={() => {
+                      isLeftSheetOpen
+                        ? setIsLeftSheetOpen(false)
+                        : setIsLeftSheetOpen(true);
+                    }}
+                  >
+                    <Group /> <span>Groups</span>
+                  </Button>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Button
+                    className="w-full flex items-center  gap-2 justify-start p-0"
+                    variant={"ghost"}
+                    onClick={() => {
+                      isRightSheetOpen
+                        ? setIsRightSheetOpen(false)
+                        : setIsRightSheetOpen(true);
+                    }}
+                  >
+                    <Users /> <span>Friends</span>
+                  </Button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </nav>
     </header>

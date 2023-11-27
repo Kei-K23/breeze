@@ -12,6 +12,19 @@ export const metadata: Metadata = {
   title: "Breeze",
   description:
     "Breeze is fast and super reliable chat web-based application that can communicate with everyone and everywhere",
+  keywords: [
+    "typescript",
+    "javascript",
+    "mongodb",
+    "mongoose",
+    "node.js",
+    "real-time chat application",
+    "websocket",
+    "socket",
+    "next.js",
+  ],
+  publisher: "Kei-K",
+  creator: "Kei-K",
 };
 
 export default function RootLayout({

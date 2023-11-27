@@ -85,7 +85,6 @@ export const deleteGroupMemberSchema = z.object({
 export const deleteGroupSchema = z.object({
   body: z.object({
     _id: z.string(),
-    ownerId: z.array(z.string()),
   }),
 });
 

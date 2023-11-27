@@ -1,6 +1,14 @@
 import { Request, Response } from "express";
-import { createMessage, getMessages } from "../service/message.service";
-import { CreateMessageType, GetMessagesType } from "../schema/message.schema";
+import {
+  createMessage,
+  deleteMessages,
+  getMessages,
+} from "../service/message.service";
+import {
+  CreateMessageType,
+  DeleteMessagesType,
+  GetMessagesType,
+} from "../schema/message.schema";
 
 export async function createMessageHandler(
   req: Request<{}, {}, CreateMessageType>,
@@ -53,6 +61,32 @@ export async function getMessagesHandler(
       .json({
         success: true,
         data: messages,
+      })
+      .end();
+  } catch (e: any) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: e.message,
+      })
+      .end();
+  }
+}
+
+export async function deleteMessagesHandler(
+  req: Request<{}, {}, DeleteMessagesType>,
+  res: Response
+) {
+  try {
+    await deleteMessages({
+      filter: req.body,
+    });
+
+    return res
+      .status(200)
+      .json({
+        success: true,
       })
       .end();
   } catch (e: any) {

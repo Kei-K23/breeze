@@ -3,10 +3,10 @@ import React from "react";
 
 export const metadata: Metadata = {
   title: "Privacy and Policy",
-  description: "NoteHub privacy and policy",
+  description: "Breeze privacy and policy",
 };
 
-const TeamsAndConditionsLayout = ({
+const TermsAndConditionsLayout = ({
   children,
 }: {
   children: React.ReactNode;
@@ -14,4 +14,4 @@ const TeamsAndConditionsLayout = ({
   return <main>{children}</main>;
 };
 
-export default TeamsAndConditionsLayout;
+export default TermsAndConditionsLayout;

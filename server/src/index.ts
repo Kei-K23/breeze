@@ -36,6 +36,7 @@ io.on("connection", (socket) => {
   // event for notification response for accept group
   socket.on("response_notification_accept", (data) => {
     socket.broadcast.emit("response_notification_accept", data);
+    socket.broadcast.emit("response_notification_accept_group", data);
   });
   socket.on("response_notification_decline", (data) => {
     socket.broadcast.emit("response_notification_decline", data);
@@ -44,6 +45,7 @@ io.on("connection", (socket) => {
   // event for notification sending to user
   socket.on("send_notification", (notification) => {
     socket.broadcast.emit("receive_notification", notification);
+    socket.broadcast.emit("response_notification_delete_group", notification);
   });
 
   socket.on("disconnect", () => {

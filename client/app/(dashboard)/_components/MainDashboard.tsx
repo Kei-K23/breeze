@@ -12,6 +12,7 @@ export interface IMessage {
   groupId: string;
   textMessage: string;
   isRead?: boolean;
+  createdAt?: Date;
 }
 interface MainProps {
   cookie: string;
@@ -97,6 +98,7 @@ const MainDashboard = ({
       <MessageChat
         fetchMessages={fetchMessages}
         setFetchMessages={setFetchMessages}
+        setSelectedChatGroup={setSelectedChatGroup}
         cookie={cookie}
         currentUser={currentUser}
         usersData={usersData.data as UserType[]}

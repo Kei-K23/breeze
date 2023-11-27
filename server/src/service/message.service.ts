@@ -28,3 +28,15 @@ export async function getMessages({
     throw new Error(e.message);
   }
 }
+
+export async function deleteMessages({
+  filter,
+}: {
+  filter: FilterQuery<IMessage>;
+}) {
+  try {
+    await Message.deleteMany(filter);
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}

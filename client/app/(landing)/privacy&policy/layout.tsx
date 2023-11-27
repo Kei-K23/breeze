@@ -3,7 +3,7 @@ import React from "react";
 
 export const metadata: Metadata = {
   title: "Privacy and Policy",
-  description: "NoteHub privacy and policy",
+  description: "Breeze privacy and policy",
 };
 
 const PrivacyAndPolicyLayout = ({

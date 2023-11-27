@@ -15,5 +15,13 @@ export const getMessagesSchema = z.object({
   params: z.object({ groupId: z.string() }),
 });
 
+export const deleteMessagesSchema = z.object({
+  body: z.object({
+    _id: z.string().optional(),
+    groupId: z.string().optional(),
+  }),
+});
+
 export type CreateMessageType = z.infer<typeof createMessageSchema>["body"];
 export type GetMessagesType = z.infer<typeof getMessagesSchema>;
+export type DeleteMessagesType = z.infer<typeof deleteMessagesSchema>["body"];

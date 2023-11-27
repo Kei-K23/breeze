@@ -25,11 +25,13 @@ export function UserAvatar({ email, image, name }: UserAvatarProp) {
         <Button variant="ghost" className="relative h-8  w-8 rounded-full">
           <Avatar className="h-11 w-11 lg:h-12 lg:w-12">
             {image ? (
-              <AvatarImage src={image} alt={name} />
+              <>
+                <AvatarImage src={image} alt={name} />
+                <AvatarFallback>{name}</AvatarFallback>
+              </>
             ) : (
               <UserCircle2 className={`w-10 h-10 rounded-ful`} />
             )}
-            <AvatarFallback>{name}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

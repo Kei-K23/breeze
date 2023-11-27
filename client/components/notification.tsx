@@ -89,8 +89,8 @@ const Notification = ({ currentUser }: NotificationProps) => {
               toast(
                 `${notification.senderName} is accepted your group invitation`
               );
+              router.refresh();
             }
-            router.refresh();
           }
         }
       );
@@ -250,7 +250,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
           revalidate: 0,
         },
       });
-      toast("Cong! You have new group");
+      toast("Congrats! You have new group");
       onClickRemoveNOfUser({
         userId: currentUser._id,
         payload,
@@ -268,6 +268,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
       };
 
       socket.emit("response_notification_accept", notification);
+      router.refresh();
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -591,7 +592,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
           Notification {notifications.length}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <ScrollArea className="h-[500px]  w-[300px]  md:max-w-[450px]">
+        <ScrollArea className="h-[400px] lg:h-[500px]  w-[300px]  md:max-w-[450px]">
           {notifications && notifications.length ? (
             notifications.map((n) => (
               <DropdownMenuItem
