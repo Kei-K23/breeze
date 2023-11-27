@@ -20,7 +20,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
       );
 
       if (!decoded) {
-        return redirect(NEXT_ROOT_URL as string);
+        return redirect("/");
       }
     }
   }

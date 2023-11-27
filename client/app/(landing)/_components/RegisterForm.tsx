@@ -71,7 +71,7 @@ const RegisterFrom = () => {
 
       if (res.ok && data.success) {
         toast.success("Successfully register");
-        return router.push(NEXT_ROOT_URL as string);
+        return router.push("/");
       } else {
         toast.error(data.error);
       }

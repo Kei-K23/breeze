@@ -21,7 +21,7 @@ const Dashboard = async ({
   const userData = await resUserData.json();
 
   if (!resUserData.ok) {
-    return redirect(NEXT_ROOT_URL as string);
+    return redirect("/");
   }
 
   // fetch group data
