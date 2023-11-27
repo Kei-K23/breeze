@@ -166,6 +166,7 @@ export function MessageChat({
 
       if (resGroup.ok && groupData.success) {
         setGroup(groupData.data);
+        if (!selectedChatGroup) return;
         const resGroupMembers = await fetch(
           `http://localhost:8090/api/groups?groupIdForMembers=${selectedChatGroup}`,
           {

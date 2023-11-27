@@ -58,6 +58,7 @@ const MainDashboard = ({
   }, [selectedChatGroup, socket]);
 
   async function fetchMessagesData(limit = 15) {
+    if (!selectedChatGroup) return;
     try {
       const messagesRes = await fetch(
         `http://localhost:8090/api/messages/${selectedChatGroup}/?limit=${limit}`,

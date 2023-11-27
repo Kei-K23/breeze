@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import LogOut from "@/lib/logOut";
+import { UserCircle2 } from "lucide-react";
 interface UserAvatarProp {
   name: string;
   email: string;
@@ -22,11 +23,12 @@ export function UserAvatar({ email, image, name }: UserAvatarProp) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8  w-8 rounded-full">
-          <Avatar className="h-12 w-12">
-            <AvatarImage
-              src={image === "no_image" ? "/user.png" : image}
-              alt={name}
-            />
+          <Avatar className="h-11 w-11 lg:h-12 lg:w-12">
+            {image ? (
+              <AvatarImage src={image} alt={name} />
+            ) : (
+              <UserCircle2 className={`w-10 h-10 rounded-ful`} />
+            )}
             <AvatarFallback>{name}</AvatarFallback>
           </Avatar>
         </Button>
