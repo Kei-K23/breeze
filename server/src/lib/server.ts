@@ -6,6 +6,7 @@ import route from "../route";
 import deserializedUser from "../middleware/deserializedUser";
 
 dotenv.config();
+const FRONTEND_URL = process.env.CORS_ORIGIN_URL;
 
 // create express server
 export function createExpressApp() {
@@ -14,7 +15,7 @@ export function createExpressApp() {
   // use middleware
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: FRONTEND_URL,
       credentials: true,
     })
   );

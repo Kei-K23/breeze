@@ -2,14 +2,20 @@ import { Server } from "socket.io";
 import { createExpressApp } from "./lib/server";
 import { createServer } from "http";
 import { dbConnect } from "./lib/db";
+import dotenv from "dotenv";
+
+dotenv.config();
+const FRONTEND_URL = process.env.CORS_ORIGIN_URL;
 
 const app = createExpressApp();
 const server = createServer(app);
 const PORT = parseInt(process.env.PORT || "8090", 10);
+
 const activeUsers = new Map(); // Map to store active users
+
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: FRONTEND_URL,
   },
 });
 

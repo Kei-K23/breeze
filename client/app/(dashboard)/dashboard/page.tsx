@@ -8,6 +8,7 @@ const Dashboard = async ({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) => {
+  const NEXT_ROOT_URL = process.env.NEXT_ROOT_URL;
   // fetch user data
   const resUserData = await fetch("http://localhost:8090/api/users", {
     method: "GET",
@@ -20,7 +21,7 @@ const Dashboard = async ({
   const userData = await resUserData.json();
 
   if (!resUserData.ok) {
-    return redirect("/");
+    return redirect(NEXT_ROOT_URL as string);
   }
 
   // fetch group data
