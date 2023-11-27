@@ -74,7 +74,7 @@ export default function LoginDialog() {
 
       if (res.ok && res.status == 200 && data.success) {
         toast.success(data.message);
-        router.push(`${NEXT_ROOT_URL}/dashboard`);
+        router.push(`/dashboard`);
         return;
       } else {
         return toast.error(data.error);
