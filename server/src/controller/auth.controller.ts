@@ -26,7 +26,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const FRONTEND_URL = process.env.CORS_ORIGIN_URL;
-console.log(FRONTEND_URL);
 const isLocal = process.env.NODE_ENV !== "production";
 
 export async function loginHandler(
@@ -56,7 +55,7 @@ export async function loginHandler(
       domain: ".breeze-real-time-chat-app.vercel.app",
       path: "/",
       sameSite: "none",
-      secure: false,
+      secure: true,
       maxAge: 5.184e9,
     });
 
@@ -70,6 +69,8 @@ export async function loginHandler(
       })
       .end();
   } catch (e: any) {
+    console.log(e);
+
     return res
       .status(500)
       .json({
@@ -131,6 +132,8 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
       httpOnly: true,
       domain: ".breeze-real-time-chat-app.vercel.app",
       path: "/",
+      sameSite: "none",
+      secure: true,
       maxAge: 5.184e9,
     });
 
