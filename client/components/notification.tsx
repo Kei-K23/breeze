@@ -200,7 +200,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
   }) {
     try {
       const resEditedUser = await fetch(
-        `http://localhost:8090/api/users/${userId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/${userId}`,
         {
           method: "PUT",
           body: JSON.stringify({
@@ -236,20 +236,23 @@ const Notification = ({ currentUser }: NotificationProps) => {
     payload: NotificationType;
   }) {
     try {
-      await fetch(`http://localhost:8090/api/groups/${groupMemberId}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          status: "Accept",
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        credentials: "include",
-        next: {
-          revalidate: 0,
-        },
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups/${groupMemberId}`,
+        {
+          method: "PUT",
+          body: JSON.stringify({
+            status: "Accept",
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          next: {
+            revalidate: 0,
+          },
+        }
+      );
       toast("Congrats! You have new group");
       onClickRemoveNOfUser({
         userId: currentUser._id,
@@ -286,23 +289,11 @@ const Notification = ({ currentUser }: NotificationProps) => {
     _id?: string;
   }) {
     try {
-      await fetch(`http://localhost:8090/api/users/rmN/${userId}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        credentials: "include",
-        next: {
-          revalidate: 0,
-        },
-      });
-
-      if (_id) {
-        await fetch(`http://localhost:8090/api/groups_members/`, {
-          method: "DELETE",
-          body: JSON.stringify({ _id }),
+      await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${userId}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(payload),
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
@@ -311,7 +302,25 @@ const Notification = ({ currentUser }: NotificationProps) => {
           next: {
             revalidate: 0,
           },
-        });
+        }
+      );
+
+      if (_id) {
+        await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups_members/`,
+          {
+            method: "DELETE",
+            body: JSON.stringify({ _id }),
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            credentials: "include",
+            next: {
+              revalidate: 0,
+            },
+          }
+        );
 
         const notification: NotificationType = {
           title: "Decline group invitation!",
@@ -349,32 +358,35 @@ const Notification = ({ currentUser }: NotificationProps) => {
   }) {
     const uniqueId = crypto.randomUUID().toString();
     try {
-      const resGroupData = await fetch("http://localhost:8090/api/groups/", {
-        method: "POST",
-        body: JSON.stringify({
-          groupName: `${currentUser.name}-${senderName}`,
-          ownerId: [senderId, payload.receiverId],
-          customUniqueGroupId: uniqueId,
-          groupUserNames: [
-            { name: currentUser.name, id: currentUser._id },
-            { name: senderName, id: senderId },
-          ],
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        credentials: "include",
-        next: {
-          revalidate: 0,
-        },
-      });
+      const resGroupData = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups/`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            groupName: `${currentUser.name}-${senderName}`,
+            ownerId: [senderId, payload.receiverId],
+            customUniqueGroupId: uniqueId,
+            groupUserNames: [
+              { name: currentUser.name, id: currentUser._id },
+              { name: senderName, id: senderId },
+            ],
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          next: {
+            revalidate: 0,
+          },
+        }
+      );
 
       const groupData = await resGroupData.json();
 
       if (resGroupData.ok && groupData.success) {
         const resAcceptFriend = await fetch(
-          `http://localhost:8090/api/users/accept-friends/${senderId}`,
+          `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/accept-friends/${senderId}`,
           {
             method: "PUT",
             body: JSON.stringify({
@@ -398,7 +410,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
 
         if (resAcceptFriend.ok && acceptFriendData.success) {
           await fetch(
-            `http://localhost:8090/api/users/accept-friends/${payload.receiverId}`,
+            `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/accept-friends/${payload.receiverId}`,
             {
               method: "PUT",
               body: JSON.stringify({
@@ -420,7 +432,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
           );
 
           await fetch(
-            `http://localhost:8090/api/users/rmN/${currentUser._id}`,
+            `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${currentUser._id}`,
             {
               method: "PUT",
               body: JSON.stringify(payload),
@@ -474,21 +486,24 @@ const Notification = ({ currentUser }: NotificationProps) => {
     senderId: string;
   }) {
     try {
-      await fetch(`http://localhost:8090/api/users/rmN/${currentUser._id}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        credentials: "include",
-        next: {
-          revalidate: 0,
-        },
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${currentUser._id}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(payload),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          next: {
+            revalidate: 0,
+          },
+        }
+      );
 
       await fetch(
-        `http://localhost:8090/api/users/decline-friends/${senderId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/decline-friends/${senderId}`,
         {
           method: "DELETE",
           body: JSON.stringify({ friendId }),
@@ -503,7 +518,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
         }
       );
       await fetch(
-        `http://localhost:8090/api/users/decline-friends/${currentUser._id}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/decline-friends/${currentUser._id}`,
         {
           method: "DELETE",
           body: JSON.stringify({ friendId: senderId }),
@@ -545,18 +560,21 @@ const Notification = ({ currentUser }: NotificationProps) => {
     payload: NotificationType;
   }) {
     try {
-      await fetch(`http://localhost:8090/api/users/rmN/${userId}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        credentials: "include",
-        next: {
-          revalidate: 0,
-        },
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${userId}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(payload),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          next: {
+            revalidate: 0,
+          },
+        }
+      );
       setNotifications((prev) => {
         return prev.filter((p) => p._id !== payload._id);
       });

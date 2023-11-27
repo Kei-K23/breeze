@@ -50,22 +50,25 @@ const RegisterFrom = () => {
 
   async function onSubmit(value: z.infer<typeof registerForm>) {
     try {
-      const res = await fetch("http://localhost:8090/api/users", {
-        method: "POST",
-        body: JSON.stringify({
-          email: value.email,
-          name: value.name,
-          password: value.password,
-          confirm_password: value.confirm_password,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        next: {
-          revalidate: 0,
-        },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: value.email,
+            name: value.name,
+            password: value.password,
+            confirm_password: value.confirm_password,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          next: {
+            revalidate: 0,
+          },
+        }
+      );
 
       const data = await res.json();
 

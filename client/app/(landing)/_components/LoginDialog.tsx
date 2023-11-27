@@ -55,21 +55,24 @@ export default function LoginDialog() {
 
   async function onSubmit(value: z.infer<typeof loginForm>) {
     try {
-      const res = await fetch("http://localhost:8090/api/auth/login", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: value.name,
-          password: value.password,
-        }),
-        credentials: "include",
-        next: {
-          revalidate: 0,
-        },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: value.name,
+            password: value.password,
+          }),
+          credentials: "include",
+          next: {
+            revalidate: 0,
+          },
+        }
+      );
       const data = await res.json();
 
       if (res.ok && res.status == 200 && data.success) {

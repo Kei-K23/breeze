@@ -5,7 +5,7 @@ import Link from "next/link";
 const LogOut = () => {
   return (
     <Link
-      href={"http://localhost:8090/api/auth/logout"}
+      href={`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/auth/logout`}
       className={buttonVariants({
         variant: "destructive",
         className: "w-full",
