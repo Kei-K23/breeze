@@ -168,7 +168,7 @@ export function MessageChat({
   async function fetchChatGroupData({ groupId }: { groupId: string }) {
     try {
       const resGroup = await fetch(
-        `http://localhost:8090/api/groups?groupId=${groupId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups?groupId=${groupId}`,
         {
           method: "GET",
           credentials: "include",
@@ -184,7 +184,7 @@ export function MessageChat({
         setGroup(groupData.data);
         if (!selectedChatGroup) return;
         const resGroupMembers = await fetch(
-          `http://localhost:8090/api/groups?groupIdForMembers=${selectedChatGroup}`,
+          `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups?groupIdForMembers=${selectedChatGroup}`,
           {
             method: "GET",
             credentials: "include",
@@ -218,7 +218,7 @@ export function MessageChat({
     groupName,
   }: DeleteGroupParaType) {
     try {
-      await fetch(`http://localhost:8090/api/groups/`, {
+      await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups/`, {
         method: "DELETE",
         credentials: "include",
         body: JSON.stringify({
@@ -236,21 +236,24 @@ export function MessageChat({
 
       if (groupMembers.length) {
         groupMembers.map(async (groupMember) => {
-          await fetch(`http://localhost:8090/api/groups_members/`, {
-            method: "DELETE",
-            body: JSON.stringify({
-              groupId,
-              memberId: groupMember._id,
-            }),
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            credentials: "include",
-            next: {
-              revalidate: 0,
-            },
-          });
+          await fetch(
+            `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups_members/`,
+            {
+              method: "DELETE",
+              body: JSON.stringify({
+                groupId,
+                memberId: groupMember._id,
+              }),
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              credentials: "include",
+              next: {
+                revalidate: 0,
+              },
+            }
+          );
           const notification: NotificationType = {
             title: "Group Deleted!",
             content: "Sorry! The group is deleted.",
@@ -262,20 +265,23 @@ export function MessageChat({
             groupName,
             groupId,
           };
-          await fetch("http://localhost:8090/api/messages/", {
-            method: "DELETE",
-            body: JSON.stringify({
-              groupId,
-            }),
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            credentials: "include",
-            next: {
-              revalidate: 0,
-            },
-          });
+          await fetch(
+            `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/messages/`,
+            {
+              method: "DELETE",
+              body: JSON.stringify({
+                groupId,
+              }),
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              credentials: "include",
+              next: {
+                revalidate: 0,
+              },
+            }
+          );
           socket.emit("send_notification", notification);
         });
       }
@@ -300,17 +306,20 @@ export function MessageChat({
     if (inputLength === 0) return;
 
     try {
-      const newMessageRes = await fetch("http://localhost:8090/api/messages/", {
-        method: "POST",
-        body: JSON.stringify(payload),
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        next: { revalidate: 0 },
-        cache: "no-cache",
-      });
+      const newMessageRes = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/messages/`,
+        {
+          method: "POST",
+          body: JSON.stringify(payload),
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          next: { revalidate: 0 },
+          cache: "no-cache",
+        }
+      );
 
       const newMessageData = await newMessageRes.json();
       if (newMessageRes.ok && newMessageData.success) {

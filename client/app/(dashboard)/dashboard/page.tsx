@@ -10,13 +10,16 @@ const Dashboard = async ({
 }) => {
   const NEXT_ROOT_URL = process.env.NEXT_ROOT_URL;
   // fetch user data
-  const resUserData = await fetch("http://localhost:8090/api/users", {
-    method: "GET",
-    headers: {
-      Cookie: `breeze_csrf=${searchParams.cookie}`,
-    },
-    next: { revalidate: 0 },
-  });
+  const resUserData = await fetch(
+    `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users`,
+    {
+      method: "GET",
+      headers: {
+        Cookie: `breeze_csrf=${searchParams.cookie}`,
+      },
+      next: { revalidate: 0 },
+    }
+  );
 
   const userData = await resUserData.json();
 
@@ -26,7 +29,7 @@ const Dashboard = async ({
 
   // fetch group data
   const resGroupDate = await fetch(
-    `http://localhost:8090/api/groups/${userData.data._id}`,
+    `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups/${userData.data._id}`,
     {
       method: "GET",
       headers: {
@@ -40,7 +43,7 @@ const Dashboard = async ({
 
   // fetch group data
   const resUsersDate = await fetch(
-    `http://localhost:8090/api/users/${userData.data._id}`,
+    `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/${userData.data._id}`,
     {
       method: "GET",
       headers: {
@@ -53,7 +56,7 @@ const Dashboard = async ({
   const usersData = await resUsersDate.json();
 
   const messagesRes = await fetch(
-    `http://localhost:8090/api/messages/${
+    `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/messages/${
       process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID
     }/?limit=${15}`,
     {

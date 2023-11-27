@@ -95,18 +95,21 @@ const AddMemberDialog = ({
 
   async function fetchData() {
     try {
-      const res = await fetch("http://localhost:8090/api/users/without", {
-        method: "POST",
-        body: JSON.stringify({ userIdArray: userIdsArray }),
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        credentials: "include",
-        next: {
-          revalidate: 0,
-        },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/without`,
+        {
+          method: "POST",
+          body: JSON.stringify({ userIdArray: userIdsArray }),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          next: {
+            revalidate: 0,
+          },
+        }
+      );
       const data = await res.json();
 
       if (res.ok && data.success) {

@@ -126,7 +126,7 @@ const RightSideBar = ({
   }: Partial<FriendDataType>) {
     try {
       const resAddFriend = await fetch(
-        `http://localhost:8090/api/users/add-friends/${currentUser._id}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/add-friends/${currentUser._id}`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -144,29 +144,32 @@ const RightSideBar = ({
         }
       );
 
-      await fetch(`http://localhost:8090/api/users/add-friends/${friendId}`, {
-        method: "POST",
-        body: JSON.stringify({
-          friendIds: [
-            {
-              email: currentUser.email,
-              friendId: currentUser._id,
-              name: currentUser.name,
-              picture: currentUser.picture,
-              status: "Pending",
-            },
-          ],
-        }),
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        next: {
-          revalidate: 0,
-        },
-        cache: "no-cache",
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/add-friends/${friendId}`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            friendIds: [
+              {
+                email: currentUser.email,
+                friendId: currentUser._id,
+                name: currentUser.name,
+                picture: currentUser.picture,
+                status: "Pending",
+              },
+            ],
+          }),
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          next: {
+            revalidate: 0,
+          },
+          cache: "no-cache",
+        }
+      );
       const addFriendData = await resAddFriend.json();
       if (resAddFriend.ok && addFriendData.success) {
         // add friend request notification message data
