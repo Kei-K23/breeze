@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "react-hot-toast";
 import { SocketProvider } from "@/provider/socket-provider";
+import { SheetProvider } from "@/provider/sheet-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,7 +30,7 @@ export default function RootLayout({
           storageKey="breeze-theme"
         >
           <SocketProvider>
-            {children}
+            <SheetProvider>{children}</SheetProvider>
             <Toaster />
           </SocketProvider>
         </ThemeProvider>

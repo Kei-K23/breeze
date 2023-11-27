@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { MessageChat } from "./Chat";
+import { MessageChat } from "./MessageChat";
 import LeftSideBar, { FetchGroupsDataType } from "./LeftSideBar";
 import RightSideBar, { FetchUsersDataType, UserType } from "./RightSideBar";
 import toast from "react-hot-toast";
@@ -30,8 +30,7 @@ const MainDashboard = ({
 }: MainProps) => {
   const GLOBAL_CHAT_ROOM_ID = process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID;
 
-  const [selectedChatGroup, setSelectedChatGroup] =
-    useState(GLOBAL_CHAT_ROOM_ID);
+  const [selectedChatGroup, setSelectedChatGroup] = useState("");
   const [fetchMessages, setFetchMessages] = useState<IMessage[]>(
     fetchMessagesDataFromPage
   );

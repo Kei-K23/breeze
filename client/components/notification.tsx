@@ -586,12 +586,12 @@ const Notification = ({ currentUser }: NotificationProps) => {
           </Tooltip>
         </TooltipProvider>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="max-w-[400px]">
+      <DropdownMenuContent className="w-[300px] md:max-w-[450px]">
         <DropdownMenuLabel>
           Notification {notifications.length}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <ScrollArea className="h-[500px] max-w-[400px]">
+        <ScrollArea className="h-[500px]  w-[300px]  md:max-w-[450px]">
           {notifications && notifications.length ? (
             notifications.map((n) => (
               <DropdownMenuItem

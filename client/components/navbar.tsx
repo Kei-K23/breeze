@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { LogInIcon } from "lucide-react";
+import { Group, LogInIcon, Users } from "lucide-react";
 import useScrollTop from "@/hook/use-scroll-top";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "./mode-toggle";
@@ -18,6 +18,8 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 import { UserType } from "@/app/(dashboard)/_components/RightSideBar";
+import { Button } from "./ui/button";
+import { useSheet } from "@/provider/sheet-provider";
 
 interface NavbarProp {
   name?: string | null;
@@ -30,6 +32,12 @@ interface NavbarProp {
 const Navbar = ({ name, email, image, iconLink, currentUser }: NavbarProp) => {
   const isScrolled = useScrollTop();
   const { isConnected } = useSocket();
+  const {
+    setIsLeftSheetOpen,
+    setIsRightSheetOpen,
+    isRightSheetOpen,
+    isLeftSheetOpen,
+  } = useSheet();
 
   return (
     <header
@@ -41,9 +49,9 @@ const Navbar = ({ name, email, image, iconLink, currentUser }: NavbarProp) => {
       <nav className="py-4 px-8  md:px-20 flex justify-between items-center">
         <Link
           href={iconLink}
-          className="flex justify-between items-center gap-3"
+          className="flex justify-between items-center gap-3 "
         >
-          <span className="[text-shadow:_0_1px_1px_rgb(138_207_235)] hover:underline font-bold text-lg">
+          <span className="hidden 2xl:block [text-shadow:_0_1px_1px_rgb(138_207_235)] hover:underline font-bold text-lg">
             Breeze
           </span>
           <Image
@@ -67,9 +75,6 @@ const Navbar = ({ name, email, image, iconLink, currentUser }: NavbarProp) => {
                         <TooltipTrigger asChild>
                           <div className="absolute -top-2 -right-2 w-3 h-3 bg-green-500 rounded-full"></div>
                         </TooltipTrigger>
-                        {/* <TooltipContent className="top-0">
-                          Online
-                        </TooltipContent> */}
                       </Tooltip>
                     </TooltipProvider>
                   </>
@@ -80,7 +85,6 @@ const Navbar = ({ name, email, image, iconLink, currentUser }: NavbarProp) => {
                         <TooltipTrigger asChild>
                           <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                         </TooltipTrigger>
-                        {/* <TooltipContent>Offline</TooltipContent> */}
                       </Tooltip>
                     </TooltipProvider>
                   </>
@@ -106,6 +110,42 @@ const Navbar = ({ name, email, image, iconLink, currentUser }: NavbarProp) => {
           )}
 
           <ModeToggle />
+
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={"ghost"}
+                  onClick={() => {
+                    isLeftSheetOpen
+                      ? setIsLeftSheetOpen(false)
+                      : setIsLeftSheetOpen(true);
+                  }}
+                >
+                  <Group />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Groups</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={"ghost"}
+                  onClick={() => {
+                    isRightSheetOpen
+                      ? setIsRightSheetOpen(false)
+                      : setIsRightSheetOpen(true);
+                  }}
+                >
+                  <Users />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Friends</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </nav>
     </header>

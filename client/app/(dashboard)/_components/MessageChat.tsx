@@ -35,6 +35,7 @@ import {
 import { useRouter } from "next/navigation";
 import { IMessage } from "./MainDashboard";
 import { isUUID } from "@/lib/helper";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface MessageChatProps {
   selectedChatGroup: string;
@@ -277,8 +278,6 @@ export function MessageChat({
 
       const newMessageData = await newMessageRes.json();
       if (newMessageRes.ok && newMessageData.success) {
-        console.log(fetchMessages);
-
         setFetchMessages([...fetchMessages, payload]);
         setInput("");
         setTimeout(() => {
@@ -302,33 +301,68 @@ export function MessageChat({
 
   return (
     <>
-      <Card className="h-full w-full flex-1 ">
+      <Card className="h-full w-full flex-1 rounded-none">
         <CardHeader className="flex flex-row items-center pb-2">
           <div className="flex items-center justify-between w-full space-x-4">
             <div className="flex items-center gap-4">
               <div>
                 {group?.customUniqueGroupId ? (
                   <>
-                    <p className="text-sm font-medium leading-none mb-2">
-                      {
-                        group?.groupUserNames?.filter(
-                          (user) => user.id !== currentUser._id
-                        )[0].name
-                      }
-                    </p>
-                    <p className="text-sm text-muted-foreground">-</p>
+                    <div className="flex items-center gap-2 mb-2">
+                      {currentUser.friends.some(
+                        (f) =>
+                          f.customUniqueGroupId === group.customUniqueGroupId
+                      ) ? (
+                        currentUser.friends.map((f) => {
+                          if (
+                            group.groupUserNames?.some(
+                              (user) => user.id === f.friendId
+                            )
+                          ) {
+                            return (
+                              <Image
+                                key={f.friendId}
+                                src={f.picture as string}
+                                alt={f.name as string}
+                                width={48}
+                                height={48}
+                                className="rounded-full"
+                              />
+                            );
+                          }
+                        })
+                      ) : (
+                        <UserCircle2 className={cn("w-10 h-10 ")} />
+                      )}
+                      <p className="text-sm font-medium leading-none mb-2">
+                        {
+                          group?.groupUserNames?.filter(
+                            (user) => user.id !== currentUser._id
+                          )[0].name
+                        }
+                      </p>
+                    </div>
                   </>
-                ) : (
+                ) : group ? (
                   <>
                     <p className="text-sm font-medium leading-none mb-2">
                       {group?.groupName}
                     </p>
-                    {group?.groupDescription && (
+                    {group?.groupDescription ? (
                       <p className="text-sm text-muted-foreground">
                         {group.groupDescription}
                       </p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">---</p>
                     )}
                   </>
+                ) : (
+                  <div className="flex">
+                    <div>
+                      <Skeleton className="h-12 w-12 rounded-full" />
+                    </div>
+                    <Skeleton className="h-3 w-[50px]" />
+                  </div>
                 )}
                 {typingName ? (
                   <p className="text-sm text-muted-foreground italic">
@@ -390,84 +424,106 @@ export function MessageChat({
                   </TooltipProvider>
                 )}
             </div>
-            {!group?.customUniqueGroupId && (
-              <div className="relative">
-                {groupMembers && groupMembers.length > 0 && (
-                  <Badge className="absolute -top-3 -right-3 z-10 cursor-pointer">
-                    {groupMembers.length}
-                  </Badge>
-                )}
-                <ScrollArea className=" w-52 rounded-md border ">
-                  <div className="flex w-max items-center gap-3 cursor-pointer m-2">
-                    {groupMembers && groupMembers.length > 0 ? (
-                      groupMembers.map((member) => (
-                        <div key={member._id}>
-                          <TooltipProvider delayDuration={0}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                {member?.picture ? (
-                                  <Image
-                                    src={member?.picture as string}
-                                    alt={member?.name as string}
-                                    width={40}
-                                    height={40}
-                                    className={`rounded-full  ${
-                                      group?.ownerId[0] === member._id &&
-                                      "ring-2 ring-sky-500"
-                                    } `}
-                                  />
-                                ) : (
-                                  <UserCircle2
-                                    className={`w-10 h-10 rounded-full  ${
-                                      group?.ownerId.some(
-                                        (id) => id === member._id
-                                      ) && "ring-2 ring-sky-500"
-                                    } `}
-                                  />
-                                )}
-                              </TooltipTrigger>
-                              <TooltipContent>{member.name}</TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                      ))
-                    ) : (
-                      <h1>No member</h1>
-                    )}
-                  </div>
-                  <ScrollBar
-                    className="h-2 cursor-grabbing "
-                    orientation="horizontal"
-                  />
-                </ScrollArea>
-              </div>
-            )}
+            {!group?.customUniqueGroupId &&
+              (groupMembers && groupMembers.length > 0 ? (
+                <div className="relative">
+                  {groupMembers && groupMembers.length > 0 && (
+                    <Badge className="absolute -top-3 -right-3 z-10 cursor-pointer">
+                      {groupMembers.length}
+                    </Badge>
+                  )}
+                  <ScrollArea className=" w-52 rounded-md border ">
+                    <div className="flex w-max items-center gap-3 cursor-pointer m-2">
+                      {groupMembers && groupMembers.length > 0 ? (
+                        groupMembers.map((member) => (
+                          <div key={member._id}>
+                            <TooltipProvider delayDuration={0}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  {member?.picture ? (
+                                    <Image
+                                      src={member?.picture as string}
+                                      alt={member?.name as string}
+                                      width={40}
+                                      height={40}
+                                      className={`rounded-full  ${
+                                        group?.ownerId[0] === member._id &&
+                                        "ring-2 ring-sky-500"
+                                      } `}
+                                    />
+                                  ) : (
+                                    <UserCircle2
+                                      className={`w-10 h-10 rounded-full  ${
+                                        group?.ownerId.some(
+                                          (id) => id === member._id
+                                        ) && "ring-2 ring-sky-500"
+                                      } `}
+                                    />
+                                  )}
+                                </TooltipTrigger>
+                                <TooltipContent>{member.name}</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        ))
+                      ) : (
+                        <h1>No member</h1>
+                      )}
+                    </div>
+                    <ScrollBar
+                      className="h-2 cursor-grabbing "
+                      orientation="horizontal"
+                    />
+                  </ScrollArea>
+                </div>
+              ) : (
+                <div>
+                  <Skeleton className="h-10 w-[200px]" />
+                </div>
+              ))}
           </div>
         </CardHeader>
         <div className="h-[1px] w-full  dark:bg-slate-700 bg-neutral-300"></div>
         <CardContent>
-          <div
-            ref={formRef}
-            className="space-y-4 overflow-auto h-[640px] no-scrollbar"
-          >
-            {fetchMessages.length > 0 ? (
-              fetchMessages.map((message, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
-                    message.senderId === currentUser._id
-                      ? "ml-auto bg-primary text-primary-foreground"
-                      : "bg-muted"
-                  )}
-                >
-                  {message.textMessage}
+          {selectedChatGroup ? (
+            <div
+              ref={formRef}
+              className="space-y-4 overflow-auto h-[640px] no-scrollbar"
+            >
+              {fetchMessages.length > 0 ? (
+                fetchMessages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={cn(
+                      "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
+                      message.senderId === currentUser._id
+                        ? "ml-auto bg-primary text-primary-foreground"
+                        : "bg-muted"
+                    )}
+                  >
+                    {message.textMessage}
+                  </div>
+                ))
+              ) : (
+                <div className="flex justify-center items-center flex-col h-full">
+                  <h2>No message yet in this group!</h2>
+                  <h2>Be first person that send the message!</h2>
                 </div>
-              ))
-            ) : (
-              <div>No message to show</div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex justify-center items-center space-y-4 overflow-auto h-[640px] no-scrollbar">
+              <Image
+                src={"/chatImg.png"}
+                alt="chat image"
+                width={200}
+                height={200}
+              />
+              <h2 className="ml-4">
+                Start communicate by clicking Groups or Your friends
+              </h2>
+            </div>
+          )}
         </CardContent>
         <CardFooter>
           <form

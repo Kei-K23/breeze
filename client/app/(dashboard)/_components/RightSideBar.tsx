@@ -22,6 +22,8 @@ import {
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
+import { useSheet } from "@/provider/sheet-provider";
 
 export type FriendDataType = {
   friendId: string;
@@ -81,6 +83,7 @@ const RightSideBar = ({
   >([]);
   const { socket } = useSocket();
   const router = useRouter();
+  const { isRightSheetOpen, setIsRightSheetOpen } = useSheet();
 
   useEffect(() => {
     if (!socket) {
@@ -189,7 +192,7 @@ const RightSideBar = ({
   }
 
   return (
-    <div className="h-[800px] w-[15%] ">
+    <div className="h-[800px] w-[15%] hidden 2xl:block">
       <div className="py-2">
         <h2 className="relative px-7 text-lg font-semibold tracking-tight flex items-center gap-2">
           <Users /> <span>Friends</span>
@@ -272,7 +275,7 @@ const RightSideBar = ({
         </ScrollArea>
       </div>
       <div className="py-2">
-        <h2 className="relative px-7 text-lg font-semibold tracking-tight flex items-center gap-2">
+        <h2 className="relative px-7 text-lg font-semibold tracking-tight flex items-center gap-2 mb-2">
           <User2Icon /> <span>Users</span>
         </h2>
         <ScrollArea className="h-[350px] px-1">
@@ -333,7 +336,7 @@ const RightSideBar = ({
                     {user?.email}
                   </p>
                   <div className="mt-2">
-                    {currentUser && currentUser.friends.length > 0 ? (
+                    {/* {currentUser && currentUser.friends.length > 0 ? (
                       currentUser.friends.map((friend) => {
                         if (
                           friend.friendId === user?._id &&
@@ -350,7 +353,10 @@ const RightSideBar = ({
                           );
                         }
 
-                        if (friend.friendId !== user?._id) {
+                        if (
+                          friend.friendId !== user?._id &&
+                          friend.status !== "Friended"
+                        ) {
                           return (
                             <Button
                               key={friend.friendId}
@@ -371,7 +377,11 @@ const RightSideBar = ({
                               <UserPlus2 /> Add Friend
                             </Button>
                           );
-                        } else {
+                        }
+                        if (
+                          friend.friendId !== user?._id &&
+                          friend.status === "Pending"
+                        ) {
                           return (
                             <Button
                               disabled
@@ -379,6 +389,71 @@ const RightSideBar = ({
                               className="flex gap-1 bg-yellow-500 cursor-wait"
                             >
                               <Hourglass /> Waiting....
+                            </Button>
+                          );
+                        }
+                      })
+                    ) : (
+                      <Button
+                        size={"sm"}
+                        className="flex gap-1 bg-sky-500"
+                        onClick={() => {
+                          onClickRequestAddFriend({
+                            email: user?.email,
+                            friendId: user?._id,
+                            name: user?.name,
+                            picture: user?.picture,
+                            status: "Pending",
+                          });
+                          router.refresh();
+                        }}
+                      >
+                        {" "}
+                        <UserPlus2 /> Add Friend
+                      </Button>
+                    )} */}
+                    {currentUser && currentUser.friends.length > 0 ? (
+                      currentUser.friends.map((friend) => {
+                        if (friend.friendId === user?._id) {
+                          if (friend.status === "Friended") {
+                            return (
+                              <Button
+                                disabled
+                                key={friend.friendId}
+                                className="flex gap-1 bg-green-500 cursor-wait"
+                              >
+                                <User /> Friend
+                              </Button>
+                            );
+                          } else if (friend.status === "Pending") {
+                            return (
+                              <Button
+                                disabled
+                                key={friend.friendId}
+                                className="flex gap-1 bg-yellow-500 cursor-wait"
+                              >
+                                <Hourglass /> Waiting....
+                              </Button>
+                            );
+                          }
+                        } else {
+                          return (
+                            <Button
+                              key={friend.friendId}
+                              size={"sm"}
+                              className="flex gap-1 bg-sky-500"
+                              onClick={() => {
+                                onClickRequestAddFriend({
+                                  email: user?.email,
+                                  friendId: user?._id,
+                                  name: user?.name,
+                                  picture: user?.picture,
+                                  status: "Pending",
+                                });
+                                router.refresh();
+                              }}
+                            >
+                              <UserPlus2 /> Add Friend
                             </Button>
                           );
                         }
@@ -413,6 +488,306 @@ const RightSideBar = ({
           </div>
         </ScrollArea>
       </div>
+      <Sheet open={isRightSheetOpen} onOpenChange={setIsRightSheetOpen}>
+        <SheetContent side={"right"} className="w-[250px] p-0 pt-14">
+          <SheetHeader>
+            <h2 className="relative px-7 text-lg font-semibold tracking-tight flex items-center gap-2">
+              <Users /> <span className="hidden 2xl:block">Friends</span>
+            </h2>
+          </SheetHeader>
+          <ScrollArea className="max-h-[350px] px-1">
+            <div className=" p-2 grid grid-cols-2 gap-2">
+              {currentUser && currentUser.friends.length > 0 ? (
+                currentUser.friends.map((user) => {
+                  if (user.status === "Friended") {
+                    return (
+                      <div
+                        className="my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
+                        key={user?.friendId}
+                        onClick={() => {
+                          setSelectedChatGroup(user.groupId as string);
+                          socket.emit("join_room", {
+                            roomId: user.groupId,
+                            name: currentUser.name,
+                          });
+                        }}
+                      >
+                        <div className="flex flex-col items-center gap-1 mb-2">
+                          <div className="relative">
+                            {user?.picture ? (
+                              <Image
+                                src={user?.picture as string}
+                                alt={user?.name as string}
+                                width={48}
+                                height={48}
+                                className="rounded-full"
+                              />
+                            ) : (
+                              <UserCircle2 className={cn("w-10 h-10 ")} />
+                            )}
+                            {onlineUser.length &&
+                            onlineUser.some(
+                              (online) =>
+                                online.id === (user?.friendId as string)
+                            ) ? (
+                              <TooltipProvider delayDuration={0}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div
+                                      className={cn(
+                                        "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-green-500"
+                                      )}
+                                    ></div>
+                                  </TooltipTrigger>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              <TooltipProvider delayDuration={0}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div
+                                      className={cn(
+                                        "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-red-500"
+                                      )}
+                                    ></div>
+                                  </TooltipTrigger>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </div>
+                          <h3>{user?.name}</h3>
+                        </div>
+                      </div>
+                    );
+                  } else if (user.status === "Pending") {
+                    <h2 className="text-center">No friends yet!</h2>;
+                  } else {
+                    <h2 className="text-center">No friends yet!</h2>;
+                  }
+                })
+              ) : (
+                <div>
+                  <h2 className="text-center">No friends yet!</h2>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+          <SheetHeader>
+            <h2 className="relative px-7 text-lg font-semibold tracking-tight flex items-center gap-2">
+              <User2Icon /> <span className="hidden 2xl:block">Users</span>
+            </h2>
+            <ScrollArea className="h-[350px] px-1">
+              <div className=" p-2">
+                {usersData.data ? (
+                  usersData.data &&
+                  usersData.data.map((user) => (
+                    <div
+                      className="my-3 cursor-pointer py-2 px-4 border dark:border-slate-700 border-neutral-300 rounded-md hover:shadow-md hover:shadow-neutral-300 dark:hover:shadow-slate-700"
+                      key={user?._id}
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="relative">
+                          {user?.picture ? (
+                            <Image
+                              src={user?.picture as string}
+                              alt={user?.name as string}
+                              width={48}
+                              height={48}
+                              className="rounded-full"
+                            />
+                          ) : (
+                            <UserCircle2 className={cn("w-10 h-10 ")} />
+                          )}
+                          {onlineUser.length &&
+                          onlineUser.some(
+                            (online) => online.id === (user?._id as string)
+                          ) ? (
+                            <TooltipProvider delayDuration={0}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div
+                                    className={cn(
+                                      "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-green-500"
+                                    )}
+                                  ></div>
+                                </TooltipTrigger>
+                              </Tooltip>
+                            </TooltipProvider>
+                          ) : (
+                            <TooltipProvider delayDuration={0}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div
+                                    className={cn(
+                                      "absolute -top-0 -right-0 w-3 h-3  rounded-full bg-red-500"
+                                    )}
+                                  ></div>
+                                </TooltipTrigger>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </div>
+
+                        <h3>{user?.name}</h3>
+                      </div>
+                      <p className="text-neutral-600 dark:text-neutral-400 line-clamp-1">
+                        {user?.email}
+                      </p>
+                      <div className="mt-2">
+                        {/* {currentUser && currentUser.friends.length > 0 ? (
+                      currentUser.friends.map((friend) => {
+                        if (
+                          friend.friendId === user?._id &&
+                          friend.status === "Friended"
+                        ) {
+                          return (
+                            <Button
+                              disabled
+                              key={friend.friendId}
+                              className="flex gap-1 bg-green-500 cursor-wait"
+                            >
+                              <User /> Friend
+                            </Button>
+                          );
+                        }
+
+                        if (
+                          friend.friendId !== user?._id &&
+                          friend.status !== "Friended"
+                        ) {
+                          return (
+                            <Button
+                              key={friend.friendId}
+                              size={"sm"}
+                              className="flex gap-1 bg-sky-500"
+                              onClick={() => {
+                                onClickRequestAddFriend({
+                                  email: user?.email,
+                                  friendId: user?._id,
+                                  name: user?.name,
+                                  picture: user?.picture,
+                                  status: "Pending",
+                                });
+                                router.refresh();
+                              }}
+                            >
+                              {" "}
+                              <UserPlus2 /> Add Friend
+                            </Button>
+                          );
+                        }
+                        if (
+                          friend.friendId !== user?._id &&
+                          friend.status === "Pending"
+                        ) {
+                          return (
+                            <Button
+                              disabled
+                              key={friend.friendId}
+                              className="flex gap-1 bg-yellow-500 cursor-wait"
+                            >
+                              <Hourglass /> Waiting....
+                            </Button>
+                          );
+                        }
+                      })
+                    ) : (
+                      <Button
+                        size={"sm"}
+                        className="flex gap-1 bg-sky-500"
+                        onClick={() => {
+                          onClickRequestAddFriend({
+                            email: user?.email,
+                            friendId: user?._id,
+                            name: user?.name,
+                            picture: user?.picture,
+                            status: "Pending",
+                          });
+                          router.refresh();
+                        }}
+                      >
+                        {" "}
+                        <UserPlus2 /> Add Friend
+                      </Button>
+                    )} */}
+                        {currentUser && currentUser.friends.length > 0 ? (
+                          currentUser.friends.map((friend) => {
+                            if (friend.friendId === user?._id) {
+                              if (friend.status === "Friended") {
+                                return (
+                                  <Button
+                                    disabled
+                                    key={friend.friendId}
+                                    className="flex gap-1 bg-green-500 cursor-wait"
+                                  >
+                                    <User /> Friend
+                                  </Button>
+                                );
+                              } else if (friend.status === "Pending") {
+                                return (
+                                  <Button
+                                    disabled
+                                    key={friend.friendId}
+                                    className="flex gap-1 bg-yellow-500 cursor-wait"
+                                  >
+                                    <Hourglass /> Waiting....
+                                  </Button>
+                                );
+                              }
+                            } else {
+                              return (
+                                <Button
+                                  key={friend.friendId}
+                                  size={"sm"}
+                                  className="flex gap-1 bg-sky-500"
+                                  onClick={() => {
+                                    onClickRequestAddFriend({
+                                      email: user?.email,
+                                      friendId: user?._id,
+                                      name: user?.name,
+                                      picture: user?.picture,
+                                      status: "Pending",
+                                    });
+                                    router.refresh();
+                                  }}
+                                >
+                                  <UserPlus2 /> Add Friend
+                                </Button>
+                              );
+                            }
+                          })
+                        ) : (
+                          <Button
+                            size={"sm"}
+                            className="flex gap-1 bg-sky-500"
+                            onClick={() => {
+                              onClickRequestAddFriend({
+                                email: user?.email,
+                                friendId: user?._id,
+                                name: user?.name,
+                                picture: user?.picture,
+                                status: "Pending",
+                              });
+                              router.refresh();
+                            }}
+                          >
+                            {" "}
+                            <UserPlus2 /> Add Friend
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div>
+                    <h2 className="text-center">No user yet!</h2>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
