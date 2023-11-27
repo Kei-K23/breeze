@@ -53,7 +53,6 @@ export async function loginHandler(
 
     res.cookie("breeze_csrf", refreshToken, {
       httpOnly: true,
-      domain: ".breeze-real-time-chat-app.vercel.app",
       path: "/",
       sameSite: "none",
       secure: true,
@@ -131,7 +130,6 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
 
     res.cookie("breeze_csrf", refreshToken, {
       httpOnly: true,
-      domain: ".breeze-real-time-chat-app.vercel.app",
       path: "/",
       sameSite: "none",
       secure: true,
@@ -217,7 +215,6 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
 
     res.cookie("breeze_csrf", refreshToken, {
       httpOnly: true,
-      domain: ".breeze-real-time-chat-app.vercel.app",
       path: "/",
       sameSite: "none",
       secure: true,
