@@ -339,7 +339,6 @@ export function MessageChat({
         toast.error(newMessageData.error);
       }
     } catch (e: any) {
-      console.log(e);
       toast.error("Could not send message!");
     }
   }

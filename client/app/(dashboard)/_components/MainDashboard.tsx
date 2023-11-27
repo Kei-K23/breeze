@@ -80,7 +80,6 @@ const MainDashboard = ({
         setFetchMessages([]);
       }
     } catch (e) {
-      console.log(e);
       toast.error("Something went wrong went retrieving messages!");
     }
   }
