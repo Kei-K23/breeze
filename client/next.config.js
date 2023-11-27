@@ -18,12 +18,12 @@ const nextConfig = {
     return [
       {
         // matching all API routes
-        source: "/api/:path*",
+        source: "http://localhost:8090/api/:path*",
         headers: [
           { key: "Access-Control-Allow-Credentials", value: "true" },
           {
             key: "Access-Control-Allow-Origin",
-            value: "http://localhost:8090",
+            value: "*",
           },
           {
             key: "Access-Control-Allow-Methods",
