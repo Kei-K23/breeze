@@ -27,7 +27,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const FRONTEND_URL = process.env.CORS_ORIGIN_URL;
-const isLocal = process.env.NODE_ENV !== "production";
 
 export async function loginHandler(
   req: Request<{}, {}, LoginUserType>,
@@ -69,8 +68,6 @@ export async function loginHandler(
       })
       .end();
   } catch (e: any) {
-    console.log(e);
-
     return res
       .status(500)
       .json({
@@ -215,6 +212,7 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
 
     res.cookie("breeze_csrf", refreshToken, {
       httpOnly: true,
+      domain: "breeze-real-time-chat-app.vercel.app",
       path: "/",
       sameSite: "none",
       secure: true,

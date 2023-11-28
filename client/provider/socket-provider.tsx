@@ -22,7 +22,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const socket = io("https://breeze-real-time-chat-app.onrender.com", {
+    const socket = io(process.env.NEXT_PUBLIC_GLOBAL_SOCKET_SERVICE as string, {
       autoConnect: true,
       reconnection: true,
       transports: ["websocket", "polling"],

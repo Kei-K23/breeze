@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const refreshCookie = cookies().get("breeze_csrf");
-  const NEXT_ROOT_URL = process.env.NEXT_ROOT_URL;
+
   if (refreshCookie?.name === "breeze_csrf") {
     if (refreshCookie.value) {
       const decoded = verify(
