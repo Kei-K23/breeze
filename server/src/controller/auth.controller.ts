@@ -52,7 +52,8 @@ export async function loginHandler(
 
     res.cookie("breeze_csrf", refreshToken, {
       httpOnly: true,
-      path: ".onrender.com",
+      domain: ".onrender.com",
+      path: "/",
       sameSite: "none",
       secure: true,
       maxAge: 5.184e9,
@@ -127,7 +128,8 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
 
     res.cookie("breeze_csrf", refreshToken, {
       httpOnly: true,
-      path: ".onrender.com",
+      domain: ".onrender.com",
+      path: "/",
       sameSite: "none",
       secure: true,
       maxAge: 5.184e9,
@@ -212,7 +214,8 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
 
     res.cookie("breeze_csrf", refreshToken, {
       httpOnly: true,
-      path: ".onrender.com",
+      domain: ".onrender.com",
+      path: "/",
       sameSite: "none",
       secure: true,
       maxAge: 5.184e9,
