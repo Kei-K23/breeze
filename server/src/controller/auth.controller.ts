@@ -50,15 +50,6 @@ export async function loginHandler(
       picture: user.picture,
     });
 
-    res.cookie("breeze_csrf", refreshToken, {
-      httpOnly: true,
-      domain: ".onrender.com",
-      path: "/",
-      sameSite: "none",
-      secure: true,
-      maxAge: 5.184e9,
-    });
-
     return res
       .status(200)
       .json({
@@ -66,6 +57,7 @@ export async function loginHandler(
         data: omitDoc(user, ["password", "__v"]),
         message: "Successfully login!",
         accessToken,
+        refreshToken,
       })
       .end();
   } catch (e: any) {
@@ -126,14 +118,13 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
       picture: user.picture,
     });
 
-    res.cookie("breeze_csrf", refreshToken, {
-      httpOnly: true,
-      domain: ".onrender.com",
-      path: "/",
-      sameSite: "none",
-      secure: true,
-      maxAge: 5.184e9,
-    });
+    // res.cookie("breeze_csrf", refreshToken, {
+    //   httpOnly: true,
+    //   path: "/",
+    //   sameSite: "none",
+    //   secure: true,
+    //   maxAge: 5.184e9,
+    // });
 
     await createAddGroupMember({
       filter: {
@@ -154,7 +145,9 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
     });
 
     // return res.redirect(`${FRONTEND_URL}dashboard`);
-    return res.redirect(`${FRONTEND_URL}/dashboard`);
+    return res.redirect(
+      `${FRONTEND_URL}/dashboard?refreshToken=${refreshToken}`
+    );
   } catch (e: any) {
     res
       .status(500)
@@ -212,14 +205,13 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
       picture: user.picture,
     });
 
-    res.cookie("breeze_csrf", refreshToken, {
-      httpOnly: true,
-      domain: ".onrender.com",
-      path: "/",
-      sameSite: "none",
-      secure: true,
-      maxAge: 5.184e9,
-    });
+    // res.cookie("breeze_csrf", refreshToken, {
+    //   httpOnly: true,
+    //   path: "/",
+    //   sameSite: "none",
+    //   secure: true,
+    //   maxAge: 5.184e9,
+    // });
 
     await createAddGroupMember({
       filter: {
@@ -239,7 +231,9 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
       },
     });
 
-    return res.redirect(`${FRONTEND_URL}/dashboard`);
+    return res.redirect(
+      `${FRONTEND_URL}/dashboard?refreshToken=${refreshToken}`
+    );
   } catch (e: any) {
     res
       .status(500)

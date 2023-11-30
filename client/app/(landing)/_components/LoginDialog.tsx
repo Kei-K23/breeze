@@ -30,7 +30,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import GetGoogleOAuthURL from "@/lib/getGoogleOAuthURL";
 import GetGithubOAuthURL from "@/lib/getGithubOAuthURL";
-
+import { createRefreshTokenCookie } from "@/app/actions";
 const loginForm = z.object({
   name: z.string().min(3, {
     message: "name must be at least 3 character",
@@ -41,8 +41,6 @@ const loginForm = z.object({
 });
 
 export default function LoginDialog() {
-  const NEXT_ROOT_URL = process.env.NEXT_ROOT_URL;
-
   const router = useRouter();
 
   const form = useForm<z.infer<typeof loginForm>>({
@@ -74,10 +72,12 @@ export default function LoginDialog() {
         }
       );
       const data = await res.json();
+      console.log(data);
 
       if (res.ok && res.status == 200 && data.success) {
         toast.success(data.message);
-        router.push(`/dashboard`);
+        createRefreshTokenCookie(data.refreshToken as string);
+        router.push(`/dashboard?refreshToken=${data.refreshToken}`);
         return;
       } else {
         return toast.error(data.error);

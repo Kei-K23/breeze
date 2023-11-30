@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { UserType } from "./(dashboard)/_components/RightSideBar";
 import { NotificationType } from "./(dashboard)/_components/AddMemberDialog";
+import { cookies } from "next/headers";
 
 export async function createGroupAction({
   values,
@@ -159,4 +160,14 @@ export async function removeNOfUserAction({
     revalidatePath("/");
     throw new Error(e);
   }
+}
+
+export async function createRefreshTokenCookie(value: string) {
+  cookies().set("breeze_csrf", value, {
+    httpOnly: true,
+    path: "/",
+    sameSite: "none",
+    secure: true,
+    maxAge: 5.184e9,
+  });
 }

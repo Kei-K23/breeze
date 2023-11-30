@@ -10,6 +10,7 @@ const FRONTEND_URL = process.env.CORS_ORIGIN_URL;
 const app = createExpressApp();
 const server = createServer(app);
 const PORT = parseInt(process.env.PORT || "8090", 10);
+const HOST = process.env.HOSTNAME || "0.0.0.0";
 
 const activeUsers = new Map(); // Map to store active users
 
@@ -96,8 +97,8 @@ io.on("connection", (socket) => {
     socket.leave(roomId);
   });
 });
-server.listen(PORT, () => {
-  console.log(`Server is running on port: ${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`Server is running on port: ${HOST}:${PORT}`);
 
   dbConnect();
 });
