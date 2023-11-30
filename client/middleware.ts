@@ -7,16 +7,16 @@ export async function middleware(req: NextRequest) {
 
   const refreshToken = searchParams.get("refreshToken");
 
-  if (!refreshToken) {
-    return NextResponse.redirect(new URL("/", req.url));
-  }
+  // if (!refreshToken) {
+  //   return NextResponse.redirect(new URL("/", req.url));
+  // }
 
   if (!cookie?.value) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
   return NextResponse.rewrite(
-    new URL(`/dashboard?cookie=${refreshToken}`, req.url)
+    new URL(`/dashboard?cookie=${cookie?.value}`, req.url)
   );
 }
 

@@ -72,7 +72,6 @@ export default function LoginDialog() {
         }
       );
       const data = await res.json();
-      console.log(data);
 
       if (res.ok && res.status == 200 && data.success) {
         toast.success(data.message);
