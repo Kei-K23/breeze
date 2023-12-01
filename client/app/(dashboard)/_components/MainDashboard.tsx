@@ -68,6 +68,7 @@ const MainDashboard = ({
           credentials: "include",
           headers: {
             Accept: "application/json",
+            Cookie: `breeze_csrf=${cookie}`,
           },
           next: { revalidate: 0 },
         }
@@ -108,6 +109,7 @@ const MainDashboard = ({
         selectedChatGroup={selectedChatGroup as string}
         currentUser={currentUser}
         usersData={usersData}
+        cookie={cookie}
       />
     </div>
   );

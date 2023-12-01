@@ -14,14 +14,7 @@ import toast from "react-hot-toast";
 import { FetchUsersDataType, UserType } from "./RightSideBar";
 import CreateGroupDialog from "./CreateGroupDialog";
 import { useSocket } from "@/provider/socket-provider";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
 import { useSheet } from "@/provider/sheet-provider";
 
 export type FetchGroupsDataType = {

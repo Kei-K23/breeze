@@ -172,6 +172,9 @@ export function MessageChat({
         {
           method: "GET",
           credentials: "include",
+          headers: {
+            Cookie: `breeze_csrf=${cookie}`,
+          },
           next: {
             revalidate: 0,
           },
@@ -187,6 +190,9 @@ export function MessageChat({
           `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups?groupIdForMembers=${selectedChatGroup}`,
           {
             method: "GET",
+            headers: {
+              Cookie: `breeze_csrf=${cookie}`,
+            },
             credentials: "include",
             next: {
               revalidate: 0,
@@ -227,6 +233,7 @@ export function MessageChat({
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          Cookie: `breeze_csrf=${cookie}`,
         },
         next: {
           revalidate: 0,
@@ -247,6 +254,7 @@ export function MessageChat({
               headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",
+                Cookie: `breeze_csrf=${cookie}`,
               },
               credentials: "include",
               next: {
@@ -275,6 +283,7 @@ export function MessageChat({
               headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",
+                Cookie: `breeze_csrf=${cookie}`,
               },
               credentials: "include",
               next: {
@@ -315,6 +324,7 @@ export function MessageChat({
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            Cookie: `breeze_csrf=${cookie}`,
           },
           next: { revalidate: 0 },
           cache: "no-cache",
