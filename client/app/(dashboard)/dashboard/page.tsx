@@ -12,6 +12,7 @@ const Dashboard = async ({
   // createRefreshTokenCookie(searchParams.cookie as string);
 
   const NEXT_ROOT_URL = process.env.NEXT_ROOT_URL;
+
   // fetch user data
   const resUserData = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users`,

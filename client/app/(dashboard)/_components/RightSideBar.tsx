@@ -70,6 +70,7 @@ export type UserType = {
 interface RightSideBarProps {
   usersData: Partial<FetchUsersDataType>;
   currentUser: UserType;
+  cookie: string;
   selectedChatGroup: string;
   setSelectedChatGroup: (selectedChatGroup: string) => void;
 }
@@ -77,6 +78,7 @@ const RightSideBar = ({
   selectedChatGroup,
   usersData,
   setSelectedChatGroup,
+  cookie,
   currentUser,
 }: RightSideBarProps) => {
   const [onlineUser, setOnlineUser] = useState<
@@ -136,6 +138,7 @@ const RightSideBar = ({
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            Cookie: `breeze_csrf=${cookie}`,
           },
           next: {
             revalidate: 0,
@@ -163,6 +166,7 @@ const RightSideBar = ({
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            Cookie: `breeze_csrf=${cookie}`,
           },
           next: {
             revalidate: 0,
