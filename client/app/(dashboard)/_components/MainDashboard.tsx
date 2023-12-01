@@ -5,6 +5,7 @@ import LeftSideBar, { FetchGroupsDataType } from "./LeftSideBar";
 import RightSideBar, { FetchUsersDataType, UserType } from "./RightSideBar";
 import toast from "react-hot-toast";
 import { useSocket } from "@/provider/socket-provider";
+import { createRefreshTokenCookie } from "@/app/actions";
 
 export interface IMessage {
   senderId: string;
@@ -20,17 +21,17 @@ interface MainProps {
   groupData: FetchGroupsDataType;
   usersData: FetchUsersDataType;
   fetchMessagesDataFromPage: IMessage[];
+  isCookieExist: string;
 }
 
 const MainDashboard = ({
   cookie,
   currentUser,
   groupData,
+  isCookieExist,
   usersData,
   fetchMessagesDataFromPage,
 }: MainProps) => {
-  const GLOBAL_CHAT_ROOM_ID = process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID;
-
   const [selectedChatGroup, setSelectedChatGroup] = useState("");
   const [fetchMessages, setFetchMessages] = useState<IMessage[]>(
     fetchMessagesDataFromPage
@@ -39,6 +40,9 @@ const MainDashboard = ({
   const { socket } = useSocket();
 
   useEffect(() => {
+    if (isCookieExist == "0") {
+      createRefreshTokenCookie(cookie);
+    }
     fetchMessagesData();
     if (socket) {
       socket.emit("join_room", {

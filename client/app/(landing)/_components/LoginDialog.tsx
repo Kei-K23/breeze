@@ -76,8 +76,7 @@ export default function LoginDialog() {
       if (res.ok && res.status == 200 && data.success) {
         toast.success(data.message);
         createRefreshTokenCookie(data.refreshToken as string);
-        router.push(`/dashboard?cookie=${data.refreshToken}`);
-        return;
+        return router.push(`/dashboard?cookie=${data.refreshToken}`);
       } else {
         return toast.error(data.error);
       }

@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 
@@ -8,15 +9,20 @@ export async function middleware(req: NextRequest) {
   const refreshToken = searchParams.get("cookie");
 
   if (!refreshToken) {
-    return NextResponse.redirect(new URL("/", req.url));
+    if (!cookie) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
   }
 
-  // if (!cookie?.value) {
-  //   return NextResponse.redirect(new URL("/", req.url));
-  // }
+  const isCookieExist = cookies().has("breeze_csrf") ? 1 : 0;
 
   return NextResponse.rewrite(
-    new URL(`/dashboard?cookie=${refreshToken}`, req.url)
+    new URL(
+      `/dashboard?cookie=${
+        refreshToken ?? cookie?.value
+      }&isCookieExist=${isCookieExist}`,
+      req.url
+    )
   );
 }
 

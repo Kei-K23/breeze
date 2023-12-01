@@ -1,24 +1,27 @@
 import { deleteRefreshTokenCookie } from "@/app/actions";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { LogOutIcon } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface LogOutProps {
   cookie?: string;
 }
 
 const LogOut = ({ cookie }: LogOutProps) => {
+  const router = useRouter();
   return (
-    <Link
-      href={`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/auth/logout?breeze_csrf=${cookie}`}
+    <Button
       className={buttonVariants({
         variant: "destructive",
         className: "w-full",
       })}
-      onClick={async () => await deleteRefreshTokenCookie("breeze_csrf")}
+      onClick={async () => {
+        await deleteRefreshTokenCookie("breeze_csrf");
+        router.push("/");
+      }}
     >
       <LogOutIcon className="mr-5 " /> Logout
-    </Link>
+    </Button>
   );
 };
 

@@ -23,6 +23,7 @@ import { verifyJWT } from "../lib/jwt.utils";
 import { ISession } from "../model/session.model";
 import { createAddGroupMember } from "../service/group.service";
 import mongoose from "mongoose";
+import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -118,14 +119,6 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
       picture: user.picture,
     });
 
-    // res.cookie("breeze_csrf", refreshToken, {
-    //   httpOnly: true,
-    //   path: "/",
-    //   sameSite: "none",
-    //   secure: true,
-    //   maxAge: 5.184e9,
-    // });
-
     await createAddGroupMember({
       filter: {
         memberId: user._id,
@@ -144,10 +137,10 @@ export async function googleOAuthLoginHandler(req: Request, res: Response) {
       },
     });
 
+    // await axios.get(`http://localhost:3000/api/cookie?cookie=${refreshToken}`);
+
     // return res.redirect(`${FRONTEND_URL}dashboard`);
-    return res.redirect(
-      `${FRONTEND_URL}/dashboard?refreshToken=${refreshToken}`
-    );
+    return res.redirect(`${FRONTEND_URL}/dashboard?cookie=${refreshToken}`);
   } catch (e: any) {
     res
       .status(500)
@@ -205,14 +198,6 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
       picture: user.picture,
     });
 
-    // res.cookie("breeze_csrf", refreshToken, {
-    //   httpOnly: true,
-    //   path: "/",
-    //   sameSite: "none",
-    //   secure: true,
-    //   maxAge: 5.184e9,
-    // });
-
     await createAddGroupMember({
       filter: {
         memberId: user._id,
@@ -231,9 +216,9 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
       },
     });
 
-    return res.redirect(
-      `${FRONTEND_URL}/dashboard?refreshToken=${refreshToken}`
-    );
+    // await axios.get(`http://localhost:3000/api/cookie?cookie=${refreshToken}`);
+
+    return res.redirect(`${FRONTEND_URL}/dashboard?cookie=${refreshToken}`);
   } catch (e: any) {
     res
       .status(500)
