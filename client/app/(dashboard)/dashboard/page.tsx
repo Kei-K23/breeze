@@ -2,17 +2,12 @@ import { redirect } from "next/navigation";
 import Navbar from "@/components/navbar";
 import { revalidatePath } from "next/cache";
 import MainDashboard from "../_components/MainDashboard";
-import { createRefreshTokenCookie } from "@/app/actions";
 
 const Dashboard = async ({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) => {
-  // createRefreshTokenCookie(searchParams.cookie as string);
-
-  const NEXT_ROOT_URL = process.env.NEXT_ROOT_URL;
-
   // fetch user data
   const resUserData = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users?breeze_csrf=${searchParams.cookie}`,
@@ -88,6 +83,7 @@ const Dashboard = async ({
         iconLink="/dashboard"
       />
       <MainDashboard
+        isCookieExist={searchParams.isCookieExist as string}
         groupData={groupData}
         cookie={searchParams.cookie as string}
         currentUser={userData.data}
