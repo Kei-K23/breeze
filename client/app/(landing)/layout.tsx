@@ -29,7 +29,7 @@ const LandingPageLayout = async ({
 
       if (decoded) {
         const resSession = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/session/${decoded.token_id}`,
+          `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/session/${decoded.token_id}?breeze_csrf=${refreshCookie.value}`,
           {
             method: "GET",
             headers: {

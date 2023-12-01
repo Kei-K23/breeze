@@ -96,7 +96,7 @@ const AddMemberDialog = ({
   async function fetchData() {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/without`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/without?breeze_csrf=${cookie}`,
         {
           method: "POST",
           body: JSON.stringify({ userIdArray: userIdsArray }),

@@ -35,9 +35,17 @@ interface NavbarProp {
   image?: string | null;
   currentUser?: UserType;
   iconLink: string;
+  cookie?: string;
 }
 
-const Navbar = ({ name, email, image, iconLink, currentUser }: NavbarProp) => {
+const Navbar = ({
+  name,
+  email,
+  image,
+  iconLink,
+  currentUser,
+  cookie,
+}: NavbarProp) => {
   const isScrolled = useScrollTop();
   const { isConnected } = useSocket();
   const {
@@ -74,7 +82,12 @@ const Navbar = ({ name, email, image, iconLink, currentUser }: NavbarProp) => {
           {email && name ? (
             <>
               <div className="flex items-center justify-center relative">
-                <UserAvatar email={email} name={name} image={image as string} />
+                <UserAvatar
+                  email={email}
+                  name={name}
+                  image={image as string}
+                  cookie={cookie}
+                />
                 {isConnected ? (
                   <>
                     <div className="absolute -top-2 -right-2 w-3 h-3 bg-green-500 rounded-full"></div>
@@ -101,7 +114,10 @@ const Navbar = ({ name, email, image, iconLink, currentUser }: NavbarProp) => {
             </>
           )}
           {currentUser && (
-            <Notification currentUser={currentUser as UserType} />
+            <Notification
+              cookie={cookie}
+              currentUser={currentUser as UserType}
+            />
           )}
 
           <ModeToggle />

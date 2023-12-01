@@ -62,7 +62,7 @@ const MainDashboard = ({
     if (!selectedChatGroup) return;
     try {
       const messagesRes = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/messages/${selectedChatGroup}/?limit=${limit}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/messages/${selectedChatGroup}?limit=${limit}&breeze_csrf=${cookie}`,
         {
           method: "GET",
           credentials: "include",

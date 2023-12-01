@@ -128,7 +128,7 @@ const RightSideBar = ({
   }: Partial<FriendDataType>) {
     try {
       const resAddFriend = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/add-friends/${currentUser._id}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/add-friends/${currentUser._id}?breeze_csrf=${cookie}`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -148,7 +148,7 @@ const RightSideBar = ({
       );
 
       await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/add-friends/${friendId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/add-friends/${friendId}?breeze_csrf=${cookie}`,
         {
           method: "POST",
           body: JSON.stringify({

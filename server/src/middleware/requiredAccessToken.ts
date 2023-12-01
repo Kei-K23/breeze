@@ -26,7 +26,8 @@ export default function (req: Request, res: Response, next: NextFunction) {
       .end();
   }
 
-  const refreshToken = req.cookies.breeze_csrf;
+  // const refreshToken = req.cookies.breeze_csrf;
+  const refreshToken = req.query.breeze_csrf;
 
   if (!refreshToken) {
     return res
@@ -36,7 +37,7 @@ export default function (req: Request, res: Response, next: NextFunction) {
   }
 
   const decodedRefreshToken = verifyJWT<ISession>({
-    token: refreshToken,
+    token: refreshToken as string,
     secret: "REFRESH_TOKEN_SECRET",
   });
 

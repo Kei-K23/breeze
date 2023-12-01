@@ -247,7 +247,8 @@ export async function githubOAuthLoginHandler(req: Request, res: Response) {
 }
 
 export async function logOutHandler(req: Request, res: Response) {
-  const refreshToken = req.cookies.breeze_csrf;
+  // const refreshToken = req.cookies.breeze_csrf;
+  const refreshToken = req.query.breeze_csrf as string;
   const decodedRefreshToken = verifyJWT<ISession>({
     token: refreshToken,
     secret: "REFRESH_TOKEN_SECRET",

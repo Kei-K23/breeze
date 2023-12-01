@@ -168,7 +168,7 @@ export function MessageChat({
   async function fetchChatGroupData({ groupId }: { groupId: string }) {
     try {
       const resGroup = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups?groupId=${groupId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups?groupId=${groupId}&breeze_csrf=${cookie}`,
         {
           method: "GET",
           credentials: "include",
@@ -187,7 +187,7 @@ export function MessageChat({
         setGroup(groupData.data);
         if (!selectedChatGroup) return;
         const resGroupMembers = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups?groupIdForMembers=${selectedChatGroup}`,
+          `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups?groupIdForMembers=${selectedChatGroup}&breeze_csrf=${cookie}`,
           {
             method: "GET",
             headers: {
@@ -224,27 +224,30 @@ export function MessageChat({
     groupName,
   }: DeleteGroupParaType) {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups/`, {
-        method: "DELETE",
-        credentials: "include",
-        body: JSON.stringify({
-          _id,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Cookie: `breeze_csrf=${cookie}`,
-        },
-        next: {
-          revalidate: 0,
-        },
-        cache: "no-cache",
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups?breeze_csrf=${cookie}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+          body: JSON.stringify({
+            _id,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Cookie: `breeze_csrf=${cookie}`,
+          },
+          next: {
+            revalidate: 0,
+          },
+          cache: "no-cache",
+        }
+      );
 
       if (groupMembers.length) {
         groupMembers.map(async (groupMember) => {
           await fetch(
-            `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups_members/`,
+            `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups_members?breeze_csrf=${cookie}`,
             {
               method: "DELETE",
               body: JSON.stringify({
@@ -274,7 +277,7 @@ export function MessageChat({
             groupId,
           };
           await fetch(
-            `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/messages/`,
+            `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/messages?breeze_csrf=${cookie}`,
             {
               method: "DELETE",
               body: JSON.stringify({
@@ -316,7 +319,7 @@ export function MessageChat({
 
     try {
       const newMessageRes = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/messages/`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/messages?breeze_csrf=${cookie}`,
         {
           method: "POST",
           body: JSON.stringify(payload),

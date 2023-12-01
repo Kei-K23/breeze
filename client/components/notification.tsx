@@ -37,9 +37,10 @@ import { ScrollArea } from "./ui/scroll-area";
 
 interface NotificationProps {
   currentUser: UserType;
+  cookie?: string;
 }
 
-const Notification = ({ currentUser }: NotificationProps) => {
+const Notification = ({ currentUser, cookie }: NotificationProps) => {
   const router = useRouter();
   const [notifications, setNotifications] = useState<NotificationType[]>([
     ...(currentUser.notification as NotificationType[]),
@@ -200,7 +201,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
   }) {
     try {
       const resEditedUser = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/${userId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/${userId}?breeze_csrf=${cookie}`,
         {
           method: "PUT",
           body: JSON.stringify({
@@ -237,7 +238,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
   }) {
     try {
       await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups/${groupMemberId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups/${groupMemberId}?breeze_csrf=${cookie}`,
         {
           method: "PUT",
           body: JSON.stringify({
@@ -290,7 +291,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
   }) {
     try {
       await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${userId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${userId}?breeze_csrf=${cookie}`,
         {
           method: "PUT",
           body: JSON.stringify(payload),
@@ -307,7 +308,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
 
       if (_id) {
         await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups_members/`,
+          `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups_members?breeze_csrf=${cookie}`,
           {
             method: "DELETE",
             body: JSON.stringify({ _id }),
@@ -359,7 +360,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
     const uniqueId = crypto.randomUUID().toString();
     try {
       const resGroupData = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups/`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups?breeze_csrf=${cookie}`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -386,7 +387,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
 
       if (resGroupData.ok && groupData.success) {
         const resAcceptFriend = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/accept-friends/${senderId}`,
+          `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/accept-friends/${senderId}?breeze_csrf=${cookie}`,
           {
             method: "PUT",
             body: JSON.stringify({
@@ -410,7 +411,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
 
         if (resAcceptFriend.ok && acceptFriendData.success) {
           await fetch(
-            `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/accept-friends/${payload.receiverId}`,
+            `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/accept-friends/${payload.receiverId}?breeze_csrf=${cookie}`,
             {
               method: "PUT",
               body: JSON.stringify({
@@ -432,7 +433,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
           );
 
           await fetch(
-            `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${currentUser._id}`,
+            `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${currentUser._id}?breeze_csrf=${cookie}`,
             {
               method: "PUT",
               body: JSON.stringify(payload),
@@ -487,7 +488,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
   }) {
     try {
       await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${currentUser._id}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${currentUser._id}?breeze_csrf=${cookie}`,
         {
           method: "PUT",
           body: JSON.stringify(payload),
@@ -503,7 +504,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
       );
 
       await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/decline-friends/${senderId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/decline-friends/${senderId}?breeze_csrf=${cookie}`,
         {
           method: "DELETE",
           body: JSON.stringify({ friendId }),
@@ -518,7 +519,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
         }
       );
       await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/decline-friends/${currentUser._id}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/decline-friends/${currentUser._id}?breeze_csrf=${cookie}`,
         {
           method: "DELETE",
           body: JSON.stringify({ friendId: senderId }),
@@ -561,7 +562,7 @@ const Notification = ({ currentUser }: NotificationProps) => {
   }) {
     try {
       await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${userId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${userId}?breeze_csrf=${cookie}`,
         {
           method: "PUT",
           body: JSON.stringify(payload),

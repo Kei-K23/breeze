@@ -8,8 +8,8 @@ export default async function (
   res: Response,
   next: NextFunction
 ) {
-  const refreshToken = req.cookies.breeze_csrf;
-
+  // const refreshToken = req.cookies.breeze_csrf;
+  const refreshToken = req.query.breeze_csrf as string;
   if (!refreshToken) {
     return res
       .status(401)
