@@ -16,9 +16,10 @@ interface UserAvatarProp {
   name: string;
   email: string;
   image: string;
+  cookie?: string;
 }
 
-export function UserAvatar({ email, image, name }: UserAvatarProp) {
+export function UserAvatar({ cookie, email, image, name }: UserAvatarProp) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -46,7 +47,7 @@ export function UserAvatar({ email, image, name }: UserAvatarProp) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="p-0">
-          <LogOut />
+          <LogOut cookie={cookie} />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

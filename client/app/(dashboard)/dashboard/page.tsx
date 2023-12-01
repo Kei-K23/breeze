@@ -15,7 +15,7 @@ const Dashboard = async ({
 
   // fetch user data
   const resUserData = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users`,
+    `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users?breeze_csrf=${searchParams.cookie}`,
     {
       method: "GET",
       headers: {
@@ -33,7 +33,7 @@ const Dashboard = async ({
 
   // fetch group data
   const resGroupDate = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups/${userData.data._id}`,
+    `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups/${userData.data._id}?breeze_csrf=${searchParams.cookie}`,
     {
       method: "GET",
       headers: {
@@ -47,7 +47,7 @@ const Dashboard = async ({
 
   // fetch group data
   const resUsersDate = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/${userData.data._id}`,
+    `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/${userData.data._id}?breeze_csrf=${searchParams.cookie}`,
     {
       method: "GET",
       headers: {
@@ -62,7 +62,7 @@ const Dashboard = async ({
   const messagesRes = await fetch(
     `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/messages/${
       process.env.NEXT_PUBLIC_GLOBAL_CHAT_ROOM_ID
-    }/?limit=${15}`,
+    }?limit=${15}&breeze_csrf=${searchParams.cookie}`,
     {
       method: "GET",
       credentials: "include",
@@ -84,6 +84,7 @@ const Dashboard = async ({
         email={userData.data.email}
         image={userData.data.picture}
         currentUser={userData.data}
+        cookie={searchParams.cookie as string}
         iconLink="/dashboard"
       />
       <MainDashboard

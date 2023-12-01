@@ -20,7 +20,7 @@ export async function createGroupAction({
 }) {
   try {
     const resGroupDate = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups/`,
+      `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups?breeze_csrf=${cookie}`,
       {
         method: "POST",
         body: JSON.stringify({
@@ -76,7 +76,7 @@ export async function createGroupMemberAction({
 }) {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/group_members/`,
+      `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/group_members?breeze_csrf=${cookie}`,
       {
         method: "POST",
         body: JSON.stringify({
@@ -108,8 +108,10 @@ export async function createGroupMemberAction({
 export async function editGroupMemberAction({
   groupMemberId,
   values,
+  cookie,
 }: {
   groupMemberId: string;
+  cookie: string;
   values: {
     groupId?: string;
     memberId?: string;
@@ -120,7 +122,7 @@ export async function editGroupMemberAction({
 }) {
   try {
     await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups/${groupMemberId}`,
+      `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/groups/${groupMemberId}?breeze_csrf=${cookie}`,
       {
         method: "PUT",
         body: JSON.stringify(values),
@@ -144,13 +146,15 @@ export async function editGroupMemberAction({
 export async function removeNOfUserAction({
   userId,
   payload,
+  cookie,
 }: {
+  cookie: string;
   userId: string;
   payload: NotificationType;
 }) {
   try {
     await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${userId}`,
+      `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/api/users/rmN/${userId}?breeze_csrf=${cookie}`,
       {
         method: "PUT",
         body: JSON.stringify(payload),
@@ -170,4 +174,7 @@ export async function createRefreshTokenCookie(value: string) {
     secure: true,
     maxAge: 5.184e9,
   });
+}
+export async function deleteRefreshTokenCookie(key: string) {
+  cookies().delete(key);
 }
