@@ -50,7 +50,7 @@ Contributions are welcome and appreciate your contributions!
 
 ## License
 
-This project is licensed under the [License Name] - see the LICENSE file for details.
+This project is licensed under the [MIT License](./LICENSE) - see the LICENSE file for details.
 
 ## Contact
 
